@@ -47,7 +47,13 @@ test_add_fill() {
 	char *str = ts_string(ts);
 	printf("%s\n", str);
 	free(str);
-	
+
+	task_link_t *cookie;
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		task_free(ts_task(cookie));
+		ts_task(cookie) = NULL;
+		ts_rem(ts, cookie);
+	}
 	ts_free(ts);
 }
 

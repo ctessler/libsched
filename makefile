@@ -5,12 +5,16 @@ export BIN OBJ CFLAGS
 
 .PHONY: clean src test
 
-all: bin/test-task bin/test-task-set
+all: test
+
+test: bin/test-task bin/test-taskset
+	bin/test-task
+	bin/test-taskset
 
 bin/test-task: src
 	$(CC) $(CFLAGS) -o bin/test-task obj/test-task.o obj/task.o
 
-bin/test-task-set: src
+bin/test-taskset: src
 	$(CC) $(CFLAGS) -o bin/test-taskset obj/taskset.o obj/task.o \
 	    obj/test-taskset.o
 

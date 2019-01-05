@@ -15,7 +15,8 @@ ts_free(task_set_t* ts) {
 		next = cur->tl_next;
 		ts_rem(ts, cur);
 	}
-	
+	free(ts);
+	ts = NULL;
 }
 
 char *
@@ -55,15 +56,20 @@ ts_add(task_set_t *ts, task_t *task) {
 
 task_link_t*
 ts_find(task_set_t *ts, task_t *task) {
-
+	task_link_t *cookie;
+	task_t *t;
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		if (t == task) {
+			return cookie;
+		}
+	}
+	return NULL;
 }
 
 task_t*
 ts_rem(task_set_t *ts, task_link_t *cookie) {
-	task_t *task;
-	remque(cookie);
-	task = cookie->tl_task;
-	free(cookie);
+	task_t *task = cookie->tl_task;
+	remque(cookie); // frees the cookie
 
 	return task;
 }
@@ -75,4 +81,14 @@ ts_last(task_set_t *ts) {
 		/* do nothing */
 	}
 	return cursor;
+}
+
+task_link_t*
+ts_first(task_set_t *ts) {
+	return ts->ts_head;
+}
+
+task_link_t*
+ts_next(task_set_t *ts, task_link_t *cookie) {
+	return cookie->tl_next;
 }

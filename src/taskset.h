@@ -73,5 +73,33 @@ task_t* ts_rem(task_set_t *ts, task_link_t *cookie);
  */
 task_link_t* ts_last(task_set_t *ts);
 
+/** 
+ * Finds the first task in the set
+ *
+ * @return a cookie for the last task in the set
+ */
+task_link_t* ts_first(task_set_t *ts);
+
+/**
+ * Finds the next task in the set
+ *
+ * @return a cookie for the next task, NULL otherwise
+ */
+task_link_t* ts_next(task_set_t *ts, task_link_t *cookie);
+
+/**
+ * Gets the task of the cookie
+ *
+ * Usage:
+ *     task_link_t *cookie;
+ *     task_t *t = ts_task(cookie);
+ *     ts_task(cookie) = ts;
+ * 
+ * @param[in] cookie the cookie of the task
+ *
+ * @return pointer to the task (can be assigned)
+ */
+#define ts_task(x) ((*x).tl_task)
+
 
 #endif /* TASKSET_H */
