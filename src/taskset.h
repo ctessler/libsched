@@ -136,8 +136,18 @@ float_t ts_util(task_set_t *ts);
  *
  * T*(tasks) = min(P, max( d_max, 1/(1 - U) * sum( U_i * (p_i - d_i))))
  */
-uint32_t ts_star(task_set_t *ts);
+uint64_t ts_star(task_set_t *ts);
 
-
+/**
+ * Determines if a task set is permissible
+ *
+ * @note Returned string must be free()'d
+ *
+ * @param[in] ts task set
+ *
+ * @return NULL if the task set is acceptable, a string describing why the task
+ * set is unnacceptable otherwise.
+ */
+char* ts_permit(task_set_t* ts);
 
 #endif /* TASKSET_H */

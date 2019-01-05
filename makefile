@@ -1,6 +1,7 @@
 BIN=../bin
 OBJ=../obj
 CFLAGS=-ggdb
+LDFLAGS=-lm
 export BIN OBJ CFLAGS
 
 .PHONY: clean src test
@@ -12,10 +13,10 @@ test: bin/test-task bin/test-taskset
 	bin/test-taskset
 
 bin/test-task: src
-	$(CC) $(CFLAGS) -o bin/test-task obj/test-task.o obj/task.o
+	$(CC) $(LDFLAGS) $(CFLAGS) -o bin/test-task obj/test-task.o obj/task.o
 
 bin/test-taskset: src
-	$(CC) $(CFLAGS) -o bin/test-taskset obj/taskset.o obj/task.o \
+	$(CC) $(LDFLAGS) $(CFLAGS) -o bin/test-taskset obj/taskset.o obj/task.o \
 	    obj/test-taskset.o
 
 src: | obj bin

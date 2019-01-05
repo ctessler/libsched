@@ -32,19 +32,21 @@ task_threads(task_t *task, uint32_t threads) {
 char *
 task_string(task_t *task) {
 	char *s = BUFF;
-	int n = sprintf(BUFF, "(p:%u, d:%u, m:%u) wcet {",
+	int n = sprintf(BUFF, "(p:%4u, d:%4u, m:%2u) wcet {",
 	    task->t_period, task->t_deadline, task->t_threads);
 	s = BUFF;
 	for (int i=1; i <= task->t_threads; i++) {
 		s += n;
-		n = sprintf(s, "%u", task->wcet(i));
+		n = sprintf(s, "%4u", task->wcet(i));
 		if (i < task->t_threads) {
 			s += n;
 			n = sprintf(s, ", ");
 		}
 	}
 	s += n;
-	sprintf(s, "}");
+	n = sprintf(s, "} ");
+	s += n;
+	sprintf(s, "u:%.3f", task_util(task));
 	return strdup(BUFF);
 }
 
@@ -54,4 +56,17 @@ task_util(task_t *task) {
 	uint32_t c = task->wcet(m);
 
 	return (float_t)((float_t) c / task->t_period);
+}
+
+uint32_t
+task_dbf(task_t *task, uint32_t t) {
+	if (t < task->t_deadline) {
+		return 0;
+	}
+	uint32_t j = t - task->t_deadline;
+	j = j / task->t_period;
+	j += 1;
+	j *= task->wcet(task->t_threads);
+
+	return j;
 }

@@ -75,4 +75,14 @@ char *task_string(task_t *task);
  */
 float_t task_util(task_t *task);
 
+/**
+ * Calculates the maximum demand for the task over t time units
+ *
+ * @param[in] task the task
+ * @param[in] t the units of time
+ *
+ * @return the maximum demand of task over t time units
+ */
+uint32_t task_dbf(task_t *task, uint32_t t);
+
 #endif /* TASK_H */
