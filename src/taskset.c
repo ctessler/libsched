@@ -121,7 +121,7 @@ gcd(uint32_t a, uint32_t b) {
 static uint32_t
 lcm(uint32_t a, uint32_t b) {
 	// printf("gcd(%u, %u) = %u\n", a, b, gcd(a, b));
-	double frac =  (double)( a / gcd(a, b) );
+	double_t frac =  (double_t)( a / gcd(a, b) );
 	return frac * b;
 }
 
@@ -141,4 +141,39 @@ ts_hyperp(task_set_t *ts) {
 		P = lcm(P, t->t_period);
 	}
 	return P;
+}
+
+uint32_t
+ts_dmax(task_set_t *ts) {
+	task_link_t *cookie = ts_first(ts);
+	task_t *t;
+	uint32_t dmax=0;
+
+	if (!cookie) {
+		return 0;
+	}
+
+	dmax = ts_task(cookie)->t_deadline;
+	for (; cookie; cookie = cookie->tl_next) {
+		t = ts_task(cookie);
+		if (t->t_deadline > dmax) {
+			dmax = t->t_deadline;
+		}
+	}
+	return dmax;
+
+}
+
+float_t
+ts_util(task_set_t *ts) {
+	task_link_t *cookie;
+	task_t *t;
+	float_t U=0.0;
+
+	for (cookie = ts_first(ts); cookie; cookie = cookie->tl_next) {
+		t = ts_task(cookie);
+		U += task_util(t);
+	}
+
+	return U;
 }

@@ -2,6 +2,7 @@
 #define TASK_H
 
 #include <stdint.h>
+#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -64,5 +65,14 @@ int task_threads(task_t *task, uint32_t threads);
  * @note the string must be free()'d
  */
 char *task_string(task_t *task);
+
+/**
+ * Calculates the utilization for the task
+ *
+ * @param[in] task the task
+ *
+ * @return the utilization of the task
+ */
+float_t task_util(task_t *task);
 
 #endif /* TASK_H */

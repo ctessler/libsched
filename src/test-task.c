@@ -3,11 +3,13 @@
 
 int test_alloc();
 int test_threads();
+int test_utilization();
 
 int
 main(int argc, char** argv) {
 	test_alloc();
 	test_threads();
+	test_utilization();
 	return 0;
 }
 
@@ -49,5 +51,21 @@ int test_threads() {
 	free(str);
 	
 	task_free(task);
+
+}
+
+int
+test_utilization() {
+	task_t *task = NULL;
+	char *str;
+
+	task = task_alloc(30, 25, 3);
+	task->wcet(1) = 10;
+	task->wcet(2) = 15;
+	task->wcet(3) = 20;
+
+	str = task_string(task);
+	printf("%s u:%.02f\n", str, task_util(task));
+	free(str);
 
 }

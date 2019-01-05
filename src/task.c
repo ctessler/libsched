@@ -47,3 +47,11 @@ task_string(task_t *task) {
 	sprintf(s, "}");
 	return strdup(BUFF);
 }
+
+float_t
+task_util(task_t *task) {
+	uint32_t m = task->t_threads;
+	uint32_t c = task->wcet(m);
+
+	return (float_t)((float_t) c / task->t_period);
+}

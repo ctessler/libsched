@@ -1,6 +1,7 @@
 #ifndef TASKSET_H
 #define TASKSET_H
 
+#include <math.h>
 #include "task.h"
 #include "search.h"
 
@@ -110,6 +111,25 @@ task_link_t* ts_next(task_set_t *ts, task_link_t *cookie);
  */
 uint32_t ts_hyperp(task_set_t *ts);
 
+
+/**
+ * Finds the greatest deadline among all tasks
+ *
+ * @param[in] ts the task set
+ * 
+ * @return the greatest relative deadline within the set 
+ */
+uint32_t ts_dmax(task_set_t *ts);
+
+/**
+ * Finds the utilization of the task set
+ *
+ * @param[in] ts the task set
+ *
+ * @return the utilization of the task set
+ */
+float_t ts_util(task_set_t *ts);
+
 /**
  * Calculates an upper bound on the value of any deadline to check for
  * schedulability 
@@ -117,6 +137,7 @@ uint32_t ts_hyperp(task_set_t *ts);
  * T*(tasks) = min(P, max( d_max, 1/(1 - U) * sum( U_i * (p_i - d_i))))
  */
 uint32_t ts_star(task_set_t *ts);
+
 
 
 #endif /* TASKSET_H */
