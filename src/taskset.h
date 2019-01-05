@@ -66,4 +66,12 @@ task_link_t* ts_find(task_set_t *ts, task_t *task);
  */
 task_t* ts_rem(task_set_t *ts, task_link_t *cookie);
 
+/** 
+ * Finds the last task in the set
+ *
+ * @return a cookie for the last task in the set
+ */
+task_link_t* ts_last(task_set_t *ts);
+
+
 #endif /* TASKSET_H */
