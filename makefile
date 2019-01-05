@@ -18,7 +18,7 @@ bin/test-task: src
 
 bin/test-taskset: src
 	$(CC) $(LDFLAGS) $(CFLAGS) -o bin/test-taskset obj/taskset.o obj/task.o \
-	    obj/test-taskset.o
+	    obj/test-taskset.o obj/ordl.o
 
 bin/test-ordl: src
 	$(CC) $(LDFLAGS) $(CFLAGS) -o bin/test-ordl obj/test-ordl.o obj/ordl.o

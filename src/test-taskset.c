@@ -9,6 +9,8 @@ int test_add_fill();
 void test_add_one();
 void test_fill(task_set_t *ts);
 void test_star();
+void test_demand();
+void test_delta();
 
 int
 main(int argc, char** argv) {
@@ -16,7 +18,19 @@ main(int argc, char** argv) {
 	test_add_one();
 	test_add_fill();
 	test_star();
+	test_demand();
 	return 0;
+}
+
+void
+clean_task_set(task_set_t *ts) {
+	task_link_t *cookie;
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		task_free(ts_task(cookie));
+		ts_task(cookie) = NULL;
+		ts_rem(ts, cookie);
+	}
+	ts_free(ts);
 }
 
 int
@@ -92,6 +106,17 @@ test_fill(task_set_t *ts) {
 	task->wcet(2) = 12;
 	task->wcet(3) = 16;
 	ts_add(ts, task);
+
+	char *str = ts_string(ts);
+	printf("%s\n", str);
+	free(str);
+
+	str = ts_permit(ts);	
+	if (str) {
+		printf("%s\n", str);
+		free(str);
+		exit(-1);
+	}
 
 }
 
@@ -179,13 +204,86 @@ test_star() {
 	ts = NULL;
 }
 
+
 void
-clean_task_set(task_set_t *ts) {
-	task_link_t *cookie;
-	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
-		task_free(ts_task(cookie));
-		ts_task(cookie) = NULL;
-		ts_rem(ts, cookie);
+demand_fill(task_set_t *ts) {
+	// t_1 8, 8, 2
+	task_t *task = task_alloc(8, 8, 1); task->wcet(1) = 2;
+	ts_add(ts, task);
+
+	// t_2 20, 10, 4
+	task = task_alloc(20, 10, 1); task->wcet(1) = 4;
+	ts_add(ts, task);
+
+	// t_3 25, 15, 2
+	task = task_alloc(25, 15, 1); task->wcet(1) = 2;
+	ts_add(ts, task);
+
+	// t_4 35, 30, 4
+	task = task_alloc(35, 30, 1); task->wcet(1) = 4;
+	ts_add(ts, task);
+
+	// t_5 50, 50, 4
+	task = task_alloc(50, 50, 1); task->wcet(1) = 4;
+	ts_add(ts, task);
+
+	// t_6 90, 50, 4
+	task = task_alloc(90, 50, 1); task->wcet(1) = 4;
+	ts_add(ts, task);
+
+	// t_7 110, 60, 8
+	task = task_alloc(110, 60, 1); task->wcet(1) = 8;
+	ts_add(ts, task);
+
+	// t_8 105, 60, 5
+	task = task_alloc(105, 60, 1); task->wcet(1) = 5;
+	ts_add(ts, task);
+
+	// t_9 100, 60, 3
+	task = task_alloc(100, 60, 1); task->wcet(1) = 3;
+	ts_add(ts, task);
+
+	// t_10 110, 100, 4
+	task = task_alloc(110, 100, 1); task->wcet(1) = 4;
+	ts_add(ts, task);
+
+	char *str = ts_string(ts);
+	printf("%s\n", str);
+	free(str);
+
+	str = ts_permit(ts);	
+	if (str) {
+		printf("%s\n", str);
+		free(str);
+		exit(-1);
 	}
-	ts_free(ts);
+}
+
+void test_demand() {
+	task_set_t *ts = ts_alloc();
+	printf("Testing Task Set Demand\n");
+	demand_fill(ts);
+	uint64_t star = ts_star(ts);
+	printf("T*(ts) = %ld\n", star);
+
+	int64_t demand = ts_demand(ts, star);
+	printf("Demand: %li\n", demand);
+
+	ordl_t head;
+	ordl_init(&head);
+
+	ts_fill_deadlines(ts, &head, star);
+	printf("Absolute deadlines: ");
+	or_elem_t *cursor;
+	ordl_foreach(&head, cursor) {
+		printf("%u", cursor->oe_deadline);
+		if (ordl_next(cursor)) {
+			printf(", ");
+		}
+	}
+	printf("\n");
+	
+	
+	clean_task_set(ts);
+	ts = NULL;
 }

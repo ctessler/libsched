@@ -28,9 +28,9 @@ ts_string(task_set_t *ts) {
 	for (cursor = ts->ts_head ; cursor ; cursor = cursor->tl_next, count++) {
 		char *t = task_string(cursor->tl_task);
 		if (cursor->tl_next) {
-			n = sprintf(s, "%i: %s\n", count, t);
+			n = sprintf(s, "%2i: %s\n", count, t);
 		} else {
-			n = sprintf(s, "%i: %s", count, t);
+			n = sprintf(s, "%2i: %s", count, t);
 		}
 		free(t);
 		s += n;
@@ -227,4 +227,43 @@ ts_permit(task_set_t* ts) {
 
 	
 	return NULL;
+}
+
+int64_t
+ts_slack(task_set_t *ts, uint32_t t) {
+	task_link_t *cookie;
+	int64_t demand = ts_demand(ts, t);
+	return 0;
+}
+
+int64_t
+ts_demand(task_set_t *ts, uint32_t t) {
+	task_link_t *cookie;
+	task_t *task;
+	int64_t demand = 0;
+	for (cookie = ts_first(ts); cookie; cookie = cookie->tl_next) {
+		task = ts_task(cookie);
+		demand += task_dbf(task, t);
+	}
+	return demand;
+}
+
+int
+ts_fill_deadlines(task_set_t *ts, ordl_t *head, uint32_t t) {
+	task_link_t *cookie;
+	task_t *task;
+	for (cookie = ts_first(ts); cookie; cookie = cookie->tl_next) {
+		task = ts_task(cookie);
+		uint32_t deadline, i = 0;
+		do {
+			deadline = task->t_deadline + (i * task->t_period);
+			if (deadline <= t) {
+				or_elem_t *D = oe_alloc();
+				D->oe_deadline = deadline;
+				ordl_insert(head, D);
+			}
+			i++;
+		} while (deadline <= t);
+	}
+	return 1;
 }

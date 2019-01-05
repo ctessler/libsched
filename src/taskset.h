@@ -4,6 +4,7 @@
 #include <math.h>
 #include "task.h"
 #include "search.h"
+#include "ordl.h"
 
 /**
  * Doubly Linked List wrapping the tasks
@@ -149,5 +150,47 @@ uint64_t ts_star(task_set_t *ts);
  * set is unnacceptable otherwise.
  */
 char* ts_permit(task_set_t* ts);
+
+/**
+ * Finds the slack at time t for the task set
+ *
+ * @note the difference between the slack among all deadlines up to
+ * and including t (which is what this function calculates) and the
+ * demand at a specific time (which is what ts_demand() calculates) 
+ *
+ * @param[in] ts the task set
+ * @param[in] t the time
+ *
+ * @return the slack, can be negative
+ */
+int64_t ts_slack(task_set_t *ts, uint32_t t);
+
+/**
+ * Finds the specific slack for a single deadline
+ *
+ * @note the difference between the slack among all deadlines up to
+ * and including t (which is what ts_slack() calculates) and the
+ * demand at a specific time (which is what this function
+ * calculates)
+ *
+ * @param[in] ts the task set
+ * @param[in] t the time
+ * 
+ * @return the demand at time t
+ */
+int64_t ts_demand(task_set_t *ts, uint32_t t);
+
+/**
+ * Adds all of the deadlines from each of the tasks to the ordered
+ * absolute deadline list up to and including deadlines at t
+ *
+ * @param[in] ts the populated task set
+ * @param[in] head the empty list
+ * @param[in] t the time bound (deadlines <= t are included)
+ *
+ * @return non-zero upon success, zero otherwise
+ */
+int ts_fill_deadlines(task_set_t *ts, ordl_t *head, uint32_t t);
+
 
 #endif /* TASKSET_H */
