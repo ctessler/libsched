@@ -101,5 +101,22 @@ task_link_t* ts_next(task_set_t *ts, task_link_t *cookie);
  */
 #define ts_task(x) ((*x).tl_task)
 
+/**
+ * Calculates the hyperperiod of the task set
+ *
+ * @param[in] ts the task set
+ *
+ * @return the hyperperiod
+ */
+uint32_t ts_hyperp(task_set_t *ts);
+
+/**
+ * Calculates an upper bound on the value of any deadline to check for
+ * schedulability 
+ *
+ * T*(tasks) = min(P, max( d_max, 1/(1 - U) * sum( U_i * (p_i - d_i))))
+ */
+uint32_t ts_star(task_set_t *ts);
+
 
 #endif /* TASKSET_H */

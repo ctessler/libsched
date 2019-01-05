@@ -48,6 +48,8 @@ test_add_fill() {
 	printf("%s\n", str);
 	free(str);
 
+	printf("Hypeperiod %u\n", ts_hyperp(ts));
+
 	task_link_t *cookie;
 	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
 		task_free(ts_task(cookie));
@@ -59,21 +61,28 @@ test_add_fill() {
 
 void
 test_fill(task_set_t *ts) {
-	task_t *task = task_alloc(10, 20, 3);
+	task_t *task = task_alloc(10, 50, 3);
 	task->wcet(1) = 25;
 	task->wcet(2) = 35;
 	task->wcet(3) = 35;
 	ts_add(ts, task);
 
-	task = task_alloc(10, 20, 3);
+	task = task_alloc(15, 100, 3);
 	task->wcet(1) = 35;
 	task->wcet(2) = 55;
 	task->wcet(3) = 65;
 	ts_add(ts, task);
 
-	task = task_alloc(5, 15, 2);
+	task = task_alloc(5, 40, 2);
 	task->wcet(1) = 10;
 	task->wcet(2) = 12;
 	task->wcet(3) = 16;
 	ts_add(ts, task);
+
+	task = task_alloc(22, 70, 2);
+	task->wcet(1) = 10;
+	task->wcet(2) = 12;
+	task->wcet(3) = 16;
+	ts_add(ts, task);
+
 }

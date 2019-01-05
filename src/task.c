@@ -5,6 +5,8 @@ task_t*
 task_alloc(uint32_t period, uint32_t deadline, uint32_t threads) {
 	task_t* task = calloc(sizeof(task_t), 1);
 	task_threads(task, threads);
+	task->t_period = period;
+	task->t_deadline = deadline;
 	return task;
 }
 

@@ -92,3 +92,53 @@ task_link_t*
 ts_next(task_set_t *ts, task_link_t *cookie) {
 	return cookie->tl_next;
 }
+
+/**
+ * Could not find a gcd or lcm function in the standard C library.
+ *
+ * @return greatest common divisor of a and b
+ */
+static uint32_t
+gcd(uint32_t a, uint32_t b) {
+	uint32_t t;
+	if (a < b) {
+		t = a; a = b; b = t;
+	}
+	
+	while (b != 0) {
+		t = a % b;
+		a = b;
+		b = t;
+	}
+	return a;
+}
+
+/**
+ * Could not find a gcd or lcm function in the standard C library.
+ *
+ * @return least common multiple of a and b
+ */
+static uint32_t
+lcm(uint32_t a, uint32_t b) {
+	// printf("gcd(%u, %u) = %u\n", a, b, gcd(a, b));
+	double frac =  (double)( a / gcd(a, b) );
+	return frac * b;
+}
+
+uint32_t
+ts_hyperp(task_set_t *ts) {
+	task_link_t *cookie = ts_first(ts);
+	task_t *t;
+	uint32_t P=0;
+
+	if (!cookie) {
+		return 0;
+	}
+
+	P = ts_task(cookie)->t_period;
+	for (; cookie; cookie = cookie->tl_next) {
+		t = ts_task(cookie);
+		P = lcm(P, t->t_period);
+	}
+	return P;
+}
