@@ -138,6 +138,7 @@ float_t ts_util(task_set_t *ts);
  * T*(tasks) = min(P, max( d_max, 1/(1 - U) * sum( U_i * (p_i - d_i))))
  */
 uint64_t ts_star(task_set_t *ts);
+uint64_t ts_star_debug(task_set_t *ts, FILE *f);
 
 /**
  * Determines if a task set is permissible
@@ -179,6 +180,7 @@ int64_t ts_slack(task_set_t *ts, uint32_t t);
  * @return the demand at time t
  */
 int64_t ts_demand(task_set_t *ts, uint32_t t);
+int64_t ts_demand_debug(task_set_t *ts, uint32_t t, FILE *f);
 
 /**
  * Adds all of the deadlines from each of the tasks to the ordered

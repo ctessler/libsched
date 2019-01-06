@@ -7,10 +7,14 @@
 #include <stdio.h>
 #include <string.h>
 
+#define TASK_NAMELEN 64
+
 typedef struct {
+	char t_name[TASK_NAMELEN];
 	uint32_t t_period;
 	uint32_t t_deadline;
 	uint32_t t_threads;
+	uint32_t t_chunk;	/**< Maximum non-preepmtive chunk (q) */
 	uint32_t *t_wcet;
 } task_t;
 
@@ -43,7 +47,6 @@ typedef struct {
 task_t* task_alloc(uint32_t period, uint32_t deadline, uint32_t threads);
 void task_free(task_t *task);
 
-
 /**
  * Updates the number of threads a task releases with each job
  *
@@ -58,6 +61,14 @@ void task_free(task_t *task);
  * @param[in] threads the new number of threads released with each job
  */
 int task_threads(task_t *task, uint32_t threads);
+
+/**
+ * Updates the name of the task
+ *
+ * @param[in] task the task
+ * @param[in] name the name of the task
+ */
+void task_name(task_t *task, const char* name);
 
 /**
  * Returns a dynamically allocated string representing the task
@@ -84,5 +95,6 @@ float_t task_util(task_t *task);
  * @return the maximum demand of task over t time units
  */
 uint32_t task_dbf(task_t *task, uint32_t t);
+uint32_t task_dbf_debug(task_t *task, uint32_t t, FILE *f);
 
 #endif /* TASK_H */

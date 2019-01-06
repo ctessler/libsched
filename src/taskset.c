@@ -210,6 +210,60 @@ ts_star(task_set_t *ts) {
 	return star;
 }
 
+uint64_t
+ts_star_debug(task_set_t *ts, FILE *f) {
+	task_link_t *cookie;
+	task_t *t;
+	double_t upd = 0, updi;
+
+	uint64_t P = ts_hyperp(ts);
+	uint32_t D = ts_dmax(ts);
+	float_t U = ts_util(ts);
+	float_t x = 1 / (1 - U);
+	
+	fprintf(f, "T*(tasks) = min(P, max(D))\n");
+	fprintf(f, "T*(tasks) = min(%lu, max(D))\n", P);
+	fprintf(f, "\tmax(D) = max(%u, Z)\n", D);
+	fprintf(f, "\tZ = 1 / (1 - U) * sum\n");
+	fprintf(f, "\tZ = 1 / (1 - %f) * sum\n", U);
+	fprintf(f, "\tZ = %f * sum\n", x);
+	fprintf(f, "\tsum = \n");
+
+
+	float_t sum = 0;
+	for (cookie = ts_first(ts); cookie; cookie = cookie->tl_next) {
+		t = ts_task(cookie);
+		float_t util = task_util(t);
+		float_t s = util * (t->t_period - t->t_deadline);
+		fprintf(f, "\t\t+ %s %f * (%u - %u) = %f\n", t->t_name, util,
+			t->t_period, t->t_deadline, s);
+		sum += s;
+		
+	}
+	float_t Z = x * sum;
+	fprintf(f, "\tZ = %f = %f * %f\n", Z, x, sum);
+	fprintf(f, "\tZ = %f = ceil(%f)\n", ceil(Z), Z);
+	Z = ceil(Z);
+	uint32_t maxD = D;
+	if (D < Z) {
+		maxD = Z;
+	}
+	fprintf(f, "\tmax(D) = %u = max(%u, %f)\n", maxD, D, Z);
+
+	uint64_t star = P;
+	if (star > maxD) {
+		star = maxD;
+	}
+	fprintf(f, "T*(tasks) = %lu = min(%lu, %u)\n", star, P, maxD);
+
+	if (star != ts_star(ts)) {
+		fprintf(f, "star functions return different values\n");
+		exit(-1);
+	}
+	return star;
+}
+
+
 char*
 ts_permit(task_set_t* ts) {
 	double_t u = ts_util(ts);
@@ -248,6 +302,30 @@ ts_demand(task_set_t *ts, uint32_t t) {
 	return demand;
 }
 
+int64_t
+ts_demand_debug(task_set_t *ts, uint32_t t, FILE *f) {
+	task_link_t *cookie;
+	task_t *task;
+	int64_t demand = 0;
+	fprintf(f, "Task Set Demand at time %u\n", t);
+	char *str = ts_string(ts); fprintf(f, "%s\n", str); free(str);
+	for (cookie = ts_first(ts); cookie; cookie = cookie->tl_next) {
+		task = ts_task(cookie);
+		int64_t tdemand = task_dbf_debug(task, t, f);
+		demand += tdemand;
+		fprintf(f, "Total Demand: %li, %s adds %li demand\n",
+			demand, task->t_name, tdemand);
+	}
+	fprintf(f, "ts_demand(%u) = %li\n", t, demand);
+
+	if(demand != ts_demand(ts, t)) {
+		fprintf(f, "Demand functions return different values\n");
+		exit(-1);
+	}
+	return demand;
+	
+}
+
 int
 ts_fill_deadlines(task_set_t *ts, ordl_t *head, uint32_t t) {
 	task_link_t *cookie;
@@ -260,6 +338,7 @@ ts_fill_deadlines(task_set_t *ts, ordl_t *head, uint32_t t) {
 			if (deadline <= t) {
 				or_elem_t *D = oe_alloc();
 				D->oe_deadline = deadline;
+				D->oe_task = task;
 				ordl_insert(head, D);
 			}
 			i++;

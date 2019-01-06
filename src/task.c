@@ -1,5 +1,5 @@
 #include <task.h>
-static char BUFF[512];
+static char BUFF[1024];
 
 task_t*
 task_alloc(uint32_t period, uint32_t deadline, uint32_t threads) {
@@ -29,6 +29,11 @@ task_threads(task_t *task, uint32_t threads) {
 	task->t_wcet = calloc(sizeof(uint32_t), threads);
 }
 
+void
+task_name(task_t* task, const char* name) {
+	strncpy(task->t_name, name, TASK_NAMELEN);
+}
+
 char *
 task_string(task_t *task) {
 	char *s = BUFF;
@@ -46,7 +51,7 @@ task_string(task_t *task) {
 	s += n;
 	n = sprintf(s, "} ");
 	s += n;
-	sprintf(s, "u:%.3f", task_util(task));
+	sprintf(s, "u:%.3f %s", task_util(task), task->t_name);
 	return strdup(BUFF);
 }
 
@@ -69,4 +74,27 @@ task_dbf(task_t *task, uint32_t t) {
 	j *= task->wcet(task->t_threads);
 
 	return j;
+}
+
+uint32_t
+task_dbf_debug(task_t *task, uint32_t t, FILE *f) {
+	if (t < task->t_deadline) {
+		fprintf(f, "DBF(%s, t = %u) = 0 ", task->t_name, t);
+		fprintf(f, ": t < deadline (%u < %u)\n", t, task->t_deadline);
+		return 0;
+	}
+	uint32_t numerator = t - task->t_deadline;
+	uint32_t denominator = task->t_period;
+	uint32_t wcet = task->wcet(task->t_threads);
+	uint32_t frac = numerator / denominator;
+	uint32_t demand = (frac + 1) * wcet;
+	fprintf(f, "DBF(%s, t = %u) = %u\n", task->t_name, t, demand);
+	fprintf(f, "        | %5u - %-5u     |\n", t, task->t_deadline);
+	fprintf(f, "%5u * | ------------- + 1 | = %u * (%u + 1) = %5u\n", wcet,
+		wcet, frac, demand);
+	fprintf(f, "        |  %8u         |\n", task->t_period);
+	fprintf(f, "        +-                 -+\n");
+	
+
+	return demand;
 }

@@ -11,6 +11,8 @@ void test_fill(task_set_t *ts);
 void test_star();
 void test_demand();
 void test_delta();
+void test_sanjoy();
+void test_sanjoy_star();
 
 int
 main(int argc, char** argv) {
@@ -19,6 +21,8 @@ main(int argc, char** argv) {
 	test_add_fill();
 	test_star();
 	test_demand();
+	test_sanjoy();
+	test_sanjoy_star();	
 	return 0;
 }
 
@@ -209,42 +213,52 @@ void
 demand_fill(task_set_t *ts) {
 	// t_1 8, 8, 2
 	task_t *task = task_alloc(8, 8, 1); task->wcet(1) = 2;
+	task_name(task, "t[1]");
 	ts_add(ts, task);
 
 	// t_2 20, 10, 4
 	task = task_alloc(20, 10, 1); task->wcet(1) = 4;
+	task_name(task, "t[2]");	
 	ts_add(ts, task);
 
 	// t_3 25, 15, 2
 	task = task_alloc(25, 15, 1); task->wcet(1) = 2;
+	task_name(task, "t[3]");
 	ts_add(ts, task);
 
 	// t_4 35, 30, 4
 	task = task_alloc(35, 30, 1); task->wcet(1) = 4;
+	task_name(task, "t[4]");
 	ts_add(ts, task);
 
 	// t_5 50, 50, 4
-	task = task_alloc(50, 50, 1); task->wcet(1) = 4;
+	task = task_alloc(50, 50, 1); task->wcet(1) = 3;
+	task_name(task, "t[5]");
 	ts_add(ts, task);
 
 	// t_6 90, 50, 4
 	task = task_alloc(90, 50, 1); task->wcet(1) = 4;
+	task_name(task, "t[6]");
 	ts_add(ts, task);
 
 	// t_7 110, 60, 8
 	task = task_alloc(110, 60, 1); task->wcet(1) = 8;
+	task_name(task, "t[7]");
 	ts_add(ts, task);
 
 	// t_8 105, 60, 5
 	task = task_alloc(105, 60, 1); task->wcet(1) = 5;
+	task_name(task, "t[8]");
 	ts_add(ts, task);
 
 	// t_9 100, 60, 3
 	task = task_alloc(100, 60, 1); task->wcet(1) = 3;
+	task_name(task, "t[9]");
 	ts_add(ts, task);
 
 	// t_10 110, 100, 4
 	task = task_alloc(110, 100, 1); task->wcet(1) = 4;
+	task_name(task, "t[10]");
 	ts_add(ts, task);
 
 	char *str = ts_string(ts);
@@ -282,7 +296,62 @@ void test_demand() {
 		}
 	}
 	printf("\n");
+
+	int feasible = 1;
+	int64_t p_slack = INT64_MAX;
+	ordl_foreach(&head, cursor) {
+		int64_t D = cursor->oe_deadline;
+		printf("Deadline %2u(%5s) ", cursor->oe_deadline,
+		    cursor->oe_task->t_name);
+		int64_t demand = ts_demand(ts, D);
+		printf("Demand %2li ", demand);
+		int64_t slack_d = D - demand;
+		if (slack_d < p_slack) {
+			p_slack = slack_d;
+		}
+		printf("Slack %li ", p_slack);
+		if (p_slack < 0) {
+			feasible = 0;
+			break;
+		}
+		task_t *task = cursor->oe_task;
+		if (D == task->t_deadline) {
+			task->t_chunk = p_slack;
+			if (task->t_chunk > task->wcet(task->t_threads)) {
+				task->t_chunk = task->wcet(task->t_threads);
+			}
+			printf("Task %s chunk %u", task->t_name, task->t_chunk);
+		}
+		printf("\n");
+	}
+	if (feasible) {
+		printf("feasible\n");
+	} else {
+		printf("infeasible\n");
+	}
 	
+	
+	clean_task_set(ts);
+	ts = NULL;
+}
+
+void test_sanjoy() {
+	task_set_t *ts = ts_alloc();
+	printf("Sanjoy Example Test at D = 60\n");
+	demand_fill(ts);
+
+	int64_t demand = ts_demand_debug(ts, 60, stdout);
+	
+	clean_task_set(ts);
+	ts = NULL;
+}
+
+void test_sanjoy_star() {
+	task_set_t *ts = ts_alloc();
+	printf("Sanjoy Example T* = 725\n");
+	demand_fill(ts);
+
+	uint64_t star = ts_star_debug(ts, stdout);
 	
 	clean_task_set(ts);
 	ts = NULL;
