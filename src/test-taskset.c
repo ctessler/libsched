@@ -341,6 +341,18 @@ void test_sanjoy() {
 	demand_fill(ts);
 
 	int64_t demand = ts_demand_debug(ts, 60, stdout);
+
+	task_link_t *cookie;
+	int64_t d2 = 0;
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		task_t* task = cookie->tl_task;
+		printf("DBF(%5s, 60) = %u\n", task->t_name,
+		       task_dbf(task, 60));
+		d2 += task_dbf(task, 60);
+	}
+	printf("--------------------\n");
+	printf("  DBF(all, 60) = %u\n", d2);
+	
 	
 	clean_task_set(ts);
 	ts = NULL;
@@ -352,6 +364,7 @@ void test_sanjoy_star() {
 	demand_fill(ts);
 
 	uint64_t star = ts_star_debug(ts, stdout);
+	
 	
 	clean_task_set(ts);
 	ts = NULL;

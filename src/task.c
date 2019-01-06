@@ -51,7 +51,7 @@ task_string(task_t *task) {
 	s += n;
 	n = sprintf(s, "} ");
 	s += n;
-	sprintf(s, "u:%.3f %s", task_util(task), task->t_name);
+	sprintf(s, "u:%.3f q:%u, %s", task_util(task), task->t_chunk, task->t_name);
 	return strdup(BUFF);
 }
 
