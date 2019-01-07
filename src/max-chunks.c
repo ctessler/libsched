@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "maxchunks.h"
+#include "max-chunks.h"
 /**
  * Processes the parsed configuration file into a set of tasks.
  *
@@ -23,12 +24,24 @@ static struct {
 	char* c_fname;
 } clc;
 
-static const char* short_options = "f:v";
+static const char* short_options = "ht:v";
 static struct option long_options[] = {
-    {"file", required_argument, 0, 'f'},
+    {"tasks", required_argument, 0, 't'},
+    {"help", no_argument, 0, 'h'},    
     {"verbose", no_argument, &clc.c_verbose, 1},
     {0, 0, 0, 0}
 };
+
+void
+usage() {
+	printf("Usage: max-chunks [OPTIONS] -t <TASKSET>\n");
+	printf("OPTIONS:\n");
+	printf("\t--help/-h\t\tThis message\n");
+	printf("\t--log/-l <FILE>\t\tAuditible log file\n");
+	printf("\t--tasks/-t <FILE>\tRequired file containing tasks\n");
+	printf("\t--verbose/-v\t\tEnables verbose output\n");
+	printf("\n%s\n", exfile);
+}
 
 int
 main(int argc, char** argv) {
@@ -48,7 +61,7 @@ main(int argc, char** argv) {
 		switch(c) {
 		case 0:
 			break;
-		case 'f':
+		case 't':
 			clc.c_fname = strdup(optarg);
 			printf("Configuration File: %s\n", clc.c_fname);
 			break;
@@ -57,6 +70,7 @@ main(int argc, char** argv) {
 	if (!clc.c_fname) {
 		printf("Configuration file required\n");
 		rv = -1;
+		usage();
 		goto bail;
 	}
 
