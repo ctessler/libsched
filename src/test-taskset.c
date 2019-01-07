@@ -5,6 +5,7 @@ void clean_task_set(task_set_t *ts);
 
 
 int test_alloc();
+int test_destroy();
 int test_add_fill();
 void test_add_one();
 void test_fill(task_set_t *ts);
@@ -17,6 +18,7 @@ void test_sanjoy_star();
 int
 main(int argc, char** argv) {
 	test_alloc();
+	test_destroy();
 	test_add_one();
 	test_add_fill();
 	test_star();
@@ -36,6 +38,13 @@ test_alloc() {
 	task_set_t *ts = ts_alloc();
 	ts_free(ts);
 }
+
+int
+test_destroy() {
+	task_set_t *ts = ts_alloc();
+	ts_destroy(ts);
+}
+	
 
 void
 test_add_one() {

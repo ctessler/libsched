@@ -32,7 +32,11 @@ static struct option long_options[] = {
 
 int
 main(int argc, char** argv) {
+	config_t cfg;
+	task_set_t *ts = NULL;
 	int rv = 0;
+
+	config_init(&cfg);
 	while(1) {
 		int opt_idx = 0;
 		char c = getopt_long(argc, argv, short_options,
@@ -56,8 +60,6 @@ main(int argc, char** argv) {
 		goto bail;
 	}
 
-	config_t cfg;
-	config_init(&cfg);
 	if (CONFIG_TRUE != config_read_file(&cfg, clc.c_fname)) {
 		printf("Unable to read configuration file: %s\n",
 		       clc.c_fname);
@@ -71,7 +73,7 @@ main(int argc, char** argv) {
 	/*
 	 * Configuration file parsed fully, let's go. 
 	 */
-	task_set_t *ts = ts_alloc();
+	ts = ts_alloc();
 	if (!config_process(&cfg, ts)) {
 		printf("Unable to process configuration file\n");
 		rv = -1;
@@ -80,10 +82,13 @@ main(int argc, char** argv) {
 	/*
 	 * Configuration file processed, time to calculate the chunks
 	 */
+	char *str;
+	printf("Task Set:\n");
+	str = ts_string(ts); printf("%s\n\n", str); free(str);
 	int feas = max_chunks(ts);
-	char *str = ts_string(ts);
-	printf("%s\n", str);
-	free(str);
+
+	printf("After assigning non-preemptive chunks\n");
+	str = ts_string(ts); printf("%s\n", str); free(str);
 	switch (feas) {
 	case 0:
 		printf("Feasible\n");
@@ -95,6 +100,7 @@ main(int argc, char** argv) {
 		printf("Poorly formed task set\n");
 		break;
 	}
+	printf("U: %f, T*: %lu\n", ts_util(ts), ts_star(ts));
 bail:
 	ts_destroy(ts);
 	config_destroy(&cfg);
@@ -162,9 +168,6 @@ config_process(config_t *cfg, task_set_t *ts) {
 			    config_setting_get_int_elem(cs_wcet, (j-1));
 			task->wcet(j) = wcet;
 		}
-		char *str = task_string(task);
-		printf("%s\n", str);
-		free(str);
 
 		ts_add(ts, task);
 	}
