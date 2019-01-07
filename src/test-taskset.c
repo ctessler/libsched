@@ -28,13 +28,7 @@ main(int argc, char** argv) {
 
 void
 clean_task_set(task_set_t *ts) {
-	task_link_t *cookie;
-	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
-		task_free(ts_task(cookie));
-		ts_task(cookie) = NULL;
-		ts_rem(ts, cookie);
-	}
-	ts_free(ts);
+	ts_destroy(ts);
 }
 
 int
@@ -76,11 +70,11 @@ test_add_fill() {
 	printf("Utilization %.05f\n", ts_util(ts));
 	printf("T^*(set) %lu\n", ts_star(ts));
 
-	task_link_t *cookie;
-	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
-		task_free(ts_task(cookie));
-		ts_task(cookie) = NULL;
-		ts_rem(ts, cookie);
+	task_link_t *cookie, *next;
+	for (cookie = ts_first(ts); cookie; cookie = next) {
+		next = ts_next(ts, cookie);
+		task_t *task = ts_rem(ts, cookie);
+		task_free(task);
 	}
 	ts_free(ts);
 }
@@ -102,7 +96,6 @@ test_fill(task_set_t *ts) {
 	task = task_alloc(95, 90, 2);
 	task->wcet(1) = 10;
 	task->wcet(2) = 12;
-	task->wcet(3) = 16;
 	ts_add(ts, task);
 
 	task = task_alloc(100, 80, 3);
@@ -287,6 +280,7 @@ void test_demand() {
 	ordl_init(&head);
 
 	ts_fill_deadlines(ts, &head, star);
+	
 	printf("Absolute deadlines: ");
 	or_elem_t *cursor;
 	ordl_foreach(&head, cursor) {
@@ -329,7 +323,16 @@ void test_demand() {
 	} else {
 		printf("infeasible\n");
 	}
+
 	
+	or_elem_t *temp;
+	for (cursor = ordl_first(&head); cursor; ) {
+		temp = ordl_next(cursor);
+		ordl_remove(cursor);
+		oe_free(cursor);
+		cursor = temp;
+	}
+	ordl_init(&head);
 	
 	clean_task_set(ts);
 	ts = NULL;

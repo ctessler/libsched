@@ -19,6 +19,22 @@ ts_free(task_set_t* ts) {
 	ts = NULL;
 }
 
+void
+ts_destroy(task_set_t* ts) {
+	if (!ts) {
+		return;
+	}
+	task_link_t *cur, *next;	
+	for (cur = ts->ts_head; cur; cur = next) {
+		next = cur->tl_next;
+		task_t *task = ts_rem(ts, cur);
+		task_free(task);
+	}
+	free(ts);
+	ts = NULL;
+	
+}
+
 char *
 ts_string(task_set_t *ts) {
 	task_link_t *cursor = ts->ts_head;
@@ -70,8 +86,12 @@ ts_find(task_set_t *ts, task_t *task) {
 task_t*
 ts_rem(task_set_t *ts, task_link_t *cookie) {
 	task_t *task = cookie->tl_task;
-	remque(cookie); // frees the cookie
-
+	if (ts->ts_head && ts->ts_head == cookie) {
+		ts->ts_head = cookie->tl_next;
+		free(cookie);
+		return task;
+	}	
+	remque(cookie); // frees the cookie .. unless it's the head.
 	return task;
 }
 

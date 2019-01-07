@@ -4,6 +4,17 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "maxchunks.h"
+/**
+ * Processes the parsed configuration file into a set of tasks.
+ *
+ * @param[in] cfg the in memory configuration file
+ * @param[in|out] ts the task set resulting from processing cfg
+ *
+ * @return non-zero upon success, zero otherwise
+ */
+int config_process(config_t *cfg, task_set_t *ts);
+		   
 /**
  * global command line configuration
  */
@@ -21,6 +32,7 @@ static struct option long_options[] = {
 
 int
 main(int argc, char** argv) {
+	int rv = 0;
 	while(1) {
 		int opt_idx = 0;
 		char c = getopt_long(argc, argv, short_options,
@@ -40,13 +52,122 @@ main(int argc, char** argv) {
 	}
 	if (!clc.c_fname) {
 		printf("Configuration file required\n");
-		return(-1);
+		rv = -1;
+		goto bail;
 	}
 
 	config_t cfg;
 	config_init(&cfg);
-	config_destroy(&cfg);
+	if (CONFIG_TRUE != config_read_file(&cfg, clc.c_fname)) {
+		printf("Unable to read configuration file: %s\n",
+		       clc.c_fname);
+		printf("%s:%i %s\n", config_error_file(&cfg),
+		       config_error_line(&cfg),
+		       config_error_text(&cfg));
+		rv = -1;
+		goto bail;
+	}
 
-	free(clc.c_fname);
-	return 0;
+	/*
+	 * Configuration file parsed fully, let's go. 
+	 */
+	task_set_t *ts = ts_alloc();
+	if (!config_process(&cfg, ts)) {
+		printf("Unable to process configuration file\n");
+		rv = -1;
+		goto bail;
+	}
+	/*
+	 * Configuration file processed, time to calculate the chunks
+	 */
+	int feas = max_chunks(ts);
+	char *str = ts_string(ts);
+	printf("%s\n", str);
+	free(str);
+	switch (feas) {
+	case 0:
+		printf("Feasible\n");
+		break;
+	case 1:
+		printf("Infeasible\n");
+		break;
+	case -1:
+		printf("Poorly formed task set\n");
+		break;
+	}
+bail:
+	ts_destroy(ts);
+	config_destroy(&cfg);
+	if (clc.c_fname) {
+		free(clc.c_fname);
+	}
+	return rv;
+}
+
+int
+config_process(config_t *cfg, task_set_t *ts) {
+	config_setting_t *setting;
+
+	setting = config_lookup(cfg, "tasks");
+	if (setting == NULL) {
+		printf("No tasks in the configuration file\n");
+		return 0;
+	}
+
+	int ntasks = config_setting_length(setting);
+	for (int i = 0; i < ntasks; i++) {
+		config_setting_t *cs_task =
+		    config_setting_get_elem(setting, i);
+		uint32_t cs_period, cs_deadline, cs_threads;
+		const char *cs_name;
+		if (!config_setting_lookup_string(
+		    cs_task, "name", &cs_name)) {
+			printf("No name for task %i\n", (i+1));
+			return 0;
+		}
+
+		if (!config_setting_lookup_int(
+		    cs_task, "period", &cs_period)) {
+			printf("No period for task %s\n", cs_name);
+			return 0;
+		}
+
+		if (!config_setting_lookup_int(
+		    cs_task, "deadline", &cs_deadline)) {
+			printf("No period for task %s\n", cs_name);
+			return 0;
+		}
+
+		if (!config_setting_lookup_int(
+		    cs_task, "threads", &cs_threads)) {
+			printf("No thread count for task %s\n",
+			    cs_name);
+			return 0;
+		}
+
+		config_setting_t *cs_wcet =
+		    config_setting_get_member(cs_task, "wcet");
+		if (cs_threads != config_setting_length(cs_wcet)) {
+			printf("Expected %i WCETs found %i\n",
+			       cs_threads,
+			       config_setting_length(cs_wcet));
+			return 0;
+		}
+		task_t *task = task_alloc(cs_period, cs_deadline,
+		    cs_threads);
+
+		strncpy(task->t_name, cs_name, TASK_NAMELEN);
+		for (int j = 1; j <= cs_threads; j++) {
+			uint32_t wcet =
+			    config_setting_get_int_elem(cs_wcet, (j-1));
+			task->wcet(j) = wcet;
+		}
+		char *str = task_string(task);
+		printf("%s\n", str);
+		free(str);
+
+		ts_add(ts, task);
+	}
+	
+	return 1;
 }

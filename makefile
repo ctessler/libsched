@@ -1,9 +1,10 @@
 BIN =../bin
 OBJ =../obj
 CFLAGS =-ggdb
-CFLAGS += `pkg-config --cflags libconfig`
+CFLAGS += $(shell pkg-config --cflags libconfig)
 LDFLAGS := -lm
-LDFLAGS += `pkg-config --libs libconfig`
+LDFLAGS += $(shell pkg-config --libs libconfig)
+VALGRIND := valgrind --leak-check=full --error-exitcode=1 -q
 
 export BIN OBJ CFLAGS
 
@@ -12,10 +13,10 @@ export BIN OBJ CFLAGS
 all: test bin/max-chunks
 
 test: bin/test-task bin/test-taskset bin/test-ordl bin/max-chunks
-	bin/test-task
-	bin/test-taskset
-	bin/test-ordl
-	valgrind --leak-check=full --error-exitcode=1 bin/max-chunks -f ex/1task.ts
+	$(VALGRIND) bin/test-task
+	$(VALGRIND) bin/test-taskset
+	$(VALGRIND) bin/test-ordl
+	$(VALGRIND) bin/max-chunks -f ex/1task.ts
 
 bin/test-task: src
 	$(CC) $(LDFLAGS) $(CFLAGS) -o bin/test-task obj/test-task.o obj/task.o
@@ -29,7 +30,8 @@ bin/test-ordl: src
 
 bin/max-chunks: src
 	echo $(LDFLAGS)
-	$(CC) $(LDFLAGS) $(CFLAGS) -o bin/max-chunks obj/max-chunks.o
+	$(CC) $(LDFLAGS) $(CFLAGS) -o bin/max-chunks obj/max-chunks.o \
+	    obj/taskset.o obj/task.o obj/ordl.o obj/maxchunks.o
 
 src: | obj bin
 src: 

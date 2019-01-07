@@ -70,6 +70,7 @@ test_utilization() {
 	printf("%s u:%.02f\n", str, task_util(task));
 	free(str);
 
+	task_free(task);
 }
 
 int
@@ -123,5 +124,5 @@ test_dbf() {
 	if (task_dbf(task, t) != e) {
 		exit(-1);
 	}
-	
+	task_free(task);
 }

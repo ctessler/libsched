@@ -22,8 +22,18 @@ typedef struct {
 task_set_t* ts_alloc();
 void ts_free(task_set_t* ts);
 
-char* ts_string(task_set_t *ts);
+/**
+ * Frees the storage associated with the taskset and frees the tasks
+ * within the set
+ *
+ */
+void ts_destroy(task_set_t* ts);
 
+/**
+ * Returns a dynamically allocated string representing the task set,
+ * must be free()'d 
+ */
+char* ts_string(task_set_t *ts);
 
 /**
  * Adding and removing tasks from the task set.
