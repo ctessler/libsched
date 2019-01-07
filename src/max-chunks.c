@@ -89,18 +89,20 @@ main(int argc, char** argv) {
 
 	printf("After assigning non-preemptive chunks\n");
 	str = ts_string(ts); printf("%s\n", str); free(str);
+	printf("-------------------------------------------------\n");
+	printf("Utilization: %.4f, T*: %lu, Feasible: ", ts_util(ts),
+	    ts_star(ts));
 	switch (feas) {
 	case 0:
-		printf("Feasible\n");
+		printf("Yes\n");
 		break;
 	case 1:
-		printf("Infeasible\n");
+		printf("No\n");
 		break;
 	case -1:
-		printf("Poorly formed task set\n");
+		printf("N/A (Poorly formed set)\n");
 		break;
 	}
-	printf("U: %f, T*: %lu\n", ts_util(ts), ts_star(ts));
 bail:
 	ts_destroy(ts);
 	config_destroy(&cfg);
