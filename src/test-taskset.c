@@ -351,7 +351,7 @@ void test_sanjoy() {
 		d2 += task_dbf(task, 60);
 	}
 	printf("--------------------\n");
-	printf("  DBF(all, 60) = %u\n", d2);
+	printf("  DBF(all, 60) = %li\n", d2);
 	
 	
 	clean_task_set(ts);

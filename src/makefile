@@ -1,3 +1,4 @@
+OBJ?=../obj
 srcs=$(wildcard *.c)
 objs=$(patsubst %.c,$(OBJ)/%.o,$(srcs))
 
