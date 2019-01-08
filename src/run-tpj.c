@@ -4,10 +4,10 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "maxchunks.h"
+#include "tpj.h"
 #include "taskset-config.h"
 #include "exfile.h"
-		   
+
 /**
  * global command line configuration
  */
@@ -26,7 +26,7 @@ static struct option long_options[] = {
 
 void
 usage() {
-	printf("Usage: max-chunks [OPTIONS] -t <TASKSET>\n");
+	printf("Usage: run-tpj [OPTIONS] -t <TASKSET>\n");
 	printf("OPTIONS:\n");
 	printf("\t--help/-h\t\tThis message\n");
 	printf("\t--log/-l <FILE>\t\tAuditible log file\n");
@@ -94,7 +94,7 @@ main(int argc, char** argv) {
 	char *str;
 	printf("Task Set:\n");
 	str = ts_string(ts); printf("%s\n\n", str); free(str);
-	int feas = max_chunks(ts);
+	int feas = tpj(ts);
 
 	printf("After assigning non-preemptive chunks\n");
 	str = ts_string(ts); printf("%s\n", str); free(str);

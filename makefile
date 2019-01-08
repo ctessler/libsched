@@ -10,7 +10,7 @@ export BIN OBJ CFLAGS
 
 .PHONY: clean src test
 
-all: test bin/max-chunks
+all: test bin/max-chunks bin/run-tpj
 
 test: bin/test-task bin/test-taskset bin/test-ordl bin/max-chunks
 	$(VALGRIND) bin/test-task
@@ -31,7 +31,12 @@ bin/test-ordl: src
 bin/max-chunks: src
 	echo $(LDFLAGS)
 	$(CC) $(LDFLAGS) $(CFLAGS) -o bin/max-chunks obj/max-chunks.o \
-	    obj/taskset.o obj/task.o obj/ordl.o obj/maxchunks.o
+	    obj/taskset.o obj/task.o obj/ordl.o obj/maxchunks.o obj/taskset-config.o
+
+bin/run-tpj: src
+	echo $(LDFLAGS)
+	$(CC) $(LDFLAGS) $(CFLAGS) -o bin/run-tpj obj/run-tpj.o \
+	    obj/taskset.o obj/task.o obj/ordl.o obj/tpj.o obj/taskset-config.o
 
 src: | obj bin
 src: 
