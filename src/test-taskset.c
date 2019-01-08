@@ -163,9 +163,9 @@ test_star() {
 	printf("%s\n", str);
 	free(str);
 
-	double_t star = ts_star(ts);
+	double_t star = ts_star_debug(ts, stdout);
 	printf("T^*(set): %f\n", star);
-	if (star == 8260) {
+	if (star == 8866) {
 		printf("\tCorrect!\n");
 	} else {
 		printf("\tIncorrect!\n");

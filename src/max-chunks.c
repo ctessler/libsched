@@ -24,7 +24,7 @@ static struct {
 	char* c_fname;
 } clc;
 
-static const char* short_options = "ht:v";
+static const char* short_options = "hl:t:v";
 static struct option long_options[] = {
     {"tasks", required_argument, 0, 't'},
     {"help", no_argument, 0, 'h'},    
@@ -60,6 +60,9 @@ main(int argc, char** argv) {
 
 		switch(c) {
 		case 0:
+			break;
+		case 'l':
+			/* Needs to be implemented */
 			break;
 		case 't':
 			clc.c_fname = strdup(optarg);

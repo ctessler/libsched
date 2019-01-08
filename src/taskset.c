@@ -204,11 +204,12 @@ ts_star(task_set_t *ts) {
 	task_link_t *cookie;
 	task_t *t;
 	double_t upd = 0, updi;
+	int32_t maxd = ts_max_pdiff(ts);
 
 	double_t max_r = 1 / (1 - ts_util(ts));
 	for (cookie = ts_first(ts); cookie; cookie = cookie->tl_next) {
 		t = ts_task(cookie);
-		updi = task_util(t) * (t->t_period - t->t_deadline);
+		updi = task_util(t) * maxd;
 		upd += updi;
 	}
 	max_r *= upd;
@@ -240,7 +241,10 @@ ts_star_debug(task_set_t *ts, FILE *f) {
 	uint32_t D = ts_dmax(ts);
 	float_t U = ts_util(ts);
 	float_t x = 1 / (1 - U);
-	
+	int32_t diffmax = ts_max_pdiff(ts);	
+
+	fprintf(f, "BEGIN T*\n");
+	fprintf(f, "Max (p - d) = %i\n", diffmax);
 	fprintf(f, "T*(tasks) = min(P, max(D))\n");
 	fprintf(f, "T*(tasks) = min(%lu, max(D))\n", P);
 	fprintf(f, "\tmax(D) = max(%u, Z)\n", D);
@@ -254,9 +258,8 @@ ts_star_debug(task_set_t *ts, FILE *f) {
 	for (cookie = ts_first(ts); cookie; cookie = cookie->tl_next) {
 		t = ts_task(cookie);
 		float_t util = task_util(t);
-		float_t s = util * (t->t_period - t->t_deadline);
-		fprintf(f, "\t\t+ %s %f * (%u - %u) = %f\n", t->t_name, util,
-			t->t_period, t->t_deadline, s);
+		float_t s = util * diffmax;
+		fprintf(f, "\t\t+ %s %f * %i = %f\n", t->t_name, util, diffmax, s);
 		sum += s;
 		
 	}
@@ -280,7 +283,25 @@ ts_star_debug(task_set_t *ts, FILE *f) {
 		fprintf(f, "star functions return different values\n");
 		exit(-1);
 	}
+	fprintf(f, "END T*\n");
 	return star;
+}
+
+int32_t
+ts_max_pdiff(task_set_t * ts) {
+	task_link_t *cookie = NULL;
+	task_t *t;
+	int32_t maxd = 0, curd;
+
+	for (cookie = ts_first(ts); cookie; cookie = cookie->tl_next) {
+		t = ts_task(cookie);
+		curd = t->t_period - t->t_deadline;
+		if (curd > maxd) {
+			maxd = curd;
+		}
+	}
+
+	return maxd;
 }
 
 
