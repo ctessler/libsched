@@ -6,10 +6,9 @@ ordl_insert(ordl_t* head, or_elem_t *elem) {
 		ordl_insert_head(head, elem);
 		return 1;
 	}
+	/* c - cursor in the list */
 	or_elem_t *c = LIST_FIRST(head);
-	/*
-	 * The goal is to insert before 
-	 */
+	/* The goal is to insert before c */
 	while (elem->oe_deadline >= c->oe_deadline) {
 		if (!ordl_next(c)) {
 			/* c is the end of the list */

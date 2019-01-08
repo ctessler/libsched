@@ -20,6 +20,21 @@ task_free(task_t* task) {
 	free(task);
 }
 
+task_t*
+task_dup(task_t *orig, uint32_t threads) {
+	if (threads > orig->t_threads) {
+		/* XXX-ct assert here */
+		return NULL;
+	}
+	task_t *task = task_alloc(task->t_period, task->t_deadline, threads);
+	for (int i=1; i <= threads; i++) {
+		task->wcet(i) = orig->wcet(i);
+	}
+	strncpy(task->t_name, orig->t_name, TASK_NAMELEN);
+
+	return task;
+}
+
 int
 task_threads(task_t *task, uint32_t threads) {
 	if (task->t_wcet) {

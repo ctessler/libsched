@@ -3,7 +3,6 @@
 int
 max_chunks(task_set_t *ts) {
 	uint64_t star = ts_star(ts);
-	int64_t demand = ts_demand(ts, star);
 
 	ordl_t head;
 	ordl_init(&head);
