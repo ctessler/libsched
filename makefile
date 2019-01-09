@@ -49,7 +49,7 @@ bin/max-chunks: $(mc_objs) | lib/libsched.a
 tpj_srcs = run-tpj.c
 tpj_objs = $(patsubst %.c,$(OBJ)/%.o,$(tpj_srcs))
 run-tpj: bin/run-tpj
-bin/run-tpj: $(tpj_objs)
+bin/run-tpj: $(tpj_objs) lib/libsched.a
 	$(CC) -o $@ $^ $(LDFLAGS) $(CFLAGS)
 
 #

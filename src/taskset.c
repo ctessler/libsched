@@ -76,6 +76,7 @@ ts_find(task_set_t *ts, task_t *task) {
 	task_link_t *cookie;
 	task_t *t;
 	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		t = ts_task(cookie);
 		if (t == task) {
 			return cookie;
 		}

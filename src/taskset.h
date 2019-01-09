@@ -7,6 +7,15 @@
 #include "ordl.h"
 
 /**
+ * Feasibility constants for tests
+ */
+typedef enum {
+	FEAS_MALFORM = -1,
+	FEAS_YES = 0,
+	FEAS_NO
+} feas_t;
+
+/**
  * Doubly Linked List wrapping the tasks
  */
 typedef struct task_link {

@@ -26,7 +26,7 @@ task_dup(task_t *orig, uint32_t threads) {
 		/* XXX-ct assert here */
 		return NULL;
 	}
-	task_t *task = task_alloc(task->t_period, task->t_deadline, threads);
+	task_t *task = task_alloc(orig->t_period, orig->t_deadline, threads);
 	for (int i=1; i <= threads; i++) {
 		task->wcet(i) = orig->wcet(i);
 	}

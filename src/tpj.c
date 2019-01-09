@@ -104,16 +104,31 @@ divide(task_set_t *ts, ordl_t *head, task_t *task, uint32_t slack) {
 }
 
 int
-tpj(task_set_t *ts) {
+tpj(task_set_t *ts, FILE *dbg) {
 	uint64_t star = ts_star(ts);
 	int64_t slack_b = INT64_MAX;	/* Previous intervals's slack value */
 	int64_t slack_c = 0; 		/* Current interval's slack value */
 	or_elem_t *cursor;
 	int infeasible = 0;
+	int doclose = 0;
 	
 	ordl_t head;
 	ordl_init(&head);
 	ts_fill_deadlines(ts, &head, star);
+
+	if (!dbg) {
+		dbg = fopen("/dev/null", "w");
+		doclose = 1;
+	}
+	fprintf(dbg, "Absolute Deadlines:\n");
+	ordl_foreach(&head, cursor) {
+		fprintf(dbg, "%6u", cursor->oe_deadline);
+	}
+	fprintf(dbg, "\n");
+	ordl_foreach(&head, cursor) {
+		fprintf(dbg, "%6s", cursor->oe_task->t_name);
+	}
+	fprintf(dbg, "\n");
 
 	ordl_foreach(&head, cursor) {
 		uint32_t wcet, D_c;
@@ -130,6 +145,9 @@ tpj(task_set_t *ts) {
 		if (slack_c < slack_b) {       
 			slack_b = slack_c;
 		}
+		fprintf(dbg, "DBF(%3u):%-3lu Slack:%-3lu Task: %-8s WCET(%u):%u\n",
+			D_c, demand, slack_b, task->t_name, task->t_threads, wcet);
+		
 		if (slack_b < 0) {
 			/* Infeasible */
 			infeasible = 1;
@@ -149,6 +167,8 @@ tpj(task_set_t *ts) {
 			task->t_chunk = wcet;
 			continue;
 		}
+		fprintf(dbg, "    WCET(%u):%u > Slack:%lu --> dividing %s\n",
+			task->t_threads, wcet, slack_b, task->t_name);
 		divide(ts, &head, task, slack_b);
 		goto repeat;
 	}
@@ -165,5 +185,9 @@ tpj(task_set_t *ts) {
 	/* Play it safe, let the compiler throw out the call */	
 	ordl_init(&head);
 
+	fprintf(dbg, "\n");
+	if (doclose) {
+		fclose(dbg);
+	}
 	return infeasible;
 }

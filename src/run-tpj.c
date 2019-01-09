@@ -60,6 +60,9 @@ main(int argc, char** argv) {
 			clc.c_fname = strdup(optarg);
 			printf("Configuration File: %s\n", clc.c_fname);
 			break;
+		case 'v':
+			clc.c_verbose = 1;
+			break;
 		}
 	}
 	if (!clc.c_fname) {
@@ -94,7 +97,12 @@ main(int argc, char** argv) {
 	char *str;
 	printf("Task Set:\n");
 	str = ts_string(ts); printf("%s\n\n", str); free(str);
-	int feas = tpj(ts);
+	feas_t feas;
+	if (clc.c_verbose) {
+		feas = tpj(ts, stdout);
+	} else {
+		feas = tpj(ts, NULL);
+	}
 
 	printf("After assigning non-preemptive chunks\n");
 	str = ts_string(ts); printf("%s\n", str); free(str);
@@ -102,13 +110,13 @@ main(int argc, char** argv) {
 	printf("Utilization: %.4f, T*: %lu, Feasible: ", ts_util(ts),
 	    ts_star(ts));
 	switch (feas) {
-	case 0:
+	case FEAS_YES:
 		printf("Yes\n");
 		break;
-	case 1:
+	case FEAS_NO:
 		printf("No\n");
 		break;
-	case -1:
+	case FEAS_MALFORM:
 		printf("N/A (Poorly formed set)\n");
 		break;
 	}
