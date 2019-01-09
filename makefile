@@ -1,18 +1,22 @@
-BIN =../bin
-OBJ =../obj
-CFLAGS =-ggdb
+CFLAGS =-ggdb -Isrc
 CFLAGS += $(shell pkg-config --cflags libconfig)
-LDFLAGS := -lm
+LDFLAGS := -L./lib -lsched -lm
 LDFLAGS += $(shell pkg-config --libs libconfig)
 VALGRIND := valgrind --leak-check=full --error-exitcode=1 -q
-
 export BIN OBJ CFLAGS
 
-.PHONY: clean src test
+BIN = bin
+OBJ = obj
+SRC = src
+BINS = max-chunks run-tpj
 
-all: test bin/max-chunks bin/run-tpj
+dirs := bin obj lib
 
-test: bin/test-task bin/test-taskset bin/test-ordl bin/max-chunks
+.PHONY: clean src test $(BINS)
+
+all: $(BINS) unittest
+
+test: $(BINS) bin/test-task bin/test-taskset bin/test-ordl
 	$(VALGRIND) bin/test-task
 	$(VALGRIND) bin/test-taskset
 	$(VALGRIND) bin/test-ordl
@@ -28,24 +32,42 @@ bin/test-taskset: src
 bin/test-ordl: src
 	$(CC) $(LDFLAGS) $(CFLAGS) -o bin/test-ordl obj/test-ordl.o obj/ordl.o
 
-bin/max-chunks: src
-	echo $(LDFLAGS)
-	$(CC) $(LDFLAGS) $(CFLAGS) -o bin/max-chunks obj/max-chunks.o \
-	    obj/taskset.o obj/task.o obj/ordl.o obj/maxchunks.o obj/taskset-config.o
+$(OBJ)/%.o: $(SRC)/%.c | $(dirs)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-bin/run-tpj: src
-	echo $(LDFLAGS)
-	$(CC) $(LDFLAGS) $(CFLAGS) -o bin/run-tpj obj/run-tpj.o \
-	    obj/taskset.o obj/task.o obj/ordl.o obj/tpj.o obj/taskset-config.o
+mc_srcs = max-chunks.c
+mc_objs = $(patsubst %.c,$(OBJ)/%.o,$(mc_srcs))
+max-chunks: bin/max-chunks
+bin/max-chunks: $(mc_objs) | lib/libsched.a
+	$(CC) -o bin/max-chunks $^ $(LDFLAGS) $(CFLAGS)
 
-src: | obj bin
-src: 
-	$(MAKE) -C src $(TGT)
+tpj_srcs = run-tpj.c
+tpj_objs = $(patsubst %.c,$(OBJ)/%.o,$(tpj_srcs))
+run-tpj: bin/run-tpj
+bin/run-tpj: $(tpj_objs)
+	$(CC) -o $@ $^ $(LDFLAGS) $(CFLAGS)
 
-obj:
-	mkdir obj
-bin:
-	mkdir bin
+# Unit Tests
+ut_srcs = unittest.c ut_suites.c cunit_verify.c
+ut_objs = $(patsubst %.c,$(OBJ)/%.o,$(ut_srcs))
+unittest: bin/unittest
+bin/unittest: LDFLAGS += -lcunit
+bin/unittest: $(ut_objs)
+	$(CC) -o $@ $^ $(LDFLAGS) $(CFLAGS)
+
+lib_srcs = \
+	maxchunks.c \
+	ordl.c \
+	task.c \
+	taskset.c \
+	taskset-config.c \
+	tpj.c
+lib_objs = $(patsubst %.c,obj/%.o,$(lib_srcs))
+lib/libsched.a: $(lib_objs)
+	ar rcs $@ $^
+
+$(dirs):
+	mkdir $@
 
 clean:
-	rm -rf obj bin
+	rm -rf $(dirs)
