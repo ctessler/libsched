@@ -35,26 +35,36 @@ bin/test-ordl: src
 $(OBJ)/%.o: $(SRC)/%.c | $(dirs)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+#
+# Maximum Non Preemptive Chunks implementation
+#
 mc_srcs = max-chunks.c
 mc_objs = $(patsubst %.c,$(OBJ)/%.o,$(mc_srcs))
 max-chunks: bin/max-chunks
 bin/max-chunks: $(mc_objs) | lib/libsched.a
 	$(CC) -o bin/max-chunks $^ $(LDFLAGS) $(CFLAGS)
-
+#
+# Threads Per Job implementation
+#
 tpj_srcs = run-tpj.c
 tpj_objs = $(patsubst %.c,$(OBJ)/%.o,$(tpj_srcs))
 run-tpj: bin/run-tpj
 bin/run-tpj: $(tpj_objs)
 	$(CC) -o $@ $^ $(LDFLAGS) $(CFLAGS)
 
+#
 # Unit Tests
-ut_srcs = unittest.c ut_suites.c cunit_verify.c
+#
+ut_srcs = unittest.c ut_suites.c ut_cunit.c
 ut_objs = $(patsubst %.c,$(OBJ)/%.o,$(ut_srcs))
 unittest: bin/unittest
 bin/unittest: LDFLAGS += -lcunit
 bin/unittest: $(ut_objs)
 	$(CC) -o $@ $^ $(LDFLAGS) $(CFLAGS)
 
+#
+# libsched library
+#
 lib_srcs = \
 	maxchunks.c \
 	ordl.c \
