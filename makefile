@@ -55,9 +55,11 @@ bin/run-tpj: $(tpj_objs)
 #
 # Unit Tests
 #
-ut_srcs = unittest.c ut_suites.c ut_cunit.c
+ut_srcs = unittest.c ut_suites.c \
+	ut_cunit.c ut_tpj.c
 ut_objs = $(patsubst %.c,$(OBJ)/%.o,$(ut_srcs))
 unittest: bin/unittest
+	$(VALGRIND) bin/unittest
 bin/unittest: LDFLAGS += -lcunit
 bin/unittest: $(ut_objs)
 	$(CC) -o $@ $^ $(LDFLAGS) $(CFLAGS)
