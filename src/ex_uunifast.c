@@ -17,10 +17,13 @@ static struct {
 	float c_util;
 	char* c_fname;
 	char* c_lname;
+	char* c_oname;
 } clc;
-static const char* short_options = "hl:s:u:v";
+static const char* short_options = "hl:o:s:u:v";
 static struct option long_options[] = {
-    {"help", no_argument, 0, 'h'}, 
+    {"help", no_argument, 0, 'h'},
+    {"log", required_argument, 0, 's'},
+    {"output", required_argument, 0, 'o'},
     {"task-set", required_argument, 0, 's'},
     {"util", required_argument, 0, 'u'},
     {"verbose", no_argument, &clc.c_verbose, 1},
@@ -31,11 +34,12 @@ void
 usage() {
 	printf("Implementation of UUniFast from \"Biasing Effects in Schedulability");
 	printf(" Measures\"\n");
-	printf("    -- Bini & Buttazo, 2004\n");
+	printf("    -- Bini & Buttazo, 2004\n\n");
 	printf("Usage: uunifast [OPTIONS] -s <TASKS> -u <UTIL>\n");
 	printf("OPTIONS:\n");
 	printf("\t--help/-h\t\tThis message\n");
 	printf("\t--log/-l <FILE>\t\tAuditible log file\n");
+	printf("\t--output/-o <FILE>\tOutput file of new task set\n"); 
 	printf("\t--task-set/-s <FILE>\tTask set configuration file\n"); 
 	printf("\t--util/-u <FLOAT>\tTotal system utilization [0,1]\n");	
 	printf("\t--verbose/-v\t\tEnables verbose output\n");
@@ -51,13 +55,22 @@ usage() {
 	printf("\n\tThe random function and its seed are configurable at run time.\n");
 	printf("\tThe preferred invocation of uunifast is:\n\n");
 	printf("\t> GSL_RNG_TYPE=ranlxs2 GSL_RNG_SEED=`date +%%s` uunifast ...\n");
+	printf("\n\nEXAMPLES:\n");
+	printf("\tUUniFast for a utilization of .75\n");
+	printf("\t> uunifast -s ex/uunifast.ts -u .75\n\n");
+	printf("\tUtilization of .5 new task set in point5.ts\n");
+	printf("\t> uunifast -s ex/uunifast.ts -u .5 -o point5.ts\n\n");
+	printf("\tUse \'better\' random parameters\n");
+	printf("\t> GSL_RNG_TYPE=ranlxs2 GSL_RNG_SEED=`date +%%s` \\\n");
+	printf("\t\tuunifast -s ex/uunifast.ts -u .5 -o point5.ts\n");
 	printf("\n%s\n", exfile);
 }
 
 int
 main(int argc, char** argv) {
-	config_t cfg;
 	task_set_t *ts = NULL;
+	FILE *ofile = stdout;
+	config_t cfg;
 	int rv = 0;
 
 	/* Initializer for libconfig */
@@ -88,9 +101,11 @@ main(int argc, char** argv) {
 			printf("Log file not implemented\n");
 			usage();
 			goto bail;
+		case 'o':
+			clc.c_oname = strdup(optarg);
+			break;
 		case 's':
 			clc.c_fname = strdup(optarg);
-			printf("# Original task set file: %s\n", clc.c_fname);
 			break;
 		case 'u':
 			clc.c_util = atof(optarg);
@@ -98,6 +113,10 @@ main(int argc, char** argv) {
 		case 'v':
 			clc.c_verbose = 1;
 			break;
+		default:
+			printf("Unknown option %c\n", c);
+			usage();
+			goto bail;
 		}
 	}
 	if (!clc.c_fname) {
@@ -106,6 +125,24 @@ main(int argc, char** argv) {
 		usage();
 		goto bail;
 	}
+
+	if ((clc.c_util <= 0) || (clc.c_util > 1)) {
+		printf("A total system utilization [-u] in the range (0, 1]");
+		printf(" is required\n");
+		rv = -1;
+		usage();
+		goto bail;
+	}
+
+	if (clc.c_oname) {
+		ofile = fopen(clc.c_oname, "w");
+		if (!ofile) {
+			printf("Unable to open %s for writing\n", clc.c_oname);
+			ofile = stdout;
+			goto bail;
+		}
+	}
+	fprintf(ofile, "# Original task set file: %s\n", clc.c_fname);
 
 	if (CONFIG_TRUE != config_read_file(&cfg, clc.c_fname)) {
 		printf("Unable to read configuration file: %s\n",
@@ -116,14 +153,6 @@ main(int argc, char** argv) {
 		rv = -1;
 		goto bail;
 	}
-	if ((clc.c_util <= 0) || (clc.c_util > 1)) {
-		printf("A total system utilization [-u] in the range (0, 1]");
-		printf(" is required\n");
-		rv = -1;
-		usage();
-		goto bail;
-	}
-
 	/*
 	 * Configuration file parsed fully, let's go. 
 	 */
@@ -133,6 +162,8 @@ main(int argc, char** argv) {
 		rv = -1;
 		goto bail;
 	}
+	config_destroy(&cfg);
+	
 	/*
 	 * Configuration file processed, time to calculate the chunks
 	 */
@@ -141,7 +172,8 @@ main(int argc, char** argv) {
 	str = ts_string(ts); printf("%s\n\n", str); free(str);
 
 	gsl_rng *r = gsl_rng_alloc(gsl_rng_default);
-	int error = uunifast(ts, clc.c_util, r, stdout);
+	int error = uunifast(ts, clc.c_util, r, NULL);
+	gsl_rng_free(r);
 	
 	if (error) {
 		printf("Could not perform UUniFast on the given task set\n");
@@ -153,9 +185,23 @@ main(int argc, char** argv) {
 	str = ts_string(ts); printf("%s\n", str); free(str);
 	printf("-------------------------------------------------\n");
 	printf("Utilization: %.4f, T*: %lu\n", ts_util(ts), ts_star(ts));
+
+	config_init(&cfg);
+	ts_config_dump(&cfg, ts);
+
+	config_write(&cfg, ofile);
 bail:
 	ts_destroy(ts);
 	config_destroy(&cfg);
+	if (clc.c_fname) {
+		free(clc.c_fname);
+	}
+	if (clc.c_oname) {
+		free(clc.c_oname);
+	}
+	if (ofile != stdout) {
+		fclose(ofile);
+	}
 	return rv;
 }
 

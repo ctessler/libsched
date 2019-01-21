@@ -12,9 +12,9 @@ BINS = max-chunks run-tpj uunifast
 
 dirs := bin obj lib
 
-.PHONY: clean src test $(BINS)
+.PHONY: clean src test $(BINS) vgcheck
 
-all: $(BINS) unittest
+all: $(BINS) unittest vgcheck
 
 test: $(BINS) bin/test-task bin/test-taskset bin/test-ordl
 	$(VALGRIND) bin/test-task
@@ -65,13 +65,18 @@ bin/uunifast: $(uuf_objs) lib/libsched.a
 #
 ut_srcs = unittest.c ut_suites.c ut_cunit.c ut_task.c ut_tpj.c
 ut_objs = $(patsubst %.c,$(OBJ)/%.o,$(ut_srcs))
-unittest: bin/unittest
+unittest: bin/unittest vgcheck
 	$(VALGRIND) bin/unittest
 bin/unittest: LDFLAGS += -lcunit
 bin/unittest: $(ut_objs) lib/libsched.a
 	$(CC) -o $@ $(ut_objs) $(LDFLAGS) $(CFLAGS)
 
-
+#
+# valgrind check the executables
+#
+vgcheck: $(BINS)
+	$(VALGRIND) bin/max-chunks -s ex/1task.ts > /dev/null
+	$(VALGRIND) bin/uunifast -s ex/uunifast.ts -u .9 > /dev/null
 #
 # libsched library
 #

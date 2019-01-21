@@ -64,3 +64,48 @@ ts_config_process(config_t *cfg, task_set_t *ts) {
 	
 	return 1;
 }
+
+static void
+ts_config_add_task(config_setting_t *tasks, task_t *t) {
+	config_setting_t *taskg, *name, *period, *deadline, *threads, *wcet;
+
+	taskg = config_setting_add(tasks, "", CONFIG_TYPE_GROUP);
+
+	name = config_setting_add(taskg, "name", CONFIG_TYPE_STRING);
+	config_setting_set_string(name, t->t_name);
+
+	period = config_setting_add(taskg, "period", CONFIG_TYPE_INT);
+	config_setting_set_int(period, t->t_period);
+
+	deadline = config_setting_add(taskg, "deadline", CONFIG_TYPE_INT);
+	config_setting_set_int(deadline, t->t_deadline);
+
+	threads = config_setting_add(taskg, "threads", CONFIG_TYPE_INT);
+	config_setting_set_int(threads, t->t_threads);
+
+	wcet = config_setting_add(taskg, "wcet", CONFIG_TYPE_LIST);
+
+	for (int i=1; i <= t->t_threads; i++) {
+		config_setting_t *c;
+		c = config_setting_add(wcet, NULL, CONFIG_TYPE_INT);
+		config_setting_set_int(c, t->wcet(i));
+	}
+	
+}
+
+int
+ts_config_dump(config_t *cfg, task_set_t *ts) {
+	config_setting_t *root, *setting, *tasks;
+	task_link_t* cookie;
+	task_t* task;
+	
+	root = config_root_setting(cfg);
+
+	tasks = config_setting_add(root, "tasks", CONFIG_TYPE_LIST);
+
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		ts_config_add_task(tasks, ts_task(cookie));
+	}
+		
+	return 0;
+}

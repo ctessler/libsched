@@ -14,4 +14,16 @@
  */
 int ts_config_process(config_t *cfg, task_set_t *ts);
 
+/**
+ * Dump the task set into a configuration object
+ *
+ * cfg **must** have been config_init()'d before this call.
+ *
+ * @param[out] cfg the in memory configuration
+ * @param[in] ts the task set
+ *
+ * @return non-zero upon success, zero otherwise
+ */
+int ts_config_dump(config_t *cfg, task_set_t *ts);
+
 #endif /* TASKSET_CONFIG_H */

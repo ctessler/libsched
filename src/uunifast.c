@@ -55,6 +55,7 @@ uu_update_task(task_t *t, double u) {
 int
 uunifast(task_set_t *ts, double u, gsl_rng *r, FILE *debug) {
 	double random, sum_u, sum_nu, c_u;
+	int rv = 0, doclose = 0;
 	uint32_t n_tasks;
 	task_link_t *cookie;
 	task_t *t;
@@ -63,6 +64,11 @@ uunifast(task_set_t *ts, double u, gsl_rng *r, FILE *debug) {
 	sum_u = u;
 	cookie = ts_first(ts);
 	t = ts_task(cookie);
+
+	if (debug == NULL) {
+		debug = fopen("/dev/null", "w");
+		doclose = 1;
+	}
 
 	fprintf(debug, "Number of tasks: %u\n", n_tasks);
 	for (int i=0; i < n_tasks; i++) {
@@ -74,8 +80,9 @@ uunifast(task_set_t *ts, double u, gsl_rng *r, FILE *debug) {
 
 		/* Update the task in the set */
 		if (!uu_update_task(t, c_u)) {
-			printf("Improper task!\n");
-			return 1;
+			fprintf(debug, "Improper task!\n");
+			rv = 1;
+			goto bail;
 		}
 		/* Advance the task */
 		cookie = ts_next(ts, cookie);
@@ -83,7 +90,11 @@ uunifast(task_set_t *ts, double u, gsl_rng *r, FILE *debug) {
 			t = ts_task(cookie);
 		}
 	}
-	return 0;
+bail:
+	if (doclose) {
+		fclose(debug);
+	}
+	return rv;
 }
 
 
