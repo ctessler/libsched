@@ -4,11 +4,7 @@ static char BUFF[1024];
 task_t*
 task_alloc(uint32_t period, uint32_t deadline, uint32_t threads) {
 	task_t* task = calloc(sizeof(task_t), 1);
-	if (!task_threads(task, threads)) {
-		/* Tasks must have 1 thread (at least) */
-		task_free(task);
-		return NULL;
-	}
+	task_threads(task, threads);
 	task->t_period = period;
 	task->t_deadline = deadline;
 	return task;
@@ -80,8 +76,12 @@ task_string(task_t *task) {
 
 float_t
 task_util(task_t *task) {
-	uint32_t m = task->t_threads;
-	uint32_t c = task->wcet(m);
+	uint32_t m,c;
+	m = task->t_threads;
+	if (m <= 0) {
+		return 0;
+	}
+	c = task->wcet(m);
 
 	return (float_t)((float_t) c / task->t_period);
 }

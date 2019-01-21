@@ -131,7 +131,6 @@ task_link_t* ts_next(task_set_t *ts, task_link_t *cookie);
  */
 uint32_t ts_hyperp(task_set_t *ts);
 
-
 /**
  * Finds the greatest deadline among all tasks
  *
@@ -251,5 +250,15 @@ int ts_fill_deadlines_task(task_t *task, ordl_t *head, uint32_t t);
 int ts_extend_deadlines(task_set_t *ts, ordl_t *head, uint32_t prevb,
     uint32_t newb);
 
+/**
+ * Returns the number of tasks in the task set
+ *
+ * @note this is an O(n) walk.
+ *
+ * @param[in] ts the task set
+ *
+ * @return the number of tasks in the set
+ */
+uint32_t ts_count(task_set_t *ts);
 
 #endif /* TASKSET_H */

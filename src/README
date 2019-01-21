@@ -1,0 +1,7 @@
+Source files in this directory are prefixed with their purpose, this
+is likely not the best form of organization but it is one, be grateful
+for that!
+
+ut_*	-- Unit Test implementation.
+ex_*	-- Used exclusively for in a binary that can be run.
+*	-- (No Prefix) Source file for the sched library.

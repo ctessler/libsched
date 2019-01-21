@@ -16,9 +16,9 @@ static struct {
 	char* c_fname;
 } clc;
 
-static const char* short_options = "hl:t:v";
+static const char* short_options = "hl:s:v";
 static struct option long_options[] = {
-    {"tasks", required_argument, 0, 't'},
+    {"task-set", required_argument, 0, 's'},
     {"help", no_argument, 0, 'h'},    
     {"verbose", no_argument, &clc.c_verbose, 1},
     {0, 0, 0, 0}
@@ -26,11 +26,11 @@ static struct option long_options[] = {
 
 void
 usage() {
-	printf("Usage: run-tpj [OPTIONS] -t <TASKSET>\n");
+	printf("Usage: run-tpj [OPTIONS] -s <TASKSET>\n");
 	printf("OPTIONS:\n");
 	printf("\t--help/-h\t\tThis message\n");
 	printf("\t--log/-l <FILE>\t\tAuditible log file\n");
-	printf("\t--tasks/-t <FILE>\tRequired file containing tasks\n");
+	printf("\t--task-set/-s <FILE>\tTask set file\n");
 	printf("\t--verbose/-v\t\tEnables verbose output\n");
 	printf("\n%s\n", exfile);
 }
@@ -56,9 +56,9 @@ main(int argc, char** argv) {
 		case 'l':
 			/* Needs to be implemented */
 			break;
-		case 't':
+		case 's':
 			clc.c_fname = strdup(optarg);
-			printf("Configuration File: %s\n", clc.c_fname);
+			printf("Task set file: %s\n", clc.c_fname);
 			break;
 		case 'v':
 			clc.c_verbose = 1;

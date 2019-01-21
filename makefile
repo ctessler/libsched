@@ -1,6 +1,6 @@
 CFLAGS =-ggdb -Isrc
 CFLAGS += $(shell pkg-config --cflags libconfig)
-LDFLAGS := -L./lib -lsched -lm
+LDFLAGS := -L./lib -lsched -lm -lgsl -lgslcblas
 LDFLAGS += $(shell pkg-config --libs libconfig)
 VALGRIND := valgrind --leak-check=full --error-exitcode=1 -q
 export BIN OBJ CFLAGS
@@ -8,7 +8,7 @@ export BIN OBJ CFLAGS
 BIN = bin
 OBJ = obj
 SRC = src
-BINS = max-chunks run-tpj
+BINS = max-chunks run-tpj uunifast
 
 dirs := bin obj lib
 
@@ -53,6 +53,14 @@ bin/run-tpj: $(tpj_objs) lib/libsched.a
 	$(CC) -o $@ $(tpj_objs) $(LDFLAGS) $(CFLAGS)
 
 #
+# UUNiFast
+#
+uuf_srcs = ex_uunifast.c
+uuf_objs = $(patsubst %.c,$(OBJ)/%.o,$(uuf_srcs))
+uunifast: bin/uunifast
+bin/uunifast: $(uuf_objs) lib/libsched.a
+	$(CC) -o $@ $(uuf_objs) $(LDFLAGS) $(CFLAGS)
+#
 # Unit Tests
 #
 ut_srcs = unittest.c ut_suites.c ut_cunit.c ut_task.c ut_tpj.c
@@ -63,6 +71,7 @@ bin/unittest: LDFLAGS += -lcunit
 bin/unittest: $(ut_objs) lib/libsched.a
 	$(CC) -o $@ $(ut_objs) $(LDFLAGS) $(CFLAGS)
 
+
 #
 # libsched library
 #
@@ -72,7 +81,8 @@ lib_srcs = \
 	task.c \
 	taskset.c \
 	taskset-config.c \
-	tpj.c
+	tpj.c \
+	uunifast.c
 lib_objs = $(patsubst %.c,obj/%.o,$(lib_srcs))
 lib/libsched.a: $(lib_objs)
 	ar rcs $@ $^

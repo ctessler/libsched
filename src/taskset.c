@@ -423,3 +423,14 @@ ts_extend_deadlines(task_set_t *ts, ordl_t* head, uint32_t prevb,
 		} while (deadline <= newb);
 	}
 }
+
+uint32_t ts_count(task_set_t *ts) {
+	task_link_t *cursor;
+	uint32_t count=0;
+
+	for (cursor = ts->ts_head ; cursor ; cursor = cursor->tl_next) {
+		count++;
+	}
+
+	return count;
+}

@@ -16,9 +16,9 @@ static struct {
 	char* c_fname;
 } clc;
 
-static const char* short_options = "hl:t:v";
+static const char* short_options = "hl:s:v";
 static struct option long_options[] = {
-    {"tasks", required_argument, 0, 't'},
+    {"task-set", required_argument, 0, 's'},
     {"help", no_argument, 0, 'h'},    
     {"verbose", no_argument, &clc.c_verbose, 1},
     {0, 0, 0, 0}
@@ -26,11 +26,11 @@ static struct option long_options[] = {
 
 void
 usage() {
-	printf("Usage: max-chunks [OPTIONS] -t <TASKSET>\n");
+	printf("Usage: max-chunks [OPTIONS] -s <TASKSET>\n");
 	printf("OPTIONS:\n");
 	printf("\t--help/-h\t\tThis message\n");
 	printf("\t--log/-l <FILE>\t\tAuditible log file\n");
-	printf("\t--tasks/-t <FILE>\tRequired file containing tasks\n");
+	printf("\t--task-set/-s <FILE>\tRequired file containing tasks\n");
 	printf("\t--verbose/-v\t\tEnables verbose output\n");
 	printf("\n%s\n", exfile);
 }
@@ -55,15 +55,17 @@ main(int argc, char** argv) {
 			break;
 		case 'l':
 			/* Needs to be implemented */
-			break;
-		case 't':
+			printf("Log file not implemented\n");
+			usage();
+			goto bail;
+		case 's':
 			clc.c_fname = strdup(optarg);
-			printf("Configuration File: %s\n", clc.c_fname);
+			printf("Task set file: %s\n", clc.c_fname);
 			break;
 		}
 	}
 	if (!clc.c_fname) {
-		printf("Configuration file required\n");
+		printf("Task set file required\n");
 		rv = -1;
 		usage();
 		goto bail;
