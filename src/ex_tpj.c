@@ -4,10 +4,10 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "maxchunks.h"
+#include "tpj.h"
 #include "taskset-config.h"
-#include "exfile.h"
-		   
+#include "ex_tasks.h"
+
 /**
  * global command line configuration
  */
@@ -26,11 +26,11 @@ static struct option long_options[] = {
 
 void
 usage() {
-	printf("Usage: max-chunks [OPTIONS] -s <TASKSET>\n");
+	printf("Usage: run-tpj [OPTIONS] -s <TASKSET>\n");
 	printf("OPTIONS:\n");
 	printf("\t--help/-h\t\tThis message\n");
 	printf("\t--log/-l <FILE>\t\tAuditible log file\n");
-	printf("\t--task-set/-s <FILE>\tRequired file containing tasks\n");
+	printf("\t--task-set/-s <FILE>\tTask set file\n");
 	printf("\t--verbose/-v\t\tEnables verbose output\n");
 	printf("\n%s\n", exfile);
 }
@@ -55,17 +55,18 @@ main(int argc, char** argv) {
 			break;
 		case 'l':
 			/* Needs to be implemented */
-			printf("Log file not implemented\n");
-			usage();
-			goto bail;
+			break;
 		case 's':
 			clc.c_fname = strdup(optarg);
 			printf("Task set file: %s\n", clc.c_fname);
 			break;
+		case 'v':
+			clc.c_verbose = 1;
+			break;
 		}
 	}
 	if (!clc.c_fname) {
-		printf("Task set file required\n");
+		printf("Configuration file required\n");
 		rv = -1;
 		usage();
 		goto bail;
@@ -96,7 +97,12 @@ main(int argc, char** argv) {
 	char *str;
 	printf("Task Set:\n");
 	str = ts_string(ts); printf("%s\n\n", str); free(str);
-	int feas = max_chunks(ts);
+	feas_t feas;
+	if (clc.c_verbose) {
+		feas = tpj(ts, stdout);
+	} else {
+		feas = tpj(ts, NULL);
+	}
 
 	printf("After assigning non-preemptive chunks\n");
 	str = ts_string(ts); printf("%s\n", str); free(str);
@@ -104,13 +110,13 @@ main(int argc, char** argv) {
 	printf("Utilization: %.4f, T*: %lu, Feasible: ", ts_util(ts),
 	    ts_star(ts));
 	switch (feas) {
-	case 0:
+	case FEAS_YES:
 		printf("Yes\n");
 		break;
-	case 1:
+	case FEAS_NO:
 		printf("No\n");
 		break;
-	case -1:
+	case FEAS_MALFORM:
 		printf("N/A (Poorly formed set)\n");
 		break;
 	}

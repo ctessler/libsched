@@ -8,7 +8,7 @@ export BIN OBJ CFLAGS
 BIN = bin
 OBJ = obj
 SRC = src
-BINS = max-chunks run-tpj uunifast
+BINS = maxchunks tpj uunifast
 
 dirs := bin obj lib
 
@@ -38,18 +38,18 @@ $(OBJ)/%.o: $(SRC)/%.c | $(dirs)
 #
 # Maximum Non Preemptive Chunks implementation
 #
-mc_srcs = max-chunks.c
+mc_srcs = ex_maxchunks.c
 mc_objs = $(patsubst %.c,$(OBJ)/%.o,$(mc_srcs))
-max-chunks: bin/max-chunks
-bin/max-chunks: $(mc_objs) lib/libsched.a
-	$(CC) -o bin/max-chunks $(mc_objs) $(LDFLAGS) $(CFLAGS)
+maxchunks: bin/maxchunks
+bin/maxchunks: $(mc_objs) lib/libsched.a
+	$(CC) -o $@ $(mc_objs) $(LDFLAGS) $(CFLAGS)
 #
 # Threads Per Job implementation
 #
-tpj_srcs = run-tpj.c
+tpj_srcs = ex_tpj.c
 tpj_objs = $(patsubst %.c,$(OBJ)/%.o,$(tpj_srcs))
-run-tpj: bin/run-tpj
-bin/run-tpj: $(tpj_objs) lib/libsched.a
+tpj: bin/tpj
+bin/tpj: $(tpj_objs) lib/libsched.a
 	$(CC) -o $@ $(tpj_objs) $(LDFLAGS) $(CFLAGS)
 
 #
@@ -75,7 +75,7 @@ bin/unittest: $(ut_objs) lib/libsched.a
 # valgrind check the executables
 #
 vgcheck: $(BINS)
-	$(VALGRIND) bin/max-chunks -s ex/1task.ts > /dev/null
+	$(VALGRIND) bin/maxchunks -s ex/1task.ts > /dev/null
 	$(VALGRIND) bin/uunifast -s ex/uunifast.ts -u .9 > /dev/null
 #
 # libsched library
