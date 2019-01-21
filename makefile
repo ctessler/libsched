@@ -41,8 +41,8 @@ $(OBJ)/%.o: $(SRC)/%.c | $(dirs)
 mc_srcs = max-chunks.c
 mc_objs = $(patsubst %.c,$(OBJ)/%.o,$(mc_srcs))
 max-chunks: bin/max-chunks
-bin/max-chunks: $(mc_objs) | lib/libsched.a
-	$(CC) -o bin/max-chunks $^ $(LDFLAGS) $(CFLAGS)
+bin/max-chunks: $(mc_objs) lib/libsched.a
+	$(CC) -o bin/max-chunks $(mc_objs) $(LDFLAGS) $(CFLAGS)
 #
 # Threads Per Job implementation
 #
@@ -50,19 +50,18 @@ tpj_srcs = run-tpj.c
 tpj_objs = $(patsubst %.c,$(OBJ)/%.o,$(tpj_srcs))
 run-tpj: bin/run-tpj
 bin/run-tpj: $(tpj_objs) lib/libsched.a
-	$(CC) -o $@ $^ $(LDFLAGS) $(CFLAGS)
+	$(CC) -o $@ $(tpj_objs) $(LDFLAGS) $(CFLAGS)
 
 #
 # Unit Tests
 #
-ut_srcs = unittest.c ut_suites.c \
-	ut_cunit.c ut_tpj.c
+ut_srcs = unittest.c ut_suites.c ut_cunit.c ut_task.c ut_tpj.c
 ut_objs = $(patsubst %.c,$(OBJ)/%.o,$(ut_srcs))
 unittest: bin/unittest
 	$(VALGRIND) bin/unittest
 bin/unittest: LDFLAGS += -lcunit
-bin/unittest: $(ut_objs)
-	$(CC) -o $@ $^ $(LDFLAGS) $(CFLAGS)
+bin/unittest: $(ut_objs) lib/libsched.a
+	$(CC) -o $@ $(ut_objs) $(LDFLAGS) $(CFLAGS)
 
 #
 # libsched library

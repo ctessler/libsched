@@ -67,6 +67,8 @@ task_t* task_dup(task_t *orig, uint32_t threads);
  * @note changing the number of threads destroys the WCET table
  *
  * @param[in] threads the new number of threads released with each job
+ *
+ * @return the number of threads in the resized task
  */
 int task_threads(task_t *task, uint32_t threads);
 
