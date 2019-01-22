@@ -18,7 +18,13 @@ uu_get_scaled(gsl_rng *r) {
 }
 
 /**
- * Updates the task to meet the new usage
+ * Updates the task to meet the new usage u
+ *
+ * If the period is not set, then the WCET of the greatest number of
+ * threads will be used to calculate the period to match the usage u.
+ *
+ * If the period is set, the number of threads are set to 1, and the
+ * WCET to match the usage u is assigned.
  *
  * @param[in|out] t the task to be modified
  * @param[in] u the usage of t

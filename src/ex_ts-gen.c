@@ -1,0 +1,164 @@
+#include <stdio.h>
+#include <libconfig.h>
+#include <getopt.h>
+#include <string.h>
+#include <stdlib.h>
+#include <limits.h>
+
+#include "taskset-config.h"
+#include "taskset-create.h"
+#include "ex_uunifast.h"
+
+/**
+ * global command line configuration
+ */
+static struct {
+	int c_verbose;
+	int c_tasks;
+	char* c_lname;
+	char* c_oname;
+	uint32_t c_minp;
+	uint32_t c_maxp;	
+} clc;
+
+enum {
+      ARG_MINP = CHAR_MAX + 1,
+      ARG_MAXP,
+};
+
+static const char* short_options = "hl:n:o:v";
+static struct option long_options[] = {
+    {"help", no_argument, 0, 'h'},
+    {"log", required_argument, 0, 's'},
+    {"minp", required_argument, 0, ARG_MINP},
+    {"maxp", required_argument, 0, ARG_MAXP},    
+    {"ntasks", required_argument, &clc.c_tasks, 1},
+    {"output", required_argument, 0, 'o'},
+    {"verbose", no_argument, &clc.c_verbose, 1},
+    {0, 0, 0, 0}
+};
+
+void
+usage() {
+	printf("Task Set Generator: Creates an empty task set file that can be");
+	printf(" updated by: \n\t");
+	printf("uunnifast, ts-deadlines, and ts-threads.\n");
+	printf("Usage: ts-gen [OPTIONS] -o <FILE> -n <INT>\n");
+	printf("OPTIONS:\n");
+	printf("\t--help/-h\t\tThis message\n");
+	printf("\t--log/-l <FILE>\t\tAuditible log file\n");
+	printf("\t--minp <INT>\t\tMinimum period value of any task\n");
+	printf("\t--maxp <INT>\t\tMaximum period value of any task\n");	
+	printf("\t--output/-o <FILE>\tOutput file of new task set\n");
+	printf("\t--ntasks/-n <INT>\tThe number of tasks\n");
+	printf("\t--verbose/-v\t\tEnables verbose output\n");
+	printf("\nRANGES:\n");
+	printf("\tFor the minimum and maximum period values, if no minimum value");
+	printf(" is provided\n\tthe default is zero. If no maximum value is given");
+	printf(" the period of all tasks is\n\tzero\n");
+	printf("\nEXAMPLES:\n");
+	printf("\t10 tasks with 0 period, deadline, threads and wcet:\n");
+	printf("\t> ts-gen -n 10\n\n");
+	printf("\t10 tasks outputting a task set file:\n");
+	printf("\t> ts-gen -n 10 -o ten-tasks.ts\n\n");
+	printf("\t200 tasks with periods [10,100] uniformly distributed\n");
+	printf("\t> ts-gen -n 200 --minp 10 --maxp 100\n\n");
+	printf("\t20 tasks with periods [0,15]\n");
+	printf("\t> ts-gen -n 20 --maxp 15\t# --minp 0 \n\n");
+}
+
+int
+main(int argc, char** argv) {
+	task_set_t *ts = NULL;
+	FILE *ofile = stdout;
+	config_t cfg;
+	int rv = 0;
+
+	/* Initilialize the config object */
+	config_init(&cfg);
+	/*
+	 * Initializer for the GNU Scientific Library for random numbers
+	 * Suggested values for environment variables
+	 *   GSL_RNG_TYPE=ranlxs2
+	 *   GSL_RNG_SEED=`date +%s`
+	 */
+	gsl_rng_env_setup();
+	while(1) {
+		int opt_idx = 0;
+		int c = getopt_long(argc, argv, short_options,
+		    long_options, &opt_idx);
+		if (c == -1) {
+			break;
+		}
+
+		switch(c) {
+		case 0:
+			break;
+		case 'h':
+			usage();
+			goto bail;
+		case 'l':
+			/* Needs to be implemented */
+			printf("Log file not implemented\n");
+			usage();
+			goto bail;
+		case 'o':
+			clc.c_oname = strdup(optarg);
+			break;
+		case 'n':
+			clc.c_tasks = atoi(optarg);
+			break;
+		case 'v':
+			clc.c_verbose = 1;
+			break;
+		case ARG_MINP: /* minp */
+			clc.c_minp = atoi(optarg);
+			break;
+		case ARG_MAXP: /* maxp */
+			clc.c_maxp = atoi(optarg);
+			break;			
+		default:
+			printf("Unknown option %c\n", c);
+			usage();
+			goto bail;
+		}
+	}
+
+	if (clc.c_oname) {
+		ofile = fopen(clc.c_oname, "w");
+		if (!ofile) {
+			printf("Unable to open %s for writing\n", clc.c_oname);
+			ofile = stdout;
+			goto bail;
+		}
+	}
+
+	/* Allocate the bare tasks */
+	ts = ts_alloc();
+	tsc_bare_addn(ts, clc.c_tasks);
+
+	/* Initialize a random source */
+	gsl_rng *r = gsl_rng_alloc(gsl_rng_default);
+	
+	/* Do they have periods? */
+	if (clc.c_maxp > 0) {
+		tsc_set_periods(ts, r, clc.c_minp, clc.c_maxp);
+	}
+	gsl_rng_free(r);
+	
+	/* Convert the task set to the config */
+	ts_config_dump(&cfg, ts);
+	/* Write the result */
+	config_write(&cfg, ofile);
+bail:
+	ts_destroy(ts);
+	config_destroy(&cfg);
+	if (clc.c_oname) {
+		free(clc.c_oname);
+	}
+	if (ofile != stdout) {
+		fclose(ofile);
+	}
+	return rv;
+}
+

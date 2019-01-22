@@ -8,8 +8,7 @@ export BIN OBJ CFLAGS
 BIN = bin
 OBJ = obj
 SRC = src
-BINS = maxchunks tpj uunifast
-
+BINS = maxchunks tpj uunifast ts-gen ts-deadline-bb
 dirs := bin obj lib
 
 .PHONY: clean src test $(BINS) vgcheck
@@ -59,6 +58,25 @@ uuf_objs = $(patsubst %.c,$(OBJ)/%.o,$(uuf_srcs))
 uunifast: bin/uunifast
 bin/uunifast: $(uuf_objs) lib/libsched.a
 	$(CC) -o $@ $(uuf_objs) $(LDFLAGS) $(CFLAGS)
+
+#
+# ts-gen
+#
+tsg_srcs = ex_ts-gen.c
+tsg_objs = $(patsubst %.c,$(OBJ)/%.o,$(tsg_srcs))
+ts-gen: bin/ts-gen
+bin/ts-gen: $(tsg_objs) lib/libsched.a
+	$(CC) -o $@ $(tsg_objs) $(LDFLAGS) $(CFLAGS)
+
+#
+# ts-deadline-bb
+#
+tsd_srcs = ex_ts-deadline-bb.c
+tsd_objs = $(patsubst %.c,$(OBJ)/%.o,$(tsd_srcs))
+ts-deadline-bb: bin/ts-deadline-bb
+bin/ts-deadline-bb: $(tsd_objs) lib/libsched.a
+	$(CC) -o $@ $(tsd_objs) $(LDFLAGS) $(CFLAGS)
+
 #
 # Unit Tests
 #
@@ -76,6 +94,7 @@ bin/unittest: $(ut_objs) lib/libsched.a
 vgcheck: $(BINS)
 	$(VALGRIND) bin/maxchunks -s ex/1task.ts > /dev/null
 	$(VALGRIND) bin/uunifast -s ex/uunifast.ts -u .9 > /dev/null
+	$(VALGRIND) bin/ts-gen -n 5 --minp 5 --maxp 20 > /dev/null
 
 #
 # libsched library
@@ -86,6 +105,7 @@ lib_srcs = \
 	task.c \
 	taskset.c \
 	taskset-config.c \
+	taskset-create.c \
 	tpj.c \
 	uunifast.c
 lib_objs = $(patsubst %.c,obj/%.o,$(lib_srcs))

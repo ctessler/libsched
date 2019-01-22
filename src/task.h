@@ -38,6 +38,9 @@ typedef struct {
  *
  * @note a task must be task_free()'d 
  *
+ * A task may be created with a peroid, deadline, and number of
+ * threads equal to zero. 
+ *
  * @param[in] period the minimum inter-arrival time of a job
  * @param[in] deadline the relative deadline
  * @param[in] threads the number of threads released with each job
