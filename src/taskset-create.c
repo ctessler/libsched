@@ -49,6 +49,15 @@ tsc_set_deadlines_min_halfp(task_set_t *ts, gsl_rng *r, uint32_t maxd) {
 	task_link_t *cookie;
 	for (cookie = ts_first(ts) ; cookie ; cookie = ts_next(ts, cookie)) {
 		task_t *t = ts_task(cookie);
-		//		t->t_period = tsc_get_scaled(r, minp, maxp);
+		uint32_t c = t->wcet(t->t_threads);
+		if (maxd < c) {
+			/* Deadline cannot be less than the WCET */
+			return 0;
+		}
+		uint32_t mind = t->t_period / 2; /* p/2 */
+		if (mind < c) {
+			mind = c; /* min = max(c, p/2) */
+		}
+		t->t_deadline = tsc_get_scaled(r, mind, maxd);
 	}
 }

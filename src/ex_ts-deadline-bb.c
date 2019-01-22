@@ -14,26 +14,22 @@
  */
 static struct {
 	int c_verbose;
-	int c_tasks;
-	char* c_lname;
+	char* c_fname;
 	char* c_oname;
-	uint32_t c_minp;
-	uint32_t c_maxp;	
+	uint32_t c_maxd;	
 } clc;
 
 enum {
-      ARG_MINP = CHAR_MAX + 1,
-      ARG_MAXP,
+      ARG_MAXD = CHAR_MAX + 1
 };
 
-static const char* short_options = "hl:n:o:v";
+static const char* short_options = "hl:o:s:v";
 static struct option long_options[] = {
     {"help", no_argument, 0, 'h'},
     {"log", required_argument, 0, 's'},
-    {"minp", required_argument, 0, ARG_MINP},
-    {"maxp", required_argument, 0, ARG_MAXP},    
-    {"ntasks", required_argument, &clc.c_tasks, 1},
+    {"maxd", required_argument, 0, ARG_MAXD},
     {"output", required_argument, 0, 'o'},
+    {"task-set", required_argument, 0, 's'},
     {"verbose", no_argument, &clc.c_verbose, 1},
     {0, 0, 0, 0}
 };
@@ -46,14 +42,13 @@ usage() {
 	printf("Each task of the set must have a period, number of threads, and WCETs.");
 	printf(" The WCET for\nthe maximum number of threads must also be the maximum");
 	printf(" WCET for each task.\n\n");
-	printf("Usage: ts-deadline-bb [OPTIONS] -s <FILE> \n");
+	printf("Usage: ts-deadline-bb [OPTIONS] -s <FILE> --maxd <INT>\n");
 	printf("OPTIONS:\n");
 	printf("\t--help/-h\t\tThis message\n");
 	printf("\t--log/-l <FILE>\t\tAuditible log file\n");
-	printf("\t--minp <INT>\t\tMinimum period value of any task\n");
-	printf("\t--maxp <INT>\t\tMaximum period value of any task\n");	
+	printf("\t--maxd <INT>\t\tMaximum deadline value of any task\n");	
 	printf("\t--output/-o <FILE>\tOutput file of new task set\n");
-	printf("\t--ntasks/-n <INT>\tThe number of tasks\n");
+	printf("\t--task-set/-s <FILE>\tTask set configuration file\n");
 	printf("\t--verbose/-v\t\tEnables verbose output\n");
 	printf("\nRANGES:\n");
 	printf("\tFor the minimum and maximum period values, if no minimum value");
@@ -108,23 +103,35 @@ main(int argc, char** argv) {
 		case 'o':
 			clc.c_oname = strdup(optarg);
 			break;
-		case 'n':
-			clc.c_tasks = atoi(optarg);
+		case 's':
+			clc.c_fname = strdup(optarg);
 			break;
 		case 'v':
 			clc.c_verbose = 1;
 			break;
-		case ARG_MINP: /* minp */
-			clc.c_minp = atoi(optarg);
-			break;
-		case ARG_MAXP: /* maxp */
-			clc.c_maxp = atoi(optarg);
+		case ARG_MAXD: /* maxd */
+			clc.c_maxd = atoi(optarg);
 			break;			
 		default:
 			printf("Unknown option %c\n", c);
 			usage();
 			goto bail;
 		}
+	}
+	if (!clc.c_fname) {
+		printf("Task set file required\n");
+		rv = -1;
+		usage();
+		goto bail;
+	}
+	if (CONFIG_TRUE != config_read_file(&cfg, clc.c_fname)) {
+		printf("Unable to read configuration file: %s\n",
+		       clc.c_fname);
+		printf("%s:%i %s\n", config_error_file(&cfg),
+		       config_error_line(&cfg),
+		       config_error_text(&cfg));
+		rv = -1;
+		goto bail;
 	}
 
 	if (clc.c_oname) {
@@ -135,21 +142,26 @@ main(int argc, char** argv) {
 			goto bail;
 		}
 	}
+	fprintf(ofile, "# Original task set file: %s\n", clc.c_fname);	
 
-	/* Allocate the bare tasks */
+	/*
+	 * Configuration file parsed fully, let's go. 
+	 */
 	ts = ts_alloc();
-	tsc_bare_addn(ts, clc.c_tasks);
+	if (!ts_config_process(&cfg, ts)) {
+		printf("Unable to process configuration file\n");
+		rv = -1;
+		goto bail;
+	}
+	config_destroy(&cfg);
 
 	/* Initialize a random source */
 	gsl_rng *r = gsl_rng_alloc(gsl_rng_default);
-	
-	/* Do they have periods? */
-	if (clc.c_maxp > 0) {
-		tsc_set_periods(ts, r, clc.c_minp, clc.c_maxp);
-	}
+	tsc_set_deadlines_min_halfp(ts, r, clc.c_maxd);
 	gsl_rng_free(r);
 	
 	/* Convert the task set to the config */
+	config_init(&cfg);
 	ts_config_dump(&cfg, ts);
 	/* Write the result */
 	config_write(&cfg, ofile);
