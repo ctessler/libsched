@@ -1,0 +1,26 @@
+* Generating a Task Set
+  > ts-gen --maxm 2 --totalm 3 --maxp 1000 --minp 10 -o m3.ts 
+  
+  Tasks will have threads assigned, but no WCET values.
+
+* Utilizations 
+  > uunifast -s m3.ts -u .1
+
+  Tasks will have *one* WCET value assigned, the value for the maximum
+  number of threads per job.
+
+* Growth Factor
+  > ts-gf --minf --maxf -s m3.ts -o m3.ts
+
+  Tasks will have WCET values assigned based on their growth factor.
+
+* Deadlines
+  > ts-deadline-bb --maxd 1000 -s m3.ts -o m3.ts
+
+  Tasks will now have their relative deadlines set according to
+  Bertogna and Baruah
+
+* Schedulability Testing
+  > tpj -s m3.ts
+
+
