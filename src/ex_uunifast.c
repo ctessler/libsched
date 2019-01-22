@@ -62,7 +62,9 @@ usage() {
 	printf("\t> uunifast -s ex/uunifast.ts -u .5 -o point5.ts\n\n");
 	printf("\tUse \'better\' random parameters\n");
 	printf("\t> GSL_RNG_TYPE=ranlxs2 GSL_RNG_SEED=`date +%%s` \\\n");
-	printf("\t\tuunifast -s ex/uunifast.ts -u .5 -o point5.ts\n");
+	printf("\t\tuunifast -s ex/uunifast.ts -u .5 -o point5.ts\n\n");
+	printf("\tUpdate an existing task set\n");
+	printf("\t> tuunifast -s tasks.ts -u .5 -o tasks.ts\n");
 	printf("\n%s\n", exfile);
 }
 
@@ -125,6 +127,15 @@ main(int argc, char** argv) {
 		usage();
 		goto bail;
 	}
+	if (CONFIG_TRUE != config_read_file(&cfg, clc.c_fname)) {
+		printf("Unable to read configuration file: %s\n",
+		       clc.c_fname);
+		printf("%s:%i %s\n", config_error_file(&cfg),
+		       config_error_line(&cfg),
+		       config_error_text(&cfg));
+		rv = -1;
+		goto bail;
+	}
 
 	if ((clc.c_util <= 0) || (clc.c_util > 1)) {
 		printf("A total system utilization [-u] in the range (0, 1]");
@@ -144,15 +155,6 @@ main(int argc, char** argv) {
 	}
 	fprintf(ofile, "# Original task set file: %s\n", clc.c_fname);
 
-	if (CONFIG_TRUE != config_read_file(&cfg, clc.c_fname)) {
-		printf("Unable to read configuration file: %s\n",
-		       clc.c_fname);
-		printf("%s:%i %s\n", config_error_file(&cfg),
-		       config_error_line(&cfg),
-		       config_error_text(&cfg));
-		rv = -1;
-		goto bail;
-	}
 	/*
 	 * Configuration file parsed fully, let's go. 
 	 */

@@ -20,7 +20,6 @@ test: $(BINS) bin/test-task bin/test-taskset bin/test-ordl
 	$(VALGRIND) bin/test-task
 	$(VALGRIND) bin/test-taskset
 	$(VALGRIND) bin/test-ordl
-	$(VALGRIND) bin/max-chunks -t ex/1task.ts
 
 bin/test-task: src
 	$(CC) $(LDFLAGS) $(CFLAGS) -o bin/test-task obj/test-task.o obj/task.o
@@ -77,6 +76,7 @@ bin/unittest: $(ut_objs) lib/libsched.a
 vgcheck: $(BINS)
 	$(VALGRIND) bin/maxchunks -s ex/1task.ts > /dev/null
 	$(VALGRIND) bin/uunifast -s ex/uunifast.ts -u .9 > /dev/null
+
 #
 # libsched library
 #
