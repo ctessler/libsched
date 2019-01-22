@@ -8,7 +8,7 @@ export BIN OBJ CFLAGS
 BIN = bin
 OBJ = obj
 SRC = src
-BINS = maxchunks tpj uunifast ts-gen ts-deadline-bb
+BINS = maxchunks tpj uunifast ts-gen ts-deadline-bb ts-1tom
 dirs := bin obj lib
 
 .PHONY: clean src test $(BINS) vgcheck
@@ -76,6 +76,16 @@ tsd_objs = $(patsubst %.c,$(OBJ)/%.o,$(tsd_srcs))
 ts-deadline-bb: bin/ts-deadline-bb
 bin/ts-deadline-bb: $(tsd_objs) lib/libsched.a
 	$(CC) -o $@ $(tsd_objs) $(LDFLAGS) $(CFLAGS)
+
+#
+# ts-1tom
+#
+tsm_srcs = ex_ts-1tom.c
+tsm_objs = $(patsubst %.c,$(OBJ)/%.o,$(tsm_srcs))
+ts-1tom: bin/ts-1tom
+bin/ts-1tom: $(tsm_objs) lib/libsched.a
+	$(CC) -o $@ $(tsm_objs) $(LDFLAGS) $(CFLAGS)
+
 
 #
 # Unit Tests

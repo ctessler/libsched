@@ -18,14 +18,14 @@ int
 tsc_bare_addn(task_set_t* ts, int n) {
 	task_t *t;
 	char name[TASK_NAMELEN];
+	if (!ts) {
+		/* Oopsie! */
+		return 0;
+	}
 	for (int i=0; i < n; i++) {
 		t = task_alloc(0, 0, 0);
 		sprintf(name, "t:%i", i+1);
 		task_name(t, name);
-		if (!ts) {
-			/* Oopsie! */
-			return 0;
-		}
 		if (!ts_add(ts, t)) {
 			/* More oopsie! */
 			return 0;
@@ -35,13 +35,49 @@ tsc_bare_addn(task_set_t* ts, int n) {
 }
 
 int
+tsc_add_by_thread_count(task_set_t* ts, gsl_rng *r, uint32_t totalm,
+    uint32_t minm, uint32_t maxm) {
+	char name[TASK_NAMELEN];
+	uint32_t count=0, m=0, i;
+	task_t *t;
+
+	for (i=1, count = 0; count < totalm; i++, count += m) {
+		m = tsc_get_scaled(r, minm, maxm);
+		if (count + m > totalm) {
+			m = totalm - count;
+		}
+		t = task_alloc(0, 0, m);
+		if (!t) {
+			return 0;
+		}
+		if (!ts_add(ts, t)) {
+			/* More oopsie! */
+			return 0;
+		}
+		sprintf(name, "t:%i", i);
+		task_name(t, name);
+	}
+	return count;
+}
+
+int
 tsc_set_periods(task_set_t* ts, gsl_rng *r, uint32_t minp, uint32_t maxp) {
 	task_link_t *cookie;
 	for (cookie = ts_first(ts) ; cookie ; cookie = ts_next(ts, cookie)) {
 		task_t *t = ts_task(cookie);
 		t->t_period = tsc_get_scaled(r, minp, maxp);
 	}
-	
+	return 1;
+}
+
+int
+tsc_set_threads(task_set_t* ts, gsl_rng *r, uint32_t minm, uint32_t maxm) {
+	task_link_t *cookie;
+	for (cookie = ts_first(ts) ; cookie ; cookie = ts_next(ts, cookie)) {
+		task_t *t = ts_task(cookie);
+		task_threads(t, tsc_get_scaled(r, minm, maxm));
+	}
+	return 1;
 }
 
 int
@@ -61,3 +97,4 @@ tsc_set_deadlines_min_halfp(task_set_t *ts, gsl_rng *r, uint32_t maxd) {
 		t->t_deadline = tsc_get_scaled(r, mind, maxd);
 	}
 }
+
