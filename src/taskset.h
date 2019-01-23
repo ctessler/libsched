@@ -35,6 +35,7 @@ void ts_free(task_set_t* ts);
  * Frees the storage associated with the taskset and frees the tasks
  * within the set
  *
+ * @param[in] ts the task set being destroyed
  */
 void ts_destroy(task_set_t* ts);
 
@@ -266,5 +267,37 @@ int ts_extend_deadlines(task_set_t *ts, ordl_t *head, uint32_t prevb,
  * @return the number of tasks in the set
  */
 uint32_t ts_count(task_set_t *ts);
+
+/**
+ * Creates a task set from a single task, by dividing that task into
+ * at most m threads per job 
+ *
+ * @param[in] task the task being divided
+ * @param[in] maxm the maximum number of threads permitted in the new set
+ *
+ * @return a new task set, that must be ts_free()'d or NULL
+ */
+task_set_t *ts_divide(task_t *task, uint32_t maxm);
+
+/**
+ * Creates a new task set from an existing task set, dividing every
+ * task in the existing set into tasks with at most m threads per job.
+ *
+ * @param[in] task the task being divided
+ * @param[in] maxm the maximum number of threads permitted in the new set
+ *
+ * @return a new task set, that must be ts_free()'d or NULL
+ */
+task_set_t *ts_divide_set(task_set_t *ts, uint32_t maxm);
+
+/**
+ * Moves tasks from one set into another
+ *
+ * @param[in] src the task set to move tasks from
+ * @param[out] dst the task set to move tasks into
+ *
+ * @return the number of tasks moved from src to dst
+ */
+int ts_move(task_set_t* src, task_set_t* dst);
 
 #endif /* TASKSET_H */

@@ -53,10 +53,15 @@ void task_free(task_t *task);
 /**
  * Duplicates a task
  *
+ * Creates a new task from the original, assigning the WCET values of
+ * the first t threads in the new task from the original.
+ *
  * @param[in] orig the task being duplicated
- * @param[in] threads the number of threads in the new duplicate task
+ * @param[in] t the number of threads in the new duplicate task
+ *
+ * @return a new task upon success which must be task_free()'d, NULL otherwise. 
  */
-task_t* task_dup(task_t *orig, uint32_t threads);
+task_t* task_dup(task_t *orig, uint32_t t);
 
 /**
  * Updates the number of threads a task releases with each job

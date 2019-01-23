@@ -445,3 +445,70 @@ uint32_t ts_count(task_set_t *ts) {
 
 	return count;
 }
+
+task_set_t *
+ts_divide(task_t *task, uint32_t maxm) {
+	task_set_t *ts;
+	uint32_t m = task->t_threads;
+	
+	if ((task == NULL) || (m == 0)) {
+		return NULL;
+	}
+
+	ts = ts_alloc();
+	while (m > 0) {
+		task_t *t;
+		if (maxm < m) {
+			t = task_dup(task, maxm);
+			m -= maxm;
+		} else {
+			t = task_dup(task, m);
+			m -= m;
+		}
+		ts_add(ts, t);
+	}
+	
+	return ts;
+}
+
+task_set_t *
+ts_divide_set(task_set_t *ts, uint32_t maxm) {
+	task_set_t *rv, *tmp;
+	task_link_t *cookie;
+	
+	if ((ts == NULL) || (maxm == 0)) {
+		return NULL;
+	}
+
+	rv = ts_alloc();
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		task_t *t = ts_task(cookie);
+		char *str;
+		tmp = ts_divide(t, maxm);
+		if (!tmp) {
+			ts_destroy(rv);
+			return NULL;
+		}
+		
+		ts_move(tmp, rv);
+		ts_destroy(tmp);
+	}
+	
+	return rv;
+}
+	
+int
+ts_move(task_set_t* src, task_set_t* dst) {
+	task_link_t *cookie, *next=NULL;
+	task_t* t;
+	char *s;
+	int i = 0;
+
+	for (cookie = ts_first(src); cookie; cookie = next, i++) {
+		t = ts_task(cookie);
+		next = ts_next(src, cookie);
+		ts_rem(src, cookie);
+		ts_add(dst, t);
+	}
+	return i;
+}

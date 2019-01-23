@@ -8,7 +8,7 @@ export BIN OBJ CFLAGS
 BIN = bin
 OBJ = obj
 SRC = src
-BINS = maxchunks tpj uunifast ts-gen ts-deadline-bb ts-gf ts-print
+BINS = maxchunks tpj uunifast ts-gen ts-deadline-bb ts-gf ts-print ts-divide
 dirs := bin obj lib
 
 .PHONY: clean src test $(BINS) vgcheck
@@ -80,6 +80,15 @@ ts-print: bin/ts-print
 bin/ts-print: $(tsp_objs) lib/libsched.a
 	$(CC) -o $@ $(tsp_objs) $(LDFLAGS) $(CFLAGS)
 
+#
+# ts-divide
+#
+tsv_srcs = ex_ts-divide.c
+tsv_objs = $(patsubst %.c,$(OBJ)/%.o,$(tsv_srcs))
+ts-divide: bin/ts-divide
+bin/ts-divide: $(tsv_objs) lib/libsched.a
+	$(CC) -o $@ $(tsv_objs) $(LDFLAGS) $(CFLAGS)
+
 
 #
 # Unit Tests
@@ -99,6 +108,7 @@ vgcheck: $(BINS)
 	$(VALGRIND) bin/maxchunks -s ex/1task.ts > /dev/null
 	$(VALGRIND) bin/uunifast -s ex/uunifast.ts -u .9 > /dev/null
 	$(VALGRIND) bin/ts-gen -n 5 --minp 5 --maxp 20 > /dev/null
+	$(VALGRIND) bin/ts-print ex/baruah-2005.ts >/dev/null
 
 #
 # libsched library

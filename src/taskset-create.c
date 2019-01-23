@@ -32,7 +32,7 @@ tsc_update_wcet_gf(task_t *t, double factor) {
 	uint32_t wcet = t->wcet(m);
 	double one = wcet / (1 + (m - 1) * factor);
 	for (int i=1; i <= m; i++) {
-		t->wcet(i) = one + (i - 1) * factor * one;
+		t->wcet(i) = ceil(one + (i - 1) * factor * one);
 	}
 
 	return 1;
@@ -129,8 +129,12 @@ tsc_set_wcet_gf(task_set_t* ts, gsl_rng *r, float minf, float maxf) {
 	task_link_t *cookie;
 	for (cookie = ts_first(ts) ; cookie ; cookie = ts_next(ts, cookie)) {
 		task_t *t = ts_task(cookie);
+		if (t->t_threads <= 0) {
+			/* Invalid task set */
+			return 0;
+		}
 		double factor = tsc_get_scaled_dbl(r, minf, maxf);
 		tsc_update_wcet_gf(t, factor);
 	}
-
+	return 1;
 }

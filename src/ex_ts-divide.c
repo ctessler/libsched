@@ -17,21 +17,20 @@ static struct {
 	char* c_lname;
 	char* c_oname;
 	char* c_fname;	
-	float c_minf;
-	float c_maxf;	
+	uint32_t c_minm;
+	uint32_t c_maxm;
 } clc;
 
 enum {
-      ARG_MINF = CHAR_MAX + 1,
-      ARG_MAXF,
+      ARG_MINM = CHAR_MAX + 1,
+      ARG_MAXM,
 };
 
 static const char* short_options = "hl:o:s:v";
 static struct option long_options[] = {
     {"help", no_argument, 0, 'h'},
     {"log", required_argument, 0, 's'},
-    {"minf", required_argument, 0, ARG_MINF},
-    {"maxf", required_argument, 0, ARG_MAXF},
+    {"maxm", required_argument, 0, ARG_MAXM},
     {"output", required_argument, 0, 'o'},
     {"task-set", required_argument, 0, 's'},
     {"verbose", no_argument, &clc.c_verbose, 1},
@@ -40,28 +39,23 @@ static struct option long_options[] = {
 
 void
 usage() {
-	printf("ts-gf: Task Set Growth Factor adjustment\n");
-	printf("Usage: ts-gf [OPTIONS] -s <FILE> --minf <FLOAT> --maxf <FLOAT>\n");
+	printf("ts-divide: Task Set Divider for maximum number of threads\n");
+	printf("Usage: ts-divide [OPTIONS] -s <FILE> --maxm <INT>\n");
 	printf("OPTIONS:\n");
 	printf("\t--help/-h\t\tThis message\n");
 	printf("\t--log/-l <FILE>\t\tAuditible log file\n");
-	printf("\t--minf <FLOAT>\t\tMinimum growth factor value of any task\n");
-	printf("\t--maxf <FLOAT>\t\tMaximum frowth factor value of any task\n");
+	printf("\t--maxm <INT>\t\tMaximum number of threads per task\n");
 	printf("\t--output/-o <FILE>\tOutput file of new task set\n");
 	printf("\t--task-set/-s <FILE>\tTask set configuration file\n"); 	
 	printf("\t--verbose/-v\t\tEnables verbose output\n");
-	printf("\nRANGES:\n");
-	printf("\tA minimum and maximum growth factor must be provided in (0,1)");
-	printf(" exclusive.\n\tEach task");
-	printf(" has WCET values assigned by the method described in: \n");
-	printf("\t    \"Non-Preemptive Multitask BUNDLE (working title)\"\n");
-	printf("\t\t-- Tessler & Fisher, TBD\n");
+	printf("\nOPERATION:\n");
+	printf("\tTasks will be divided into subsequent tasks of at most --maxm");
+	printf(" threads per job\n");
 	printf("\nREQUIREMENTS:\n");
-	printf("\tAll tasks in the set must have at least one thread per job and");
-	printf(" a non-zero\n\tWCET for the total number of threads\n"); 
+	printf("\tEach threads per job WCET value must be assigned\n");
 	printf("\nEXAMPLES:\n");
-	printf("\tAssign WCET values with minimum .1 and maximum .9\n");
-	printf("\t> ts-gf -s taskset.ts --minf .1 --maxf .9\n\n");
+	printf("\tDivide tasks into tasks with at most 3 threads\n");
+	printf("\t> ts-divide --maxm 3 -s taskset.ts\n\n");
 }
 
 int
@@ -75,15 +69,17 @@ check_ts(task_set_t *ts) {
 		task_t *t = ts_task(cookie);
 		uint32_t m = t->t_threads;
 		if (m <= 0) {
-			fprintf(stderr, "Error: task %s has %u threads\n", t->t_name, m);
-			return 0;
+			continue;
 		}
-		uint32_t wcet = t->wcet(m);
-		if (wcet <= 0) {
-			fprintf(stderr, "Error: task %s has %u threads and a WCET"
-			       " for %u threads of %u", t->t_name,
-			       m, m, wcet);
-			return 0;
+		for (int j=1; j <=m; j++) {
+			uint32_t wcet = t->wcet(j);
+			if (wcet <= 0) {
+				fprintf(stderr,
+					"Error: task %s has %u threads and a WCET"
+					" for %u threads of %u", t->t_name,
+					m, j, wcet);
+				return 0;
+			}
 		}
 	}
 	return 1;
@@ -133,11 +129,11 @@ main(int argc, char** argv) {
 		case 'v':
 			clc.c_verbose = 1;
 			break;
-		case ARG_MINF: /* minp */
-			clc.c_minf = atof(optarg);
+		case ARG_MINM: /* minp */
+			clc.c_minm = atoi(optarg);
 			break;
-		case ARG_MAXF: /* maxp */
-			clc.c_maxf = atof(optarg);
+		case ARG_MAXM: /* maxp */
+			clc.c_maxm = atoi(optarg);
 			break;			
 		default:
 			printf("Unknown option %c\n", c);
@@ -145,20 +141,6 @@ main(int argc, char** argv) {
 			goto bail;
 		}
 	}
-	if (clc.c_minf <= 0) {
-		printf("0 < --minf < --maxf required\n");
-		rv = -1;
-		usage();
-		goto bail;
-	}
-	if (clc.c_maxf <= 0 ||
-	    clc.c_maxf < clc.c_minf) {
-		printf("0 < --minf < --maxf required\n");
-		rv = -1;
-		usage();
-		goto bail;
-	}
-	
 	if (!clc.c_fname) {
 		printf("Task set file required\n");
 		rv = -1;
@@ -172,6 +154,11 @@ main(int argc, char** argv) {
 		       config_error_line(&cfg),
 		       config_error_text(&cfg));
 		rv = -1;
+		goto bail;
+	}
+	if (clc.c_maxm <= 0) {
+		fprintf(stderr, "Warning: maximum number of threads --maxm <= 0"
+			" no divisions\n");
 		goto bail;
 	}
 	/* 
@@ -203,23 +190,24 @@ main(int argc, char** argv) {
 		goto bail;
 	}
 
-	fprintf(ofile, "# Original task set file: %s\n", clc.c_fname);
-
 	gsl_rng *r = gsl_rng_alloc(gsl_rng_default);
-	int succ = tsc_set_wcet_gf(ts, r, clc.c_minf, clc.c_maxf);
+	task_set_t *divided = ts_divide_set(ts, clc.c_maxm);
 	gsl_rng_free(r);
 	
-	if (!succ) {
-		printf("Could not perform WCET assignment on the given task set\n");
+	if (!divided) {
+		printf("Could not divide task set %s\n", clc.c_fname);
 		rv = -1;
 		goto bail;
 	}
+	fprintf(ofile, "# Original task set file: %s\n", clc.c_fname);
+
 	
 	config_init(&cfg);
 	/* Convert the task set to the config */
-	ts_config_dump(&cfg, ts);
+	ts_config_dump(&cfg, divided);
 	/* Write the result */
 	config_write(&cfg, ofile);
+	ts_destroy(divided);
 bail:
 	ts_destroy(ts);
 	config_destroy(&cfg);

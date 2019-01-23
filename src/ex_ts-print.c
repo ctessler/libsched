@@ -92,7 +92,8 @@ main(int argc, char** argv) {
 	}
 	str = ts_header(ts); printf("%s\n", str); free(str);	
 	str = ts_string(ts); printf("%s\n", str); free(str);
-
+	printf("-------------------------------------------------\n");
+	printf("Utilization: %.4f, T*: %lu\n", ts_util(ts), ts_star(ts));
 	
 bail:
 	ts_destroy(ts);
