@@ -24,3 +24,28 @@
   > tpj -s m3.ts
 
 
+* Example Flow for M = 7, U = .4, F = .5
+
+  # Generate tasks for 7 total threads of execution 
+  > ts-gen --totalm 7 --maxm 3 --minp 10 --maxp 1000 -o 07-incip.ts
+  # Set the WCET according to UUniFast's Ui determination
+  > uunifast -u .4 -s 07-incip.ts -o 07-incip.ts
+  # Distribute WCET according to GrowthFactor of [0.1, 0.5]
+  > ts-gf --minf .1 --maxf .5 -s 07-incip.ts -o 07-incip.ts
+  # Distribute deadlines
+  > ts-deadline-bb --maxd 1000 -s 07-incip.ts -o 07-incip.ts
+  
+  # Incipient task set must be divided for maxchunks
+  > ts-divide --maxm 1 -s 07-incip.ts -o 07-m-one.ts
+  # Incipient task set must be merged for non-preemptive merged bundle
+  > ts-merge -s 07-incip.ts -o 07-merged.ts
+  
+  # Incipient task set is good for TPJ algorithm
+  > tpj -s 07-incip.ts
+  # Max Chunks works on the fully divided task set
+  > maxchunks -s 07-m-one.ts
+  # Max Chunks non-preemptive on the fully divided task set
+  > maxchunks --nonp -s 07-m-one.ts
+  # Merged Non-Preemptive Bundle on the merged tasuk set
+  > maxchunks --nonp -s 07-merged.ts
+  
