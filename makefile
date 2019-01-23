@@ -8,27 +8,12 @@ export BIN OBJ CFLAGS
 BIN = bin
 OBJ = obj
 SRC = src
-BINS = maxchunks tpj uunifast ts-gen ts-deadline-bb ts-gf
+BINS = maxchunks tpj uunifast ts-gen ts-deadline-bb ts-gf ts-print
 dirs := bin obj lib
 
 .PHONY: clean src test $(BINS) vgcheck
 
 all: $(BINS) unittest vgcheck
-
-test: $(BINS) bin/test-task bin/test-taskset bin/test-ordl
-	$(VALGRIND) bin/test-task
-	$(VALGRIND) bin/test-taskset
-	$(VALGRIND) bin/test-ordl
-
-bin/test-task: src
-	$(CC) $(LDFLAGS) $(CFLAGS) -o bin/test-task obj/test-task.o obj/task.o
-
-bin/test-taskset: src
-	$(CC) $(LDFLAGS) $(CFLAGS) -o bin/test-taskset obj/taskset.o obj/task.o \
-	    obj/test-taskset.o obj/ordl.o
-
-bin/test-ordl: src
-	$(CC) $(LDFLAGS) $(CFLAGS) -o bin/test-ordl obj/test-ordl.o obj/ordl.o
 
 $(OBJ)/%.o: $(SRC)/%.c | $(dirs)
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -85,6 +70,15 @@ tsgf_objs = $(patsubst %.c,$(OBJ)/%.o,$(tsgf_srcs))
 ts-gf: bin/ts-gf
 bin/ts-gf: $(tsgf_objs) lib/libsched.a
 	$(CC) -o $@ $(tsgf_objs) $(LDFLAGS) $(CFLAGS)
+
+#
+# ts-print
+#
+tsp_srcs = ex_ts-print.c
+tsp_objs = $(patsubst %.c,$(OBJ)/%.o,$(tsp_srcs))
+ts-print: bin/ts-print
+bin/ts-print: $(tsp_objs) lib/libsched.a
+	$(CC) -o $@ $(tsp_objs) $(LDFLAGS) $(CFLAGS)
 
 
 #

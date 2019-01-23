@@ -54,6 +54,15 @@ ts_string(task_set_t *ts) {
 	return strdup(BUFF);
 }
 
+char *
+ts_header(task_set_t *ts) {
+	char *t = task_header(NULL);
+	sprintf(BUFF, "#T: %s", t);
+	free(t);
+
+	return strdup(BUFF);
+}
+
 
 task_link_t*
 ts_add(task_set_t *ts, task_t *task) {

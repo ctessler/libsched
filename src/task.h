@@ -91,6 +91,13 @@ void task_name(task_t *task, const char* name);
 char *task_string(task_t *task);
 
 /**
+ * Returns a dynamically allocated string to head the task
+ *
+ * @note the string must be free()'d
+ */
+char *task_header(task_t *task);
+
+/**
  * Calculates the utilization for the task
  *
  * @param[in] task the task

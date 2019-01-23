@@ -56,12 +56,14 @@ task_name(task_t* task, const char* name) {
 char *
 task_string(task_t *task) {
 	char *s = BUFF;
-	int n = sprintf(BUFF, "(p:%4u, d:%4u, m:%2u) wcet {",
+	int n = sprintf(BUFF, "(p:%4u, d:%4u, m:%2u)",
 	    task->t_period, task->t_deadline, task->t_threads);
-	s = BUFF;
+	s += n;
+	n = sprintf(s, " [u:%.3f, q:%u, %s]\twcet{", task_util(task), task->t_chunk,
+		task->t_name);
 	for (int i=1; i <= task->t_threads; i++) {
 		s += n;
-		n = sprintf(s, "%4u", task->wcet(i));
+		n = sprintf(s, "%3u", task->wcet(i));
 		if (i < task->t_threads) {
 			s += n;
 			n = sprintf(s, ", ");
@@ -70,9 +72,16 @@ task_string(task_t *task) {
 	s += n;
 	n = sprintf(s, "} ");
 	s += n;
-	sprintf(s, "u:%.3f q:%u, %s", task_util(task), task->t_chunk, task->t_name);
 	return strdup(BUFF);
 }
+
+char *
+task_header(task_t *task) {
+	sprintf(BUFF,
+	    "(period, dedlin, tpj.) [util(m) chunk name]\twcet{c(1), c(2), ..., c(m)}");
+	return strdup(BUFF);
+}
+
 
 float_t
 task_util(task_t *task) {

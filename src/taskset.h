@@ -45,6 +45,12 @@ void ts_destroy(task_set_t* ts);
 char* ts_string(task_set_t *ts);
 
 /**
+ * Returns a dynamically allocated string to head the task set,
+ * must be free()'d 
+ */
+char *ts_header(task_set_t *ts);
+
+/**
  * Adding and removing tasks from the task set.
  *
  * When a task is added, a cookie is produced. The cookie is valid
