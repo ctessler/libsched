@@ -14,12 +14,14 @@
 static struct {
 	int c_verbose;
 	char* c_fname;
+	int c_nonp;
 } clc;
 
 static const char* short_options = "hl:s:v";
 static struct option long_options[] = {
     {"task-set", required_argument, 0, 's'},
-    {"help", no_argument, 0, 'h'},    
+    {"help", no_argument, 0, 'h'},
+    {"nonp", no_argument, &clc.c_nonp, 1},
     {"verbose", no_argument, &clc.c_verbose, 1},
     {0, 0, 0, 0}
 };
@@ -30,6 +32,7 @@ usage() {
 	printf("OPTIONS:\n");
 	printf("\t--help/-h\t\tThis message\n");
 	printf("\t--log/-l <FILE>\t\tAuditible log file\n");
+	printf("\t--nonp\t\t Nonpreemptive feasibility only if chunks >= WCET\n");
 	printf("\t--task-set/-s <FILE>\tRequired file containing tasks\n");
 	printf("\t--verbose/-v\t\tEnables verbose output\n");
 	printf("\n%s\n", exfile);
@@ -97,6 +100,11 @@ main(int argc, char** argv) {
 	printf("Task Set:\n");
 	str = ts_string(ts); printf("%s\n\n", str); free(str);
 	int feas = max_chunks(ts);
+	if (clc.c_nonp) {
+		/* Non-preemptive check */
+		feas = max_chunks_nonp(ts);
+	}
+
 
 	printf("After assigning non-preemptive chunks\n");
 	str = ts_string(ts); printf("%s\n", str); free(str);
@@ -106,12 +114,15 @@ main(int argc, char** argv) {
 	switch (feas) {
 	case 0:
 		printf("Yes\n");
+		rv = 0;
 		break;
 	case 1:
 		printf("No\n");
+		rv = 1;
 		break;
 	case -1:
 		printf("N/A (Poorly formed set)\n");
+		rv = -1;
 		break;
 	}
 bail:

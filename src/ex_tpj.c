@@ -112,12 +112,15 @@ main(int argc, char** argv) {
 	switch (feas) {
 	case FEAS_YES:
 		printf("Yes\n");
+		rv = 0;
 		break;
 	case FEAS_NO:
 		printf("No\n");
+		rv = 1;
 		break;
 	case FEAS_MALFORM:
 		printf("N/A (Poorly formed set)\n");
+		rv = -1;
 		break;
 	}
 bail:

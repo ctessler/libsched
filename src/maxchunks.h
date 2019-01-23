@@ -15,5 +15,17 @@
  */
 int max_chunks(task_set_t *ts);
 
+/**
+ * Non-preemptive check
+ *
+ * Verifies the task set could be scheduled by non-preemptive EDF,
+ * after having max_chunks run upon it
+ *
+ * @param[in] ts the task set
+ *
+ * @return 0 if the task set is feasible, non-zero otherwise
+ */
+int max_chunks_nonp(task_set_t *ts);
+
 #endif /* MAXCHUNKS_H */
 

@@ -47,3 +47,27 @@ max_chunks(task_set_t *ts) {
 		return 1;
 	}
 }
+
+int
+max_chunks_nonp(task_set_t *ts) {
+	task_link_t *cookie;
+	task_t *t;
+	uint32_t m, wcet, q;
+
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		t = ts_task(cookie);
+		q = t->t_chunk;
+		m = t->t_threads;
+		wcet = t->wcet(m);
+
+		if (q < wcet) {
+			/* 
+			 * If any task has a non-preemptive chunk size less 
+			 * than it's WCET it cannot be scheduled 
+			 * non-preemptively
+			 */
+			return 1;
+		}
+	}
+	return 0;
+}

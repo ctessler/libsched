@@ -8,8 +8,8 @@ export BIN OBJ CFLAGS
 BIN = bin
 OBJ = obj
 SRC = src
-BINS = maxchunks tpj uunifast ts-gen ts-deadline-bb ts-gf ts-print ts-divide \
-	ts-merge
+BINS = maxchunks tpj uunifast \
+	ts-gen ts-deadline-bb ts-gf ts-print ts-divide ts-merge
 dirs := bin obj lib
 
 .PHONY: clean src test $(BINS) vgcheck

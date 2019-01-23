@@ -137,6 +137,7 @@ main(int argc, char** argv) {
 			break;			
 		default:
 			printf("Unknown option %c\n", c);
+			rv = -1;
 			usage();
 			goto bail;
 		}

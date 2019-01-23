@@ -156,17 +156,20 @@ main(int argc, char** argv) {
 		if (!ofile) {
 			printf("Unable to open %s for writing\n", clc.c_oname);
 			ofile = stdout;
+			rv = -1;
 			goto bail;
 		}
 	}
 
 	if ((clc.c_tasks > 0) && (clc.c_maxm > 0)) {
 		printf("Only one of -n or --maxp is permitted\n");
+		rv = -1;
 		usage();
 		goto bail;
 	}
 	if (clc.c_maxm > 0 && clc.c_totalm <= 0) {
 		printf("--totalm is required with --maxm\n");
+		rv = -1;
 		usage();
 		goto bail;
 	}
