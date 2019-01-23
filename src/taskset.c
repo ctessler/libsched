@@ -512,3 +512,19 @@ ts_move(task_set_t* src, task_set_t* dst) {
 	}
 	return i;
 }
+
+task_set_t *
+ts_merge(task_set_t *ts) {
+	task_set_t *rv = ts_alloc(ts);
+	task_link_t *cookie;
+
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		task_t *t, *new_task;
+		t = ts_task(cookie);
+		new_task = task_dup(t, t->t_threads);
+		task_merge(new_task);
+		ts_add(rv, new_task);
+	}
+	
+	return rv; 
+}

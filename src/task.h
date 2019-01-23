@@ -122,4 +122,13 @@ float_t task_util(task_t *task);
 uint32_t task_dbf(task_t *task, uint32_t t);
 uint32_t task_dbf_debug(task_t *task, uint32_t t, FILE *f);
 
+/**
+ * Merges a task from m to 1 thread with maximum WCET
+ * 
+ * @param[in|out] task the task
+ */
+int task_merge(task_t* task);
+
+
+   
 #endif /* TASK_H */

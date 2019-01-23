@@ -300,4 +300,14 @@ task_set_t *ts_divide_set(task_set_t *ts, uint32_t maxm);
  */
 int ts_move(task_set_t* src, task_set_t* dst);
 
+/**
+ * Creates a new task set from an existing task set, merging every
+ * task in the existing set into tasks with at most 1 threads per job.
+ *
+ * @param[in] task the task being merged
+ *
+ * @return a new task set, that must be ts_free()'d or NULL
+ */
+task_set_t *ts_merge(task_set_t *ts);
+
 #endif /* TASKSET_H */

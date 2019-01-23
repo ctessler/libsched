@@ -130,3 +130,12 @@ task_dbf_debug(task_t *task, uint32_t t, FILE *f) {
 
 	return demand;
 }
+
+int
+task_merge(task_t* task) {
+	uint32_t m = task->t_threads;
+	uint32_t wcet = task->wcet(m);
+
+	task_threads(task, 1);
+	task->wcet(1) = wcet;
+}

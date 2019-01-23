@@ -8,7 +8,8 @@ export BIN OBJ CFLAGS
 BIN = bin
 OBJ = obj
 SRC = src
-BINS = maxchunks tpj uunifast ts-gen ts-deadline-bb ts-gf ts-print ts-divide
+BINS = maxchunks tpj uunifast ts-gen ts-deadline-bb ts-gf ts-print ts-divide \
+	ts-merge
 dirs := bin obj lib
 
 .PHONY: clean src test $(BINS) vgcheck
@@ -88,6 +89,15 @@ tsv_objs = $(patsubst %.c,$(OBJ)/%.o,$(tsv_srcs))
 ts-divide: bin/ts-divide
 bin/ts-divide: $(tsv_objs) lib/libsched.a
 	$(CC) -o $@ $(tsv_objs) $(LDFLAGS) $(CFLAGS)
+
+#
+# ts-merge
+#
+tsm_srcs = ex_ts-merge.c
+tsm_objs = $(patsubst %.c,$(OBJ)/%.o,$(tsm_srcs))
+ts-merge: bin/ts-merge
+bin/ts-merge: $(tsm_objs) lib/libsched.a
+	$(CC) -o $@ $(tsm_objs) $(LDFLAGS) $(CFLAGS)
 
 
 #
