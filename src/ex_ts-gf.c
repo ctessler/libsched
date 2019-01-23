@@ -33,6 +33,7 @@ static struct option long_options[] = {
     {"minf", required_argument, 0, ARG_MINF},
     {"maxf", required_argument, 0, ARG_MAXF},
     {"output", required_argument, 0, 'o'},
+    {"task-set", required_argument, 0, 's'},
     {"verbose", no_argument, &clc.c_verbose, 1},
     {0, 0, 0, 0}
 };
@@ -47,6 +48,7 @@ usage() {
 	printf("\t--minf <FLOAT>\t\tMinimum growth factor value of any task\n");
 	printf("\t--maxf <FLOAT>\t\tMaximum frowth factor value of any task\n");
 	printf("\t--output/-o <FILE>\tOutput file of new task set\n");
+	printf("\t--task-set/-s <FILE>\tTask set configuration file\n"); 	
 	printf("\t--verbose/-v\t\tEnables verbose output\n");
 	printf("\nRANGES:\n");
 	printf("\tA minimum and maximum growth factor must be provided in (0,1)");
