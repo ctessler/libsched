@@ -37,24 +37,31 @@ uu_update_task(task_t *t, double u) {
 
 	p = t->t_period;
 	m = t->t_threads;
-	if (m > 0) {
-		wcet = t->wcet(m);
-	}
 
-	if (p == 0 && m == 0) {
-		/* Can't do much with this */
-		return 0;
-	}
-	
 	if (p == 0) {
+		/* 0 period says, update the period */
+		wcet = t->wcet(m);
+		if (wcet <= 0) {
+			/* Must have a WCET value */
+			printf("uu_update_task called with incorrect task parms\n");
+			return 0;
+		}
 		/* Period needs to be set to match max wcet */
 		p = (double) wcet / u;
 		t->t_period = ceil(p);
 		return 1;
 	}
 
-	task_threads(t, 1);
-	t->wcet(1) = ceil(p * u);
+	/*
+	 * Update WCET for m threads. However, m might be zero, in
+	 * that case increase to one.
+	 */
+	if (m <= 0) {
+		m = 1;
+	}
+	task_threads(t, m);
+	t->wcet(m) = ceil(p * u);
+
 	return 1;
 }
 

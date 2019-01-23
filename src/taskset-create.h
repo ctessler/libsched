@@ -45,8 +45,6 @@ int tsc_add_by_thread_count(task_set_t* ts, gsl_rng *r, uint32_t totalm,
  */
 int tsc_set_periods(task_set_t* ts, gsl_rng *r, uint32_t minp, uint32_t maxp);
 
-
-
 /**
  * Sets the threads per job of all tasks given a random source and range
  *
@@ -80,6 +78,21 @@ int tsc_set_threads(task_set_t* ts, gsl_rng *r, uint32_t minm, uint32_t maxm);
  * @return non-zero upon success, zero otherwise.
  */
 int tsc_set_deadlines_min_halfp(task_set_t *ts, gsl_rng *r, uint32_t maxd);
+
+/**
+ * Sets the WCET of threads of tasks given a random source, for a
+ * growth factor within a uniform distribution [minf, maxf]
+ * 
+ *
+ * @param[in|out] ts the task set
+ * @param[in] r the random source
+ * @param[in] minf the minimum growth factor of a task (inclusive)
+ * @param[in] maxf the maximum growth factor of a task (inclusive)
+ *
+ * @return non-zero upon success
+ */
+int tsc_set_wcet_gf(task_set_t* ts, gsl_rng *r, float minf, float maxf);
+
 
 #endif /* TASKSET_CREATE_H */
 

@@ -142,7 +142,9 @@ gcd(uint32_t a, uint32_t b) {
  */
 static uint32_t
 lcm(uint32_t a, uint32_t b) {
-	// printf("gcd(%u, %u) = %u\n", a, b, gcd(a, b));
+	if (a == 0 || b == 0) {
+		return 0;
+	}
 	double_t frac =  (double_t)( a / gcd(a, b) );
 	return frac * b;
 }

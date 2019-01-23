@@ -10,7 +10,7 @@
   number of threads per job.
 
 * Growth Factor
-  > ts-gf --minf --maxf -s m3.ts -o m3.ts
+  > ts-gf --minf .1 --maxf .9 -s m3.ts -o m3.ts
 
   Tasks will have WCET values assigned based on their growth factor.
 

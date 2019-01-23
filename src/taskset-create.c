@@ -13,6 +13,31 @@ tsc_get_scaled(gsl_rng *r, uint32_t min, uint32_t max) {
 	return scaled;
 }
 
+static double
+tsc_get_scaled_dbl(gsl_rng *r, double min, double max) {
+	unsigned long int gsl_range;
+	double random, new_range;
+
+	gsl_range = gsl_rng_max(r) - gsl_rng_min(r);
+	new_range = max - min;
+	random = (gsl_rng_get(r) - gsl_rng_min(r)) * new_range;
+	random = (random / gsl_range) +  min;
+
+	return random;
+}
+
+static int
+tsc_update_wcet_gf(task_t *t, double factor) {
+	uint32_t m = t->t_threads;
+	uint32_t wcet = t->wcet(m);
+	double one = wcet / (1 + (m - 1) * factor);
+	for (int i=1; i <= m; i++) {
+		t->wcet(i) = one + (i - 1) * factor * one;
+	}
+
+	return 1;
+}
+
 
 int
 tsc_bare_addn(task_set_t* ts, int n) {
@@ -98,3 +123,14 @@ tsc_set_deadlines_min_halfp(task_set_t *ts, gsl_rng *r, uint32_t maxd) {
 	}
 }
 
+
+int
+tsc_set_wcet_gf(task_set_t* ts, gsl_rng *r, float minf, float maxf) {
+	task_link_t *cookie;
+	for (cookie = ts_first(ts) ; cookie ; cookie = ts_next(ts, cookie)) {
+		task_t *t = ts_task(cookie);
+		double factor = tsc_get_scaled_dbl(r, minf, maxf);
+		tsc_update_wcet_gf(t, factor);
+	}
+
+}
