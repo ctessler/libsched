@@ -169,10 +169,6 @@ main(int argc, char** argv) {
 	/*
 	 * Configuration file processed, time to calculate the chunks
 	 */
-	char *str;
-	printf("Original Task Set:\n");
-	str = ts_string(ts); printf("%s\n\n", str); free(str);
-
 	gsl_rng *r = gsl_rng_alloc(gsl_rng_default);
 	int error = uunifast(ts, clc.c_util, r, NULL);
 	gsl_rng_free(r);
@@ -182,11 +178,6 @@ main(int argc, char** argv) {
 		rv = error;
 		goto bail;
 	}
-	
-	printf("Normalized Utilization Task Set:\n");
-	str = ts_string(ts); printf("%s\n", str); free(str);
-	printf("-------------------------------------------------\n");
-	printf("Utilization: %.4f, T*: %lu\n", ts_util(ts), ts_star(ts));
 
 	config_init(&cfg);
 	ts_config_dump(&cfg, ts);
