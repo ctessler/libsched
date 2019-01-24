@@ -4,6 +4,16 @@ int
 ts_config_process(config_t *cfg, task_set_t *ts) {
 	config_setting_t *setting;
 
+	double version;
+	if (!config_lookup_float(cfg, "ts-version", &version)) {
+		printf("No version for the task set configuration file\n");
+		return 0;
+	}
+	if (version != 1.0) {
+		printf("Incompatible version: %.2f", version);
+		return 0;
+	}
+
 	setting = config_lookup(cfg, "tasks");
 	if (setting == NULL) {
 		printf("No tasks in the configuration file\n");
@@ -95,17 +105,50 @@ ts_config_add_task(config_setting_t *tasks, task_t *t) {
 
 int
 ts_config_dump(config_t *cfg, task_set_t *ts) {
-	config_setting_t *root, *setting, *tasks;
+	config_setting_t *root, *setting, *tasks, *version;
 	task_link_t* cookie;
 	task_t* task;
 	
 	root = config_root_setting(cfg);
 
+	version = config_setting_add(root, "ts-version", CONFIG_TYPE_FLOAT);
+	config_setting_set_float(version, 1.0);
+	
 	tasks = config_setting_add(root, "tasks", CONFIG_TYPE_LIST);
 
 	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
 		ts_config_add_task(tasks, ts_task(cookie));
 	}
 		
+	return 0;
+}
+
+int
+ts_parm_process(config_t *cfg, gen_parms_t *parms) {
+	double version, t;
+	if (!config_lookup_float(cfg, "tp-version", &version)) {
+		printf("No version for the task set configuration file\n");
+		return 0;
+	}
+	if (version != 1.0) {
+		printf("Incompatible version: %.2f", version);
+		return 0;
+	}
+	/* All parameters are optional */
+	config_lookup_int(cfg, "total-threads", &parms->gp_totalm);
+	config_lookup_int(cfg, "min-period", &parms->gp_minp);
+	config_lookup_int(cfg, "max-period", &parms->gp_maxp);
+	config_lookup_int(cfg, "min-tpj", &parms->gp_minm);
+	config_lookup_int(cfg, "max-tpj", &parms->gp_maxm);
+	config_lookup_int(cfg, "min-deadline", &parms->gp_mind);
+	config_lookup_int(cfg, "max-deadline", &parms->gp_maxd);
+	t = 0 ; config_lookup_float(cfg, "utilization", &t); parms->gp_util = t;
+	t = 0 ; config_lookup_float(cfg, "min-factor", &t); parms->gp_minf = t;
+	t = 0 ; config_lookup_float(cfg, "max-factor", &t); parms->gp_maxf = t;	
+	return 1;
+}
+
+int
+ts_parm_dump(config_t *cfg, gen_parms_t *parms) {
 	return 0;
 }

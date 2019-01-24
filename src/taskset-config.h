@@ -3,6 +3,7 @@
 
 #include <libconfig.h>
 #include "taskset.h"
+#include "taskset-create.h"
 
 /**
  * Processes the parsed configuration file into a set of tasks.
@@ -25,5 +26,26 @@ int ts_config_process(config_t *cfg, task_set_t *ts);
  * @return non-zero upon success, zero otherwise
  */
 int ts_config_dump(config_t *cfg, task_set_t *ts);
+
+/**
+ * Reads the taskset generation configuration parameters
+ *
+ * @param[in] cfg the in memory configuartion
+ * @param[out] parms the parameters read from cfg
+ *
+ * @return non-zero upon success, zero otherwise
+ */
+int ts_parm_process(config_t *cfg, gen_parms_t *parms);
+
+/**
+ * Dumps the taskset generation configuration parameters into a
+ * configuration object.
+ *
+ * @param[out] cfg the in memory configuartion
+ * @param[in] parms the generation parameters
+ *
+ * @return non-zero upon success, zero otherwise
+ */
+int ts_parm_dump(config_t *cfg, gen_parms_t *parms);
 
 #endif /* TASKSET_CONFIG_H */

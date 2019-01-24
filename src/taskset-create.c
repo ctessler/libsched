@@ -106,7 +106,7 @@ tsc_set_threads(task_set_t* ts, gsl_rng *r, uint32_t minm, uint32_t maxm) {
 }
 
 int
-tsc_set_deadlines_min_halfp(task_set_t *ts, gsl_rng *r, uint32_t maxd) {
+tsc_set_deadlines_min_halfp(task_set_t *ts, gsl_rng *r, uint32_t mind, uint32_t maxd) {
 	task_link_t *cookie;
 	for (cookie = ts_first(ts) ; cookie ; cookie = ts_next(ts, cookie)) {
 		task_t *t = ts_task(cookie);
@@ -115,17 +115,21 @@ tsc_set_deadlines_min_halfp(task_set_t *ts, gsl_rng *r, uint32_t maxd) {
 			/* Deadline cannot be less than the WCET */
 			return 0;
 		}
-		uint32_t mind = t->t_period / 2; /* p/2 */
+		uint32_t lmind = t->t_period / 2; /* p/2 */
 		if (mind < c) {
 			mind = c; /* min = max(c, p/2) */
+		}
+		if (lmind < mind ) {
+			lmind = mind;
 		}
 		uint32_t lmaxd = maxd;
 		if (lmaxd > t->t_period) {
 			/* Must keep deadlines <= periods */
 			lmaxd = t->t_period;
 		}
-		t->t_deadline = tsc_get_scaled(r, mind, lmaxd);
+		t->t_deadline = tsc_get_scaled(r, lmind, lmaxd);
 	}
+	return 1;
 }
 
 

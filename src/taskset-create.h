@@ -4,6 +4,19 @@
 #include <gsl/gsl_rng.h>
 #include "taskset.h"
 
+typedef struct {
+	uint32_t gp_totalm;	/**< Total # of threads in the set */
+	uint32_t gp_minm;	/**< Minimum # of threads per job */
+	uint32_t gp_maxm;	/**< Maximim # of threads per job */
+	uint32_t gp_minp;	/**< Minimum period */
+	uint32_t gp_maxp;	/**< Maximum period */
+	uint32_t gp_mind;	/**< Minimum relative deadline */
+	uint32_t gp_maxd;	/**< Maximum relative deadline */
+	float_t gp_util;	/**< Task set utilization */
+	float_t gp_minf;	/**< Minimum growth factor */
+	float_t gp_maxf;	/**< Maximum growth factor */	
+} gen_parms_t;
+
 /**
  * Adds n tasks with no parameters to the task set.
  *
@@ -73,12 +86,12 @@ int tsc_set_threads(task_set_t* ts, gsl_rng *r, uint32_t minm, uint32_t maxm);
  * 
  * @param[in|out] ts the task set
  * @param[in] r the random source
+ * @param[in] mind lower bound on the deadline
  * @param[in] maxd the maximum deadline value
- *
  *
  * @return non-zero upon success, zero otherwise.
  */
-int tsc_set_deadlines_min_halfp(task_set_t *ts, gsl_rng *r, uint32_t maxd);
+int tsc_set_deadlines_min_halfp(task_set_t *ts, gsl_rng *r, uint32_t mind, uint32_t maxd);
 
 /**
  * Sets the WCET of threads of tasks given a random source, for a

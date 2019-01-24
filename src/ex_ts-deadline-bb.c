@@ -157,7 +157,7 @@ main(int argc, char** argv) {
 
 	/* Initialize a random source */
 	gsl_rng *r = gsl_rng_alloc(gsl_rng_default);
-	tsc_set_deadlines_min_halfp(ts, r, clc.c_maxd);
+	tsc_set_deadlines_min_halfp(ts, r, 1, clc.c_maxd);
 	gsl_rng_free(r);
 	
 	/* Convert the task set to the config */

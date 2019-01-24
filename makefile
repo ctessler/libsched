@@ -9,7 +9,7 @@ BIN = bin
 OBJ = obj
 SRC = src
 BINS = maxchunks tpj uunifast \
-	ts-gen ts-deadline-bb ts-gf ts-print ts-divide ts-merge
+	ts-gen ts-gentp ts-deadline-bb ts-gf ts-print ts-divide ts-merge
 dirs := bin obj lib
 
 .PHONY: clean src test $(BINS) vgcheck
@@ -53,6 +53,15 @@ tsg_objs = $(patsubst %.c,$(OBJ)/%.o,$(tsg_srcs))
 ts-gen: bin/ts-gen
 bin/ts-gen: $(tsg_objs) lib/libsched.a
 	$(CC) -o $@ $(tsg_objs) $(LDFLAGS) $(CFLAGS)
+
+#
+# ts-gentp
+#
+tsgp_srcs = ex_ts-gentp.c
+tsgp_objs = $(patsubst %.c,$(OBJ)/%.o,$(tsgp_srcs))
+ts-gentp: bin/ts-gentp
+bin/ts-gentp: $(tsgp_objs) lib/libsched.a
+	$(CC) -o $@ $(tsgp_objs) $(LDFLAGS) $(CFLAGS)
 
 #
 # ts-deadline-bb
@@ -119,6 +128,7 @@ vgcheck: $(BINS)
 	$(VALGRIND) bin/uunifast -s ex/uunifast.ts -u .9 > /dev/null
 	$(VALGRIND) bin/ts-gen -n 5 --minp 5 --maxp 20 > /dev/null
 	$(VALGRIND) bin/ts-print ex/baruah-2005.ts >/dev/null
+	$(VALGRIND) bin/ts-gentp -p ex/mthreads.tp >/dev/null
 
 #
 # libsched library
