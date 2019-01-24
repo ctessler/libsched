@@ -1,0 +1,21 @@
+#
+# mthreads.tp: M total threads Task Set Parameters for generation
+#
+
+# Version, required
+tp-version		= 1.0;
+
+#
+# Each option may be over-ridden by the command line option of the
+# same name. For example 'total-treads = 3;' is equivalent 
+#
+total-threads 		= 3;	# Total threads in the task set
+utilization		= .1;	# Task set utilization
+min-tpj 		= 1;	# Minimum number of threads per job of any task
+max-tpj			= 2;	# Maximum number of threads per job of any task
+min-period		= 10;   # Minimum period of any task
+max-period		= 1000; # Maximum period of any task
+min-deadline		= 10;	# Minimum relative deadline of any task
+max-deadline		= 1000; # Maximum relative deadline of any task
+min-factor		= .2;	# Minimum growth factor
+max-factor		= .9;   # Maximum growth factor

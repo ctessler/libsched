@@ -2,6 +2,8 @@
 # libconfig readable description of a task set with the example task
 # set from Baruah '05
 #
+# Version, required
+ts-version = 1.0;
 
 #
 #

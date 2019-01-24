@@ -1,3 +1,6 @@
+# Version, required
+ts-version = 1.0;
+
 #
 # tasks -- top level container for all tasks
 #

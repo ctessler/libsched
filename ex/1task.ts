@@ -1,6 +1,11 @@
 #
+# 1task.ts: One Task Task Set file
+#
 # libconfig readable description of a task set with one task
 #
+
+# Version, required.
+ts-version = 1.0;
 
 #
 # Structure of the task set

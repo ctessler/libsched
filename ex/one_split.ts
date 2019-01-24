@@ -1,3 +1,6 @@
+# Version, required
+ts-version = 1.0;
+
 #
 # This task set is not schedulable by non-preemptive BUNDLEP unless
 # t.1 is divided.
