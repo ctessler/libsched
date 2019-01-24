@@ -129,6 +129,13 @@ uint32_t task_dbf_debug(task_t *task, uint32_t t, FILE *f);
  */
 int task_merge(task_t* task);
 
-
+/**
+ * Determines if th task has a constrained deadlines (d <= p)
+ *
+ * @param[in] task the task 
+ * 
+ * @return non-zero if the task is constrained, zero otherwise
+ */
+int task_is_constrained(task_t* task);
    
 #endif /* TASK_H */

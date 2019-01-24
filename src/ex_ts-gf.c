@@ -104,7 +104,7 @@ main(int argc, char** argv) {
 	 *   GSL_RNG_TYPE=ranlxs2
 	 *   GSL_RNG_SEED=`date +%s`
 	 */
-	gsl_rng_env_setup();
+	ges_stfu();
 	while(1) {
 		int opt_idx = 0;
 		int c = getopt_long(argc, argv, short_options,

@@ -527,3 +527,16 @@ ts_merge(task_set_t *ts) {
 	
 	return rv; 
 }
+
+int
+ts_is_constrained(task_set_t *ts) {
+	task_link_t *cookie;
+
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		task_t *t = ts_task(cookie);
+		if (!task_is_constrained(t)) {
+			return 0;
+		}
+	}
+	return 1;
+}

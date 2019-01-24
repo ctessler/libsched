@@ -310,4 +310,13 @@ int ts_move(task_set_t* src, task_set_t* dst);
  */
 task_set_t *ts_merge(task_set_t *ts);
 
+/**
+ * Determines if all tasks have constrained deadlines (d <= p)
+ *
+ * @param[in] ts the task set
+ * 
+ * @return non-zero if all tasks are constrained, zero otherwise
+ */
+int ts_is_constrained(task_set_t *ts);
+
 #endif /* TASKSET_H */

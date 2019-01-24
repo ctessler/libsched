@@ -119,7 +119,12 @@ tsc_set_deadlines_min_halfp(task_set_t *ts, gsl_rng *r, uint32_t maxd) {
 		if (mind < c) {
 			mind = c; /* min = max(c, p/2) */
 		}
-		t->t_deadline = tsc_get_scaled(r, mind, maxd);
+		uint32_t lmaxd = maxd;
+		if (lmaxd > t->t_period) {
+			/* Must keep deadlines <= periods */
+			lmaxd = t->t_period;
+		}
+		t->t_deadline = tsc_get_scaled(r, mind, lmaxd);
 	}
 }
 
@@ -137,4 +142,15 @@ tsc_set_wcet_gf(task_set_t* ts, gsl_rng *r, float minf, float maxf) {
 		tsc_update_wcet_gf(t, factor);
 	}
 	return 1;
+}
+
+void ges_stfu() {
+	
+	int restore_fd = dup(fileno(stderr)); 
+	freopen("/dev/null", "w", stderr);
+
+	/* STFU! */
+	gsl_rng_env_setup();
+
+	dup2(fileno(stderr), restore_fd);
 }

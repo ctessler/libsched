@@ -139,3 +139,11 @@ task_merge(task_t* task) {
 	task_threads(task, 1);
 	task->wcet(1) = wcet;
 }
+
+int
+task_is_constrained(task_t* task) {
+	if (task->t_deadline <= task->t_period) {
+		return 1;
+	}
+	return 0;
+}

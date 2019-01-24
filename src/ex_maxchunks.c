@@ -101,6 +101,13 @@ main(int argc, char** argv) {
 	char *str;
 	printf("Task Set:\n");
 	str = ts_string(ts); printf("%s\n\n", str); free(str);
+
+	if (!ts_is_constrained(ts)) {
+		printf("Task set has unconstrained deadlines, aborting!\n");
+		rv = -1;
+		goto bail;
+	}
+	
 	int feas = max_chunks(ts);
 	if (clc.c_nonp) {
 		/* Non-preemptive check */

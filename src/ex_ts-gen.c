@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <unistd.h>
 
 #include "taskset-config.h"
 #include "taskset-create.h"
@@ -93,13 +94,15 @@ main(int argc, char** argv) {
 
 	/* Initilialize the config object */
 	config_init(&cfg);
+
 	/*
 	 * Initializer for the GNU Scientific Library for random numbers
 	 * Suggested values for environment variables
 	 *   GSL_RNG_TYPE=ranlxs2
 	 *   GSL_RNG_SEED=`date +%s`
 	 */
-	gsl_rng_env_setup();
+	ges_stfu();
+	
 	clc.c_minm = 1;
 	while(1) {
 		int opt_idx = 0;

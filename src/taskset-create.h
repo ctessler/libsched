@@ -1,5 +1,6 @@
 #ifndef TASKSET_CREATE_H
 #define TASKSET_CREATE_H
+#include <unistd.h>
 #include <gsl/gsl_rng.h>
 #include "taskset.h"
 
@@ -93,6 +94,16 @@ int tsc_set_deadlines_min_halfp(task_set_t *ts, gsl_rng *r, uint32_t maxd);
  */
 int tsc_set_wcet_gf(task_set_t* ts, gsl_rng *r, float minf, float maxf);
 
+/**
+ * Quiet gsl_env_setup()
+ *
+ * It's unclear why there isn't an option to gsl_env_setup() to avoid
+ * spamming to stderr. Yet it INSISTS that a user providing an
+ * environment variable *is* indeed an error.
+ * 
+ * Use this function if an environment variable is *NOT* an error
+ */
+void ges_stfu();
 
 #endif /* TASKSET_CREATE_H */
 

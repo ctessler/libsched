@@ -87,13 +87,6 @@ main(int argc, char** argv) {
 
 	/* Initilialize the config object */
 	config_init(&cfg);
-	/*
-	 * Initializer for the GNU Scientific Library for random numbers
-	 * Suggested values for environment variables
-	 *   GSL_RNG_TYPE=ranlxs2
-	 *   GSL_RNG_SEED=`date +%s`
-	 */
-	gsl_rng_env_setup();
 	while(1) {
 		int opt_idx = 0;
 		int c = getopt_long(argc, argv, short_options,
@@ -171,9 +164,6 @@ main(int argc, char** argv) {
 		rv = -1;
 		goto bail;
 	}
-
-	gsl_rng *r = gsl_rng_alloc(gsl_rng_default);
-	gsl_rng_free(r);
 
 	task_set_t *merged = ts_merge(ts);
 	if (!merged) {
