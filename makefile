@@ -103,7 +103,7 @@ bin/ts-merge: $(tsm_objs) lib/libsched.a
 #
 # Unit Tests
 #
-ut_srcs = unittest.c ut_suites.c ut_cunit.c ut_task.c ut_tpj.c
+ut_srcs = unittest.c ut_suites.c ut_cunit.c ut_task.c ut_tpj.c ut_taskset.c
 ut_objs = $(patsubst %.c,$(OBJ)/%.o,$(ut_srcs))
 unittest: bin/unittest vgcheck
 	$(VALGRIND) bin/unittest

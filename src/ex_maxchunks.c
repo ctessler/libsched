@@ -35,6 +35,8 @@ usage() {
 	printf("\t--nonp\t\t Nonpreemptive feasibility only if chunks >= WCET\n");
 	printf("\t--task-set/-s <FILE>\tRequired file containing tasks\n");
 	printf("\t--verbose/-v\t\tEnables verbose output\n");
+	printf("RETURNS:\n");
+	printf("\tZero if the task set is schedulable, 1 if it is not, -1 on error\n");
 	printf("\n%s\n", exfile);
 }
 

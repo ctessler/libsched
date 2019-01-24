@@ -332,7 +332,6 @@ ts_permit(task_set_t* ts) {
 		return strdup(BUFF);
 	}
 
-	
 	return NULL;
 }
 
