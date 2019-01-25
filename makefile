@@ -19,13 +19,16 @@ all: $(BINS) unittest vgcheck
 $(OBJ)/%.o: $(SRC)/%.c | $(dirs)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+release: CFLAGS += -O3 -g0
+release: $(BINS)
+
 #
 # Maximum Non Preemptive Chunks implementation
 #
 mc_srcs = ex_maxchunks.c
 mc_objs = $(patsubst %.c,$(OBJ)/%.o,$(mc_srcs))
 maxchunks: bin/maxchunks
-bin/maxchunks: $(mc_objs) lib/libsched.a
+bin/maxchunks: $(mc_objs) lib/libsched.a release
 	$(CC) -o $@ $(mc_objs) $(LDFLAGS) $(CFLAGS)
 #
 # Threads Per Job implementation

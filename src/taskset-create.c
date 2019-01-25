@@ -150,8 +150,11 @@ tsc_set_wcet_gf(task_set_t* ts, gsl_rng *r, float minf, float maxf) {
 
 void ges_stfu() {
 	
-	int restore_fd = dup(fileno(stderr)); 
+	int restore_fd = dup(fileno(stderr));
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wunused-result"
 	freopen("/dev/null", "w", stderr);
+	#pragma GCC diagnostic pop
 
 	/* STFU! */
 	gsl_rng_env_setup();
