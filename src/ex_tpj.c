@@ -93,6 +93,13 @@ main(int argc, char** argv) {
 		rv = -1;
 		goto bail;
 	}
+	if (!ts_is_constrained(ts)) {
+		printf("Task set is %s unconstrained, aborting!\n",
+		       clc.c_fname);
+		rv = -1;
+		goto bail;
+	}
+	
 	/*
 	 * Configuration file processed, time to calculate the chunks
 	 */

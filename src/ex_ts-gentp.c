@@ -400,6 +400,12 @@ generate(gen_parms_t *parms, FILE *output) {
 	config_destroy(&cfg);
 
 	rv = 0;
+
+	if (!ts_is_constrained(ts)) {
+		printf("Produced an unconstrained deadline task set!\n");
+		printf("mind: %u maxd: %u\n", parms->gp_mind, parms->gp_maxd);
+		rv = -1;
+	}
  bail:
 	if (r) {
 		gsl_rng_free(r);

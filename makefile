@@ -28,7 +28,7 @@ release: $(BINS)
 mc_srcs = ex_maxchunks.c
 mc_objs = $(patsubst %.c,$(OBJ)/%.o,$(mc_srcs))
 maxchunks: bin/maxchunks
-bin/maxchunks: $(mc_objs) lib/libsched.a release
+bin/maxchunks: $(mc_objs) lib/libsched.a 
 	$(CC) -o $@ $(mc_objs) $(LDFLAGS) $(CFLAGS)
 #
 # Threads Per Job implementation

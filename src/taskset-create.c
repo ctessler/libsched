@@ -116,8 +116,8 @@ tsc_set_deadlines_min_halfp(task_set_t *ts, gsl_rng *r, uint32_t mind, uint32_t 
 			return 0;
 		}
 		uint32_t lmind = t->t_period / 2; /* p/2 */
-		if (mind < c) {
-			mind = c; /* min = max(c, p/2) */
+		if (lmind < c) {
+			lmind = c; /* min = max(c, p/2) */
 		}
 		if (lmind < mind ) {
 			lmind = mind;
@@ -128,6 +128,12 @@ tsc_set_deadlines_min_halfp(task_set_t *ts, gsl_rng *r, uint32_t mind, uint32_t 
 			lmaxd = t->t_period;
 		}
 		t->t_deadline = tsc_get_scaled(r, lmind, lmaxd);
+
+		if (t->t_deadline > t->t_period) {
+			/* Need an assertion here, this should not happen */
+			return 0;
+		}
+			
 	}
 	return 1;
 }
