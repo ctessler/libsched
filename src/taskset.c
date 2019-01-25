@@ -1,5 +1,5 @@
 #include "taskset.h"
-static char BUFF[4096];
+static char BUFF[8192];
 
 task_set_t*
 ts_alloc() {
