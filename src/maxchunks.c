@@ -39,14 +39,7 @@ max_chunks(task_set_t *ts) {
 		}
 		assign_slack(cursor->oe_tasks, D, p_slack);
 	}
-	or_elem_t *temp;
-	for (cursor = ordl_first(&head); cursor; ) {
-		temp = ordl_next(cursor);
-		ordl_remove(cursor);
-		oe_free(cursor);
-		cursor = temp;
-	}
-	ordl_init(&head);
+	ordl_clear(&head);
 
 	if (feasible) {
 		return 0;

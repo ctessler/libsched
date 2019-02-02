@@ -29,6 +29,11 @@ extern CU_TestInfo ordl_tests[];
 extern int ut_ordl_init(void);
 extern int ut_ordl_cleanup(void);
 
+/* ut_deadlines */
+extern CU_TestInfo ut_dl_tests[];
+extern int ut_dl_init(void);
+extern int ut_dl_cleanup(void);
+
 
 CU_SuiteInfo suites[] = {
     { "CUNIT", cunit_init, cunit_cleanup, cunit_tests },
@@ -36,6 +41,7 @@ CU_SuiteInfo suites[] = {
     { "TASKSETS", taskset_init, taskset_cleanup, taskset_tests },    
     { "TPJ", tpj_init, tpj_cleanup, tpj_tests },
     { "ORDL", ut_ordl_init, ut_ordl_cleanup, ordl_tests },
+    { "DEADLINES", ut_dl_init, ut_dl_cleanup, ut_dl_tests },
     CU_SUITE_INFO_NULL
 };
 

@@ -111,6 +111,25 @@ int ordl_insert(ordl_t* head, or_elem_t *elem);
  */
 #define ordl_next(elem) LIST_NEXT(elem, oe_glue)
 
+/**
+ * Removes all deadlines of an individual task from the ordered list
+ * of absolute deadlines
+ *
+ * @param[in] task the task
+ * @param[in] head the (maybe non-empty) list
+ *
+ * @return the number of deadlines removed
+ */
+int ordl_rem_deadlines_task(ordl_t *head, task_t *task);
+
+/**
+ * Removes all deadlines from the ordered list, it does *not* free the
+ * tasks associated weth the deadlines. 
+ *
+ * @param[out] head the head of the list to be cleared, will be
+ *     ordl_init()'d before returned;
+ */
+void ordl_clear(ordl_t *head);
 
 /**
  * Finds the element of the deadline
@@ -132,16 +151,6 @@ or_elem_t* oe_alloc();
 or_elem_t* oe_free(or_elem_t* e);
 
 
-/**
- * Removes all deadlines of an individual task from the ordered list
- * of absolute deadlines 
- *
- * @param[in] task the task
- * @param[in] head the (maybe non-empty) list
- *
- * @return the number of deadlines removed
- */
-int ordl_rem_deadlines_task(ordl_t *head, task_t *task);
 
 
 

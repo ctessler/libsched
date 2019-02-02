@@ -73,3 +73,16 @@ ordl_rem_deadlines_task(ordl_t *head, task_t *task) {
 
 	return count;
 }
+
+void
+ordl_clear(ordl_t *head) {
+	or_elem_t *o_cursor, *tmp;
+
+	for (o_cursor = ordl_first(head); o_cursor;) {
+		tmp = ordl_next(o_cursor);
+		ordl_remove(o_cursor);
+		oe_free(o_cursor);
+		o_cursor = tmp;
+	}
+	ordl_init(head);
+}

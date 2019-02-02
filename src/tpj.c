@@ -162,17 +162,8 @@ tpj(task_set_t *ts, FILE *dbg) {
 		}
 	}
 
-	/*
-	 * Clean up the ORDL list, do *not* remove the tasks.
-	 */
-	for (cursor = ordl_first(&head); cursor;) {
-		or_elem_t *tmp = ordl_next(cursor);
-		ordl_remove(cursor);
-		oe_free(cursor);
-		cursor = tmp;
-	}
-	/* Play it safe, let the compiler throw out the call */	
-	ordl_init(&head);
+	/* Clean up the ORDL list, do *not* remove the tasks. */
+	ordl_clear(&head);
 
 	fprintf(dbg, "\n");
 	if (doclose) {

@@ -18,7 +18,7 @@ ts_fill_deadlines_task(task_t *task, ordl_t *head, uint32_t t) {
 	do {
 		deadline = task->t_deadline + (i * task->t_period);
 		if (deadline <= t) {
-			D = ordl_find(head, t);
+			D = ordl_find(head, deadline);
 			if (!D) {
 				D = oe_alloc();
 				D->oe_deadline = deadline;
