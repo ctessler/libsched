@@ -115,9 +115,9 @@ bin/ts-merge: $(tsm_objs) lib/libsched.a
 #
 # Unit Tests
 #
-ut_srcs = unittest.c ut_suites.c ut_cunit.c ut_task.c ut_tpj.c ut_taskset.c
+ut_srcs = unittest.c ut_suites.c ut_cunit.c ut_task.c ut_tpj.c ut_taskset.c ut_ordl.c
 ut_objs = $(patsubst %.c,$(OBJ)/%.o,$(ut_srcs))
-unittest: bin/unittest vgcheck
+unittest: bin/unittest 
 	$(VALGRIND) bin/unittest
 bin/unittest: LDFLAGS += -lcunit
 bin/unittest: $(ut_objs) lib/libsched.a
@@ -126,7 +126,7 @@ bin/unittest: $(ut_objs) lib/libsched.a
 #
 # valgrind check the executables
 #
-vgcheck: $(BINS)
+vgcheck: $(BINS) unittest
 	$(VALGRIND) bin/maxchunks -s ex/1task.ts > /dev/null
 	$(VALGRIND) bin/uunifast -s ex/uunifast.ts -u .9 > /dev/null
 	$(VALGRIND) bin/ts-gen -n 5 --minp 5 --maxp 20 > /dev/null
@@ -143,6 +143,7 @@ lib_srcs = \
 	taskset.c \
 	taskset-config.c \
 	taskset-create.c \
+	taskset-deadlines.c \
 	tpj.c \
 	uunifast.c
 lib_objs = $(patsubst %.c,obj/%.o,$(lib_srcs))

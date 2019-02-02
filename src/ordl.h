@@ -4,20 +4,21 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/queue.h>
-#include "task.h"
- 
+#include "taskset.h"
+
 /**
  * @file ordl.h Ordered Absolute Deadline Management
  */
 
+/* Needed before including taskset.h */
 typedef LIST_HEAD(ordl_head, or_elem) ordl_t;
 
 typedef struct or_elem {
 	LIST_ENTRY(or_elem) oe_glue;	/**< Queue glue */
 	task_t *oe_task;		/**< Task which generated the deadline */
+	task_set_t* oe_tasks;		/**< List of tasks which share the deadline */
 	uint32_t oe_deadline;		/**< Absolute deadline */
 } or_elem_t;
-
 
 /**
  * Initializes the list
@@ -111,13 +112,24 @@ int ordl_insert(ordl_t* head, or_elem_t *elem);
  */
 #define ordl_next(elem) LIST_NEXT(elem, oe_glue)
 
+
+/**
+ * Finds the element of the deadline
+ *
+ * @param[in] head list head
+ * @param[in] deadline the deadline being searched for
+ *
+ * @return NULL if not found, the element otherwise.
+ */
+or_elem_t *ordl_find(ordl_t* head, uint32_t deadline);
+
 /**
  * Allocate a new element
  *
  * Usage:
  *    or_elem_t *item = oe_alloc();
  */
-#define oe_alloc() (calloc(sizeof(or_elem_t), 1))
-#define oe_free(item) free(item)
+or_elem_t* oe_alloc();
+or_elem_t* oe_free(or_elem_t* e);
 
 #endif /* ORDL_H */

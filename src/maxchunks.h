@@ -1,7 +1,7 @@
 #ifndef MAXCHUNKS_H
 #define MAXCHUNKS_H
 #include "taskset.h"
-
+#include "taskset-deadlines.h"
 /**
  * Implementation of Baruah's maximum non-preemptive chunk algorithm
  *

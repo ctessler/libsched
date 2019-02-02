@@ -24,12 +24,18 @@ extern CU_TestInfo tpj_tests[];
 extern int tpj_init(void);
 extern int tpj_cleanup(void);
 
+/* ut_tpj */
+extern CU_TestInfo ordl_tests[];
+extern int ut_ordl_init(void);
+extern int ut_ordl_cleanup(void);
+
 
 CU_SuiteInfo suites[] = {
     { "CUNIT", cunit_init, cunit_cleanup, cunit_tests },
     { "TASK", task_init, task_cleanup, task_tests },
     { "TASKSETS", taskset_init, taskset_cleanup, taskset_tests },    
-    { "TPJ", tpj_init, tpj_cleanup, tpj_tests },
+    //    { "TPJ", tpj_init, tpj_cleanup, tpj_tests },
+    { "ORDL", ut_ordl_init, ut_ordl_cleanup, ordl_tests },
     CU_SUITE_INFO_NULL
 };
 

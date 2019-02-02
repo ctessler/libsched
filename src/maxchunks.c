@@ -1,5 +1,20 @@
 #include "maxchunks.h"
 
+static void
+assign_slack(task_set_t *ts, int64_t D, int64_t slack) {
+	task_link_t *cookie;
+	for (cookie = ts_first(ts) ; cookie ; cookie = ts_next(ts, cookie)) {
+		task_t *task= ts_task(cookie);
+		if (D != task->t_deadline) {
+			return;
+		}
+		task->t_chunk = slack;
+		if (task->t_chunk > task->wcet(task->t_threads)) {
+			task->t_chunk = task->wcet(task->t_threads);
+		}
+	}
+}
+
 int
 max_chunks(task_set_t *ts) {
 	uint64_t star = ts_star(ts);
@@ -23,14 +38,7 @@ max_chunks(task_set_t *ts) {
 			break;
 		}
 		task_t *task = cursor->oe_task;
-		if (D != task->t_deadline) {
-			continue;
-		}
-		task->t_chunk = p_slack;
-		if (task->t_chunk > task->wcet(task->t_threads)) {
-			task->t_chunk =
-				task->wcet(task->t_threads);
-		}
+		assign_slack(cursor->oe_tasks, D, p_slack);
 	}
 	or_elem_t *temp;
 	for (cursor = ordl_first(&head); cursor; ) {
