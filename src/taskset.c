@@ -102,6 +102,7 @@ ts_rem(task_set_t *ts, task_link_t *cookie) {
 		return task;
 	}	
 	remque(cookie); // frees the cookie .. unless it's the head.
+	free(cookie);
 	return task;
 }
 

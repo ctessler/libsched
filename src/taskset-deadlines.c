@@ -22,16 +22,16 @@ ts_fill_deadlines_task(task_t *task, ordl_t *head, uint32_t t) {
 			if (!D) {
 				D = oe_alloc();
 				D->oe_deadline = deadline;
+				ordl_insert(head, D);
 			}
-			D->oe_task = task;
 			ts_add(D->oe_tasks, task);
-			ordl_insert(head, D);
 		}
 		i++;
 	} while (deadline <= t);
 
 	return i;
 }
+
 
 int
 ts_extend_deadlines(task_set_t *ts, ordl_t* head, uint32_t prevb,
@@ -53,7 +53,6 @@ ts_extend_deadlines(task_set_t *ts, ordl_t* head, uint32_t prevb,
 			if (deadline <= newb) {
 				or_elem_t *D = oe_alloc();
 				D->oe_deadline = deadline;
-				D->oe_task = task;
 				ordl_insert(head, D);
 			}
 		} while (deadline <= newb);

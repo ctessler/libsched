@@ -37,7 +37,6 @@ max_chunks(task_set_t *ts) {
 			feasible = 0;
 			break;
 		}
-		task_t *task = cursor->oe_task;
 		assign_slack(cursor->oe_tasks, D, p_slack);
 	}
 	or_elem_t *temp;

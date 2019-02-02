@@ -50,3 +50,26 @@ ordl_find(ordl_t* head, uint32_t deadline) {
 	}
 	return c;
 }
+
+int
+ordl_rem_deadlines_task(ordl_t *head, task_t *task) {
+	or_elem_t *cursor, *next;
+	int count = 0;
+
+	for (cursor = ordl_first(head); cursor; cursor = next) {
+		next = ordl_next(cursor);
+		task_set_t *ts = cursor->oe_tasks;
+		task_link_t* cookie = ts_find(ts, task);
+
+		if (!cookie) {
+			/* Task doesn't have this deadline */
+			continue;
+		}
+
+		/* Task is in the deadline */
+		ts_rem(ts, cookie);
+		count++;
+	}
+
+	return count;
+}

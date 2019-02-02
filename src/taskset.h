@@ -202,12 +202,7 @@ char* ts_permit(task_set_t* ts);
 int64_t ts_slack(task_set_t *ts, uint32_t t);
 
 /**
- * Finds the specific slack for a single deadline
- *
- * @note the difference between the slack among all deadlines up to
- * and including t (which is what ts_slack() calculates) and the
- * demand at a specific time (which is what this function
- * calculates)
+ * Calculates the demand for an interval of length t
  *
  * @param[in] ts the task set
  * @param[in] t the time

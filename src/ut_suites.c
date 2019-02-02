@@ -34,7 +34,7 @@ CU_SuiteInfo suites[] = {
     { "CUNIT", cunit_init, cunit_cleanup, cunit_tests },
     { "TASK", task_init, task_cleanup, task_tests },
     { "TASKSETS", taskset_init, taskset_cleanup, taskset_tests },    
-    //    { "TPJ", tpj_init, tpj_cleanup, tpj_tests },
+    { "TPJ", tpj_init, tpj_cleanup, tpj_tests },
     { "ORDL", ut_ordl_init, ut_ordl_cleanup, ordl_tests },
     CU_SUITE_INFO_NULL
 };

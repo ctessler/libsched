@@ -15,7 +15,6 @@ typedef LIST_HEAD(ordl_head, or_elem) ordl_t;
 
 typedef struct or_elem {
 	LIST_ENTRY(or_elem) oe_glue;	/**< Queue glue */
-	task_t *oe_task;		/**< Task which generated the deadline */
 	task_set_t* oe_tasks;		/**< List of tasks which share the deadline */
 	uint32_t oe_deadline;		/**< Absolute deadline */
 } or_elem_t;
@@ -131,5 +130,19 @@ or_elem_t *ordl_find(ordl_t* head, uint32_t deadline);
  */
 or_elem_t* oe_alloc();
 or_elem_t* oe_free(or_elem_t* e);
+
+
+/**
+ * Removes all deadlines of an individual task from the ordered list
+ * of absolute deadlines 
+ *
+ * @param[in] task the task
+ * @param[in] head the (maybe non-empty) list
+ *
+ * @return the number of deadlines removed
+ */
+int ordl_rem_deadlines_task(ordl_t *head, task_t *task);
+
+
 
 #endif /* ORDL_H */

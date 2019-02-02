@@ -2,6 +2,7 @@
 #define TPJ_H
 #include <stdio.h>
 #include "taskset.h"
+#include "taskset-deadlines.h"
 #include "ordl.h"
 
 /**
