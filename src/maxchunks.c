@@ -3,10 +3,11 @@
 static void
 assign_slack(task_set_t *ts, int64_t D, int64_t slack) {
 	task_link_t *cookie;
+	char *str;
 	for (cookie = ts_first(ts) ; cookie ; cookie = ts_next(ts, cookie)) {
 		task_t *task= ts_task(cookie);
 		if (D != task->t_deadline) {
-			return;
+			continue;
 		}
 		task->t_chunk = slack;
 		if (task->t_chunk > task->wcet(task->t_threads)) {
