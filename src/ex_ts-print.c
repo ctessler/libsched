@@ -12,23 +12,32 @@
  */
 static struct {
 	int c_verbose;
+	int c_util;
 	char* c_fname;	
 } clc;
 
 
-static const char* short_options = "hs:";
+static const char* short_options = "hs:u";
 static struct option long_options[] = {
-    {"help", no_argument, 0, 'h'},
+    {"help",		no_argument, 0, 'h'},
+    {"utilization",	no_argument, 0, 'u'},
     {0, 0, 0, 0}
+};
+
+static const char *usagec[] = {
+"ts-print: Prints a task set file",
+"",
+"Usage: ts-print <FILE>",
+"	-h/--help		This message",
+"	-u/--utilization	Prints *only* the utilization",
+""
 };
 
 void
 usage() {
-	printf("ts-print: Task Set Printer\n");
-	printf("Usage: ts-print [OPTIONS] <FILE>\n");
-	printf("OPTIONS:\n");
-	printf("\t--help/-h\t\tThis message\n");
-	printf("\t--task-set/-s <FILE>\tTask set configuration file\n"); 
+        for (int i = 0; i < sizeof(usagec) / sizeof(usagec[0]); i++) {
+		printf("%s\n", usagec[i]);
+	}
 }
 
 int
@@ -56,6 +65,9 @@ main(int argc, char** argv) {
 			goto bail;
 		case 's':
 			clc.c_fname = strdup(optarg);
+			break;
+		case 'u':
+			clc.c_util = 1;
 			break;
 		default:
 			printf("Unknown option %c\n", c);
@@ -90,6 +102,11 @@ main(int argc, char** argv) {
 		rv = -1;
 		goto bail;
 	}
+	if (clc.c_util) {
+		printf("%.4f\n", ts_util(ts));
+		goto bail;
+	}
+	
 	str = ts_header(ts); printf("%s\n", str); free(str);	
 	str = ts_string(ts); printf("%s\n", str); free(str);
 	printf("-------------------------------------------------\n");
