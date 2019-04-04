@@ -8,7 +8,9 @@ shared among all of the command line utilities listed below.
 - gcc		7.3.0
 - glibc		2.27
 - valgrind	3.13.0
-- CUnit		2.1
+- CUnit		2.1 (ubuntu libcunit1-dev)
+- GSL		1.16 (ubuntu libsgl0-dev)
+  GNU Scientific Library
 
 ## Directories
 ex/
