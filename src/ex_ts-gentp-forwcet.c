@@ -263,8 +263,8 @@ generate(task_set_t *orig, gen_parms_t *parms, FILE *output) {
 	char *str;
 	
 	/* Check the parameters first */
-	if (parms->gp_util < 0) {
-		printf("Utilization %f < 0\n", parms->gp_util);
+	if (parms->gp_util <= 0) {
+		printf("Utilization %f <= 0\n", parms->gp_util);
 		return -1;
 	}
 	if (parms->gp_totalm < parms->gp_minm) {
@@ -306,6 +306,24 @@ generate(task_set_t *orig, gen_parms_t *parms, FILE *output) {
 		goto bail;
 	}
 
+	e = tsm_uunifast_periods(r, ts, parms->gp_util, NULL);
+	if (e) {
+		printf("Unable to set utilization\n");
+		goto bail;
+	}
+
+	e = tsm_set_deadlines(r, ts, NULL);
+	if (e) {
+		printf("Unable to set deadlines\n");
+		goto bail;
+	}
+
+	e = tsm_force_concave(ts, NULL);
+	if (e) {
+		printf("Unable to force concavity\n");
+		goto bail;
+	}
+
 	config_init(&cfg);
 	/* Convert the task set to the config */
 	ts_config_dump(&cfg, ts);
@@ -318,7 +336,6 @@ generate(task_set_t *orig, gen_parms_t *parms, FILE *output) {
 
 	if (!ts_is_constrained(ts)) {
 		printf("Produced an unconstrained deadline task set!\n");
-		printf("mind: %u maxd: %u\n", parms->gp_mind, parms->gp_maxd);
 		rv = -1;
 	}
  bail:

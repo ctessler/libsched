@@ -32,7 +32,7 @@ uu_get_scaled(gsl_rng *r) {
  * @return non-zero upon success, zero otherwise.
  */
 static int
-uu_update_task(task_t *t, double u) {
+uu_update_task(task_set_t *ts, task_t *t, double u) {
 	uint32_t wcet=0, p, m;
 
 	p = t->t_period;
@@ -66,7 +66,7 @@ uu_update_task(task_t *t, double u) {
 }
 
 int
-uunifast(task_set_t *ts, double u, gsl_rng *r, FILE *debug) {
+uunifast_cb(task_set_t *ts, double u, gsl_rng *r, FILE *debug, uu_updater callback) {
 	double random, sum_u, sum_nu, c_u;
 	int rv = 0, doclose = 0;
 	uint32_t n_tasks;
@@ -92,7 +92,7 @@ uunifast(task_set_t *ts, double u, gsl_rng *r, FILE *debug) {
 		sum_u = sum_nu;
 
 		/* Update the task in the set */
-		if (!uu_update_task(t, c_u)) {
+		if (!callback(ts, t, c_u)) {
 			fprintf(debug, "Improper task!\n");
 			rv = 1;
 			goto bail;
@@ -108,7 +108,11 @@ bail:
 		fclose(debug);
 	}
 	return rv;
+
 }
 
 
-
+int
+uunifast(task_set_t *ts, double u, gsl_rng *r, FILE *debug) {
+	return uunifast_cb(ts, u, r, debug, uu_update_task);
+}

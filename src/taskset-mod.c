@@ -76,3 +76,84 @@ tsm_dist_threads(gsl_rng *r, task_set_t* ts, int M, int minm, int maxm) {
 
 	return 0;
 }
+
+static int
+uu_update_task(task_set_t *ts, task_t *t, double u) {
+	uint32_t wcet = t->wcet(t->t_threads);
+
+	t->t_period = (double) wcet / u;
+}
+
+int
+tsm_uunifast_periods(gsl_rng *r, task_set_t* ts, double u, FILE *debug) {
+	uunifast_cb(ts, u, r, debug, uu_update_task);
+
+	return 0;
+}
+
+static uint32_t
+tsm_find_maxp(task_set_t* ts) {
+	task_link_t *cookie;
+	task_t *t;
+	uint32_t maxp = 0;
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		t = ts_task(cookie);
+		if (t->t_period > maxp) {
+			maxp = t->t_period;
+		}
+	}
+	return maxp;
+}
+
+int
+tsm_set_deadlines(gsl_rng *r, task_set_t* ts, FILE *debug) {
+	task_link_t *cookie;
+	task_t *t;
+
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		t = ts_task(cookie);
+		uint32_t min = t->wcet(t->t_threads);
+		if (t->t_period / 2 > min) {
+			min = t->t_period;
+		}
+		uint32_t deadline = tsc_get_scaled(r, min, t->t_period);
+		t->t_deadline = deadline;
+	}
+
+	return 0;
+}
+
+int
+tsm_force_concave(task_set_t *ts, FILE *debug) {
+	task_link_t *cookie;
+	task_t *t;
+
+	task_set_t *scratch = ts_alloc();
+
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		t = ts_task(cookie);
+		if (t->t_threads <= 1) {
+			continue;
+		}
+		uint32_t delta = t->wcet(2) - t->wcet(1);
+		if (delta < t->wcet(1)) {
+			/* Already concave */
+			continue;
+		}
+		uint32_t wcet = t->wcet(1);
+		uint32_t total = t->t_threads;
+		task_threads(t, 1);
+		t->wcet(1) = wcet;
+		for (int i = 2; i <= total; i++) {
+			task_t *add = task_dup(t, 1);
+			sprintf(add->t_name, "%s-%02d", t->t_name, i);
+			ts_add(scratch, add);
+		}
+		sprintf(t->t_name, "%s-%02d", t->t_name, 1);
+				
+	}
+
+	ts_move(scratch, ts);
+	ts_destroy(scratch);
+	return 0;
+}
