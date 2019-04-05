@@ -9,7 +9,8 @@ BIN = bin
 OBJ = obj
 SRC = src
 BINS = maxchunks tpj uunifast \
-	ts-gen ts-gentp ts-deadline-bb ts-gf ts-print ts-divide ts-merge
+	ts-gen ts-gentp ts-deadline-bb ts-gf ts-print ts-divide ts-merge \
+	ts-gentp-forwcet
 dirs := bin obj lib
 
 .PHONY: clean src test $(BINS) vgcheck
@@ -111,6 +112,16 @@ ts-merge: bin/ts-merge
 bin/ts-merge: $(tsm_objs) lib/libsched.a
 	$(CC) -o $@ $(tsm_objs) $(LDFLAGS) $(CFLAGS)
 
+#
+# ts-gentp-forwcet
+#
+tsf_srcs = ex_ts-gentp-forwcet.c
+tsf_objs = $(patsubst %.c,$(OBJ)/%.o,$(tsf_srcs))
+ts-gentp-forwcet: bin/ts-gentp-forwcet
+bin/ts-gentp-forwcet: $(tsf_objs) lib/libsched.a
+	$(CC) -o $@ $(tsf_objs) $(LDFLAGS) $(CFLAGS)
+
+
 
 #
 # Unit Tests
@@ -145,6 +156,7 @@ lib_srcs = \
 	taskset-config.c \
 	taskset-create.c \
 	taskset-deadlines.c \
+	taskset-mod.c \
 	tpj.c \
 	uunifast.c
 lib_objs = $(patsubst %.c,obj/%.o,$(lib_srcs))

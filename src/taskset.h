@@ -38,6 +38,16 @@ void ts_free(task_set_t* ts);
  */
 void ts_destroy(task_set_t* ts);
 
+
+/**
+ * Duplicates a task set
+ * 
+ * @param[in] ts the task set being copied
+ *
+ * @return a new task set that must be ts_free()'d or ts_destroy()'d
+ */
+task_set_t* ts_dup(task_set_t *ts);
+
 /**
  * Returns a dynamically allocated string representing the task set,
  * must be free()'d 
@@ -223,6 +233,17 @@ int64_t ts_demand_debug(task_set_t *ts, uint32_t t, FILE *f);
  * @return the number of tasks in the set
  */
 uint32_t ts_count(task_set_t *ts);
+
+/**
+ * Returns the total number of therads in the task set
+
+ * @note this is an O(n) walk.
+ *
+ * @param[in] ts the task set
+ *
+ * @return the sum of threads in the task set
+ */
+uint32_t ts_threads(task_set_t *ts);
 
 /**
  * Creates a task set from a single task, by dividing that task into

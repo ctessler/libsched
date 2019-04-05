@@ -118,5 +118,17 @@ int tsc_set_wcet_gf(task_set_t* ts, gsl_rng *r, float minf, float maxf);
  */
 void ges_stfu();
 
+/**
+ * Returns a uint32 from the distribution given by random source 
+ * between min and max
+ *
+ * @param[in] r random source
+ * @param[in] min imum value
+ * @param[in] max imum value
+ *
+ * @return a number between min and max (inclusive)
+ */
+uint32_t tsc_get_scaled(gsl_rng *r, uint32_t min, uint32_t max);
+
 #endif /* TASKSET_CREATE_H */
 

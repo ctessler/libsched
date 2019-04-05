@@ -1,6 +1,6 @@
 #include "taskset-create.h"
 
-static uint32_t
+uint32_t
 tsc_get_scaled(gsl_rng *r, uint32_t min, uint32_t max) {
 	unsigned long int random = gsl_rng_get(r);
 	unsigned long int gsl_range = gsl_rng_max(r) - gsl_rng_min(r);
