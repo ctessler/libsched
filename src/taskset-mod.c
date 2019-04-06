@@ -114,10 +114,15 @@ tsm_set_deadlines(gsl_rng *r, task_set_t* ts, FILE *debug) {
 		t = ts_task(cookie);
 		uint32_t min = t->wcet(t->t_threads);
 		if (t->t_period / 2 > min) {
-			min = t->t_period;
+			min = t->t_period / 2;
 		}
 		uint32_t deadline = tsc_get_scaled(r, min, t->t_period);
 		t->t_deadline = deadline;
+		if (!task_is_constrained(t)) {
+			char *s = task_string(t);
+			printf("\Unconstrained task min[%u]:\n%s\n", min, s);
+			free(s);
+		}
 	}
 
 	return 0;
