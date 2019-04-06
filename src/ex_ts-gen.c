@@ -18,11 +18,11 @@ static struct {
 	int c_tasks;
 	char* c_lname;
 	char* c_oname;
-	uint32_t c_minp;
-	uint32_t c_maxp;	
-	uint32_t c_minm;
-	uint32_t c_maxm;
-	uint32_t c_totalm;
+	tint_t c_minp;
+	tint_t c_maxp;	
+	tint_t c_minm;
+	tint_t c_maxm;
+	tint_t c_totalm;
 } clc;
 
 enum {

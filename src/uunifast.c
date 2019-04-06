@@ -33,7 +33,7 @@ uu_get_scaled(gsl_rng *r) {
  */
 static int
 uu_update_task(task_set_t *ts, task_t *t, double u) {
-	uint32_t wcet=0, p, m;
+	tint_t wcet=0, p, m;
 
 	p = t->t_period;
 	m = t->t_threads;

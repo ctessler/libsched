@@ -145,7 +145,7 @@ task_link_t* ts_next(task_set_t *ts, task_link_t *cookie);
  *
  * @return the hyperperiod
  */
-uint32_t ts_hyperp(task_set_t *ts);
+tint_t ts_hyperp(task_set_t *ts);
 
 /**
  * Finds the greatest deadline among all tasks
@@ -154,7 +154,7 @@ uint32_t ts_hyperp(task_set_t *ts);
  * 
  * @return the greatest relative deadline within the set 
  */
-uint32_t ts_dmax(task_set_t *ts);
+tint_t ts_dmax(task_set_t *ts);
 
 /**
  * Finds the utilization of the task set
@@ -209,7 +209,7 @@ char* ts_permit(task_set_t* ts);
  *
  * @return the slack, can be negative
  */
-int64_t ts_slack(task_set_t *ts, uint32_t t);
+int64_t ts_slack(task_set_t *ts, tint_t t);
 
 /**
  * Calculates the demand for an interval of length t
@@ -219,8 +219,8 @@ int64_t ts_slack(task_set_t *ts, uint32_t t);
  * 
  * @return the demand at time t
  */
-int64_t ts_demand(task_set_t *ts, uint32_t t);
-int64_t ts_demand_debug(task_set_t *ts, uint32_t t, FILE *f);
+int64_t ts_demand(task_set_t *ts, tint_t t);
+int64_t ts_demand_debug(task_set_t *ts, tint_t t, FILE *f);
 
 
 /**
@@ -232,7 +232,7 @@ int64_t ts_demand_debug(task_set_t *ts, uint32_t t, FILE *f);
  *
  * @return the number of tasks in the set
  */
-uint32_t ts_count(task_set_t *ts);
+tint_t ts_count(task_set_t *ts);
 
 /**
  * Returns the total number of therads in the task set
@@ -243,7 +243,7 @@ uint32_t ts_count(task_set_t *ts);
  *
  * @return the sum of threads in the task set
  */
-uint32_t ts_threads(task_set_t *ts);
+tint_t ts_threads(task_set_t *ts);
 
 /**
  * Creates a task set from a single task, by dividing that task into
@@ -254,7 +254,7 @@ uint32_t ts_threads(task_set_t *ts);
  *
  * @return a new task set, that must be ts_free()'d or NULL
  */
-task_set_t *ts_divide(task_t *task, uint32_t maxm);
+task_set_t *ts_divide(task_t *task, tint_t maxm);
 
 /**
  * Creates a new task set from an existing task set, dividing every
@@ -265,7 +265,7 @@ task_set_t *ts_divide(task_t *task, uint32_t maxm);
  *
  * @return a new task set, that must be ts_free()'d or NULL
  */
-task_set_t *ts_divide_set(task_set_t *ts, uint32_t maxm);
+task_set_t *ts_divide_set(task_set_t *ts, tint_t maxm);
 
 /**
  * Moves tasks from one set into another

@@ -13,7 +13,7 @@
  *
  * @return non-zero upon success, zero otherwise
  */
-int ts_fill_deadlines(task_set_t *ts, ordl_t *head, uint32_t t);
+int ts_fill_deadlines(task_set_t *ts, ordl_t *head, tint_t t);
 
 /**
  * Adds all of the deadlines from an individual task to the ordered
@@ -25,7 +25,7 @@ int ts_fill_deadlines(task_set_t *ts, ordl_t *head, uint32_t t);
  *
  * @return the number of deadlines added to head
  */
-int ts_fill_deadlines_task(task_t *task, ordl_t *head, uint32_t t);
+int ts_fill_deadlines_task(task_t *task, ordl_t *head, tint_t t);
 
 /**
  * Adds new deadlines for all tasks to the set of ordered deadlines.
@@ -39,7 +39,7 @@ int ts_fill_deadlines_task(task_t *task, ordl_t *head, uint32_t t);
  *
  * @return the number of deadlines added.
  */
-int ts_extend_deadlines(task_set_t *ts, ordl_t *head, uint32_t prevb,
-    uint32_t newb);
+int ts_extend_deadlines(task_set_t *ts, ordl_t *head, tint_t prevb,
+    tint_t newb);
 
 #endif /* TASKSET_DEADLINES_H */

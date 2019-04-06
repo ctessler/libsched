@@ -12,9 +12,9 @@
  * @param[in] m the number of threads of t
  */
 int
-tsm_update_threads(task_set_t* ts, task_t *t, uint32_t m) {
-	uint32_t wcet = t->wcet(1);
-	uint32_t delta = abs(t->wcet(2) - t->wcet(1));
+tsm_update_threads(task_set_t* ts, task_t *t, tint_t m) {
+	tint_t wcet = t->wcet(1);
+	tint_t delta = abs(t->wcet(2) - t->wcet(1));
 
 	task_threads(t, m);
 	for (int i = 1; i <= m; i++) {
@@ -27,7 +27,7 @@ tsm_update_threads(task_set_t* ts, task_t *t, uint32_t m) {
 int
 tsm_dist_threads(gsl_rng *r, task_set_t* ts, int M, int minm, int maxm) {
 	task_link_t *cookie;
-	uint32_t cap, count = 0;
+	tint_t cap, count = 0;
 
 	/* 
 	 * Addition cap saves room for the minimum number of threads
@@ -39,7 +39,7 @@ tsm_dist_threads(gsl_rng *r, task_set_t* ts, int M, int minm, int maxm) {
 	cookie = ts_first(ts);
 	while (count < cap) {
 		task_t *t = ts_task(cookie);
-		uint32_t m = tsc_get_scaled(r, minm, maxm);
+		tint_t m = tsc_get_scaled(r, minm, maxm);
 		if (count + m > cap) {
 			/* time to min fill */
 			break;
@@ -57,7 +57,7 @@ tsm_dist_threads(gsl_rng *r, task_set_t* ts, int M, int minm, int maxm) {
 	/* Add the minimum number of threads per task up to M */
 	while (count < M) {
 		task_t *t = ts_task(cookie);
-		uint32_t m, cthreads = t->t_threads;
+		tint_t m, cthreads = t->t_threads;
 
 		if ((count + cthreads + minm) > M) {
 			m = cthreads + 1;
@@ -79,7 +79,7 @@ tsm_dist_threads(gsl_rng *r, task_set_t* ts, int M, int minm, int maxm) {
 
 static int
 uu_update_task(task_set_t *ts, task_t *t, double u) {
-	uint32_t wcet = t->wcet(t->t_threads);
+	tint_t wcet = t->wcet(t->t_threads);
 
 	t->t_period = (double) wcet / u;
 }
@@ -91,11 +91,11 @@ tsm_uunifast_periods(gsl_rng *r, task_set_t* ts, double u, FILE *debug) {
 	return 0;
 }
 
-static uint32_t
+static tint_t
 tsm_find_maxp(task_set_t* ts) {
 	task_link_t *cookie;
 	task_t *t;
-	uint32_t maxp = 0;
+	tint_t maxp = 0;
 	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
 		t = ts_task(cookie);
 		if (t->t_period > maxp) {
@@ -112,15 +112,15 @@ tsm_set_deadlines(gsl_rng *r, task_set_t* ts, FILE *debug) {
 
 	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
 		t = ts_task(cookie);
-		uint32_t min = t->wcet(t->t_threads);
+		tint_t min = t->wcet(t->t_threads);
 		if (t->t_period / 2 > min) {
 			min = t->t_period / 2;
 		}
-		uint32_t deadline = tsc_get_scaled(r, min, t->t_period);
+		tint_t deadline = tsc_get_scaled(r, min, t->t_period);
 		t->t_deadline = deadline;
 		if (!task_is_constrained(t)) {
 			char *s = task_string(t);
-			printf("\Unconstrained task min[%u]:\n%s\n", min, s);
+			printf("Unconstrained task min[%lu]:\n%s\n", min, s);
 			free(s);
 		}
 	}
@@ -140,13 +140,13 @@ tsm_force_concave(task_set_t *ts, FILE *debug) {
 		if (t->t_threads <= 1) {
 			continue;
 		}
-		uint32_t delta = t->wcet(2) - t->wcet(1);
+		tint_t delta = t->wcet(2) - t->wcet(1);
 		if (delta < t->wcet(1)) {
 			/* Already concave */
 			continue;
 		}
-		uint32_t wcet = t->wcet(1);
-		uint32_t total = t->t_threads;
+		tint_t wcet = t->wcet(1);
+		tint_t total = t->t_threads;
 		task_threads(t, 1);
 		t->wcet(1) = wcet;
 		for (int i = 2; i <= total; i++) {

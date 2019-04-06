@@ -53,7 +53,7 @@ int
 max_chunks_nonp(task_set_t *ts) {
 	task_link_t *cookie;
 	task_t *t;
-	uint32_t m, wcet, q;
+	tint_t m, wcet, q;
 
 	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
 		t = ts_task(cookie);

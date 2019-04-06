@@ -2,7 +2,7 @@
 static char BUFF[1024];
 
 task_t*
-task_alloc(uint32_t period, uint32_t deadline, uint32_t threads) {
+task_alloc(tint_t period, tint_t deadline, tint_t threads) {
 	task_t* task = calloc(sizeof(task_t), 1);
 	task_threads(task, threads);
 	task->t_period = period;
@@ -20,7 +20,7 @@ task_free(task_t* task) {
 }
 
 task_t*
-task_dup(task_t *orig, uint32_t threads) {
+task_dup(task_t *orig, tint_t threads) {
 	if (threads > orig->t_threads) {
 		/* XXX-ct assert here */
 		return NULL;
@@ -35,14 +35,14 @@ task_dup(task_t *orig, uint32_t threads) {
 }
 
 int
-task_threads(task_t *task, uint32_t threads) {
+task_threads(task_t *task, tint_t threads) {
 	if (task->t_wcet) {
 		free(task->t_wcet);
 		task->t_wcet = NULL;
 	}
 	task->t_threads = threads;
 	if (threads > 0) {
-		task->t_wcet = calloc(sizeof(uint32_t), threads);
+		task->t_wcet = calloc(sizeof(tint_t), threads);
 	}
 
 	return threads;
@@ -56,14 +56,14 @@ task_name(task_t* task, const char* name) {
 char *
 task_string(task_t *task) {
 	char *s = BUFF;
-	int n = sprintf(BUFF, "(p:%4u, d:%4u, m:%2u)",
+	int n = sprintf(BUFF, "(p:%4lu, d:%4lu, m:%2lu)",
 	    task->t_period, task->t_deadline, task->t_threads);
 	s += n;
-	n = sprintf(s, " [u:%.3f, q:%u, %s]\twcet{", task_util(task), task->t_chunk,
+	n = sprintf(s, " [u:%.3f, q:%lu, %s]\twcet{", task_util(task), task->t_chunk,
 		task->t_name);
 	for (int i=1; i <= task->t_threads; i++) {
 		s += n;
-		n = sprintf(s, "%3u", task->wcet(i));
+		n = sprintf(s, "%3lu", task->wcet(i));
 		if (i < task->t_threads) {
 			s += n;
 			n = sprintf(s, ", ");
@@ -85,7 +85,7 @@ task_header(task_t *task) {
 
 float_t
 task_util(task_t *task) {
-	uint32_t m,c;
+	tint_t m,c;
 	m = task->t_threads;
 	if (m <= 0) {
 		return 0;
@@ -95,12 +95,12 @@ task_util(task_t *task) {
 	return (float_t)((float_t) c / task->t_period);
 }
 
-uint32_t
-task_dbf(task_t *task, uint32_t t) {
+tint_t
+task_dbf(task_t *task, tint_t t) {
 	if (t < task->t_deadline) {
 		return 0;
 	}
-	uint32_t j = t - task->t_deadline;
+	tint_t j = t - task->t_deadline;
 	j = j / task->t_period;
 	j += 1;
 	j *= task->wcet(task->t_threads);
@@ -108,23 +108,23 @@ task_dbf(task_t *task, uint32_t t) {
 	return j;
 }
 
-uint32_t
-task_dbf_debug(task_t *task, uint32_t t, FILE *f) {
+tint_t
+task_dbf_debug(task_t *task, tint_t t, FILE *f) {
 	if (t < task->t_deadline) {
-		fprintf(f, "DBF(%s, t = %u) = 0 ", task->t_name, t);
-		fprintf(f, ": t < deadline (%u < %u)\n", t, task->t_deadline);
+		fprintf(f, "DBF(%s, t = %lu) = 0 ", task->t_name, t);
+		fprintf(f, ": t < deadline (%lu < %lu)\n", t, task->t_deadline);
 		return 0;
 	}
-	uint32_t numerator = t - task->t_deadline;
-	uint32_t denominator = task->t_period;
-	uint32_t wcet = task->wcet(task->t_threads);
-	uint32_t frac = numerator / denominator;
-	uint32_t demand = (frac + 1) * wcet;
-	fprintf(f, "DBF(%s, t = %u) = %u\n", task->t_name, t, demand);
-	fprintf(f, "        | %5u - %-5u     |\n", t, task->t_deadline);
-	fprintf(f, "%5u * | ------------- + 1 | = %u * (%u + 1) = %5u\n", wcet,
+	tint_t numerator = t - task->t_deadline;
+	tint_t denominator = task->t_period;
+	tint_t wcet = task->wcet(task->t_threads);
+	tint_t frac = numerator / denominator;
+	tint_t demand = (frac + 1) * wcet;
+	fprintf(f, "DBF(%s, t = %lu) = %lu\n", task->t_name, t, demand);
+	fprintf(f, "        | %5lu - %-5lu     |\n", t, task->t_deadline);
+	fprintf(f, "%5lu * | ------------- + 1 | = %lu * (%lu + 1) = %5lu\n", wcet,
 		wcet, frac, demand);
-	fprintf(f, "        |  %8u         |\n", task->t_period);
+	fprintf(f, "        |  %8lu         |\n", task->t_period);
 	fprintf(f, "        +-                 -+\n");
 	
 
@@ -133,8 +133,8 @@ task_dbf_debug(task_t *task, uint32_t t, FILE *f) {
 
 int
 task_merge(task_t* task) {
-	uint32_t m = task->t_threads;
-	uint32_t wcet = task->wcet(m);
+	tint_t m = task->t_threads;
+	tint_t wcet = task->wcet(m);
 
 	task_threads(task, 1);
 	task->wcet(1) = wcet;

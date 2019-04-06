@@ -16,7 +16,7 @@ static struct {
 	int c_verbose;
 	char* c_fname;
 	char* c_oname;
-	uint32_t c_maxd;	
+	tint_t c_maxd;	
 } clc;
 
 enum {

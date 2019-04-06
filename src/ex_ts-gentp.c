@@ -23,13 +23,13 @@ static struct {
 	float_t c_minf;
 	float_t c_maxf;
 	float_t c_util;		
-	uint32_t c_mind;
-	uint32_t c_maxd;	
-	uint32_t c_minp;
-	uint32_t c_maxp;	
-	uint32_t c_minm;
-	uint32_t c_maxm;
-	uint32_t c_totalm;
+	tint_t c_mind;
+	tint_t c_maxd;	
+	tint_t c_minp;
+	tint_t c_maxp;	
+	tint_t c_minm;
+	tint_t c_maxm;
+	tint_t c_totalm;
 } clc;
 
 enum {

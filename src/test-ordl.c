@@ -43,12 +43,12 @@ void test_creation() {
 }
 
 void test_isort() {
-	uint32_t deadlines[] = {30, 15, 30, 25, 22, 20, 40, 60, 800};
-	uint32_t s = sizeof(uint32_t);
-	uint32_t ele = sizeof(deadlines) / s;
+	tint_t deadlines[] = {30, 15, 30, 25, 22, 20, 40, 60, 800};
+	tint_t s = sizeof(tint_t);
+	tint_t ele = sizeof(deadlines) / s;
 
 	printf("Unsorted deadlines: ");
-	for (uint32_t c = 0; c < ele; c++) {
+	for (tint_t c = 0; c < ele; c++) {
 		printf("%u", deadlines[c]);
 		if (c < (ele -1)) {
 			printf(", ");
@@ -60,7 +60,7 @@ void test_isort() {
 	or_elem_t *c, *elem;
 
 	ordl_init(&head);
-	for (uint32_t i = 0; i < ele; i++) {
+	for (tint_t i = 0; i < ele; i++) {
 		elem = oe_alloc();
 		elem->oe_deadline = deadlines[i];
 		ordl_insert(&head, elem);

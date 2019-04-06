@@ -16,12 +16,12 @@
  * @return non-zero upon success, zero otherwise
  */
 static int
-divide(task_set_t *ts, ordl_t *head, task_t *task, uint32_t slack, uint64_t star) {
+divide(task_set_t *ts, ordl_t *head, task_t *task, tint_t slack, uint64_t star) {
 	char namebuf[TASK_NAMELEN], needle[TASK_NAMELEN], *p;
 	task_link_t *ts_cursor = NULL;
 	or_elem_t *oe_cursor = NULL;
 	task_t *task_o,	*task_p;
-	uint32_t threads;
+	tint_t threads;
 
 	for (int i=1; i <= task->t_threads; i++) {
 		if (task->wcet(i) <= slack) {
@@ -58,7 +58,7 @@ divide(task_set_t *ts, ordl_t *head, task_t *task, uint32_t slack, uint64_t star
 
 	/* Counter intuitively, add posterior tasks first, remove
 	   original task after. */
-	uint32_t remaining = task->t_threads;
+	tint_t remaining = task->t_threads;
 	while (remaining > 0) {
 		task_t *task_n = NULL;
 		if (remaining > threads) {
@@ -103,10 +103,10 @@ tpj(task_set_t *ts, FILE *dbg) {
 	}
 	fprintf(dbg, "\n");
 
-	uint32_t D_b = 0; 		/* Prev. interval */
+	tint_t D_b = 0; 		/* Prev. interval */
 	int64_t slack_b = INT64_MAX;	/* Prev. interval slack */
 	ordl_foreach(&head, cursor) {
-		uint32_t D_c = cursor->oe_deadline;	/* Cur. interval */
+		tint_t D_c = cursor->oe_deadline;	/* Cur. interval */
 		int64_t slack_c, demand=0;
 		int64_t slackp = slack_b;
 		if (slackp == INT64_MAX) {
@@ -118,10 +118,10 @@ tpj(task_set_t *ts, FILE *dbg) {
 		for (cookie = ts_first(deadline_ts); cookie; cookie = next) {
 			next = ts_next(deadline_ts, cookie);
 			task_t *task = ts_task(cookie);
-			uint32_t wcet = task->wcet(task->t_threads);
+			tint_t wcet = task->wcet(task->t_threads);
 
 			fprintf(dbg,
-				"DBF(%3u):%-3lu Slack:%-3ld Task: %-8s WCET(%u):%u\n",
+				"DBF(%3lu):%-3lu Slack:%-3ld Task: %-8s WCET(%lu):%lu\n",
 				D_b, demand, slackp, task->t_name, task->t_threads,
 				wcet);
 
@@ -138,12 +138,12 @@ tpj(task_set_t *ts, FILE *dbg) {
 				/* There's enough slack to fit task without division */
 				task->t_chunk = wcet;
 				fprintf(dbg,
-					"    WCET(%u):%u < Slack:%ld --> assigning %s\n",
+					"    WCET(%lu):%lu < Slack:%ld --> assigning %s\n",
 					task->t_threads, wcet, slackp, task->t_name);
 				
 				continue;
 			}
-			fprintf(dbg, "    WCET(%u):%u > Slack:%ld --> dividing %s\n",
+			fprintf(dbg, "    WCET(%lu):%lu > Slack:%ld --> dividing %s\n",
 				task->t_threads, wcet, slackp, task->t_name);
 			divide(ts, &head, task, slack_b, star);
 		}

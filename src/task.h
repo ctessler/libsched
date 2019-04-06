@@ -9,13 +9,22 @@
 
 #define TASK_NAMELEN 64
 
+/**
+ * tint_t a type for integer task parameters
+ * 
+ * This is necessary because overflow will happen with 32 bit unsigned
+ * integers and even 64 bit integers for large task sets. Redefine the
+ * type for more storage.
+ */
+typedef uint64_t tint_t;
+
 typedef struct {
 	char t_name[TASK_NAMELEN];
-	uint32_t t_period;
-	uint32_t t_deadline;
-	uint32_t t_threads;
-	uint32_t t_chunk;	/**< Maximum non-preepmtive chunk (q) */
-	uint32_t *t_wcet;
+	tint_t t_period;
+	tint_t t_deadline;
+	tint_t t_threads;
+	tint_t t_chunk;	/**< Maximum non-preepmtive chunk (q) */
+	tint_t *t_wcet;
 } task_t;
 
 /**
@@ -47,7 +56,7 @@ typedef struct {
  *
  * @return the new task
  */
-task_t* task_alloc(uint32_t period, uint32_t deadline, uint32_t threads);
+task_t* task_alloc(tint_t period, tint_t deadline, tint_t threads);
 void task_free(task_t *task);
 
 /**
@@ -61,7 +70,7 @@ void task_free(task_t *task);
  *
  * @return a new task upon success which must be task_free()'d, NULL otherwise. 
  */
-task_t* task_dup(task_t *orig, uint32_t t);
+task_t* task_dup(task_t *orig, tint_t t);
 
 /**
  * Updates the number of threads a task releases with each job
@@ -78,7 +87,7 @@ task_t* task_dup(task_t *orig, uint32_t t);
  *
  * @return the number of threads in the resized task
  */
-int task_threads(task_t *task, uint32_t threads);
+int task_threads(task_t *task, tint_t threads);
 
 /**
  * Updates the name of the task
@@ -119,8 +128,8 @@ float_t task_util(task_t *task);
  *
  * @return the maximum demand of task over t time units
  */
-uint32_t task_dbf(task_t *task, uint32_t t);
-uint32_t task_dbf_debug(task_t *task, uint32_t t, FILE *f);
+tint_t task_dbf(task_t *task, tint_t t);
+tint_t task_dbf_debug(task_t *task, tint_t t, FILE *f);
 
 /**
  * Merges a task from m to 1 thread with maximum WCET

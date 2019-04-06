@@ -16,7 +16,7 @@ typedef LIST_HEAD(ordl_head, or_elem) ordl_t;
 typedef struct or_elem {
 	LIST_ENTRY(or_elem) oe_glue;	/**< Queue glue */
 	task_set_t* oe_tasks;		/**< List of tasks which share the deadline */
-	uint32_t oe_deadline;		/**< Absolute deadline */
+	tint_t oe_deadline;		/**< Absolute deadline */
 } or_elem_t;
 
 /**
@@ -139,7 +139,7 @@ void ordl_clear(ordl_t *head);
  *
  * @return NULL if not found, the element otherwise.
  */
-or_elem_t *ordl_find(ordl_t* head, uint32_t deadline);
+or_elem_t *ordl_find(ordl_t* head, tint_t deadline);
 
 /**
  * Allocate a new element

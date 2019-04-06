@@ -1,7 +1,7 @@
 #include "taskset-deadlines.h"
 
 int
-ts_fill_deadlines(task_set_t *ts, ordl_t *head, uint32_t t) {
+ts_fill_deadlines(task_set_t *ts, ordl_t *head, tint_t t) {
 	task_link_t *cookie;
 	task_t *task;
 	for (cookie = ts_first(ts); cookie; cookie = cookie->tl_next) {
@@ -12,8 +12,8 @@ ts_fill_deadlines(task_set_t *ts, ordl_t *head, uint32_t t) {
 }
 
 int
-ts_fill_deadlines_task(task_t *task, ordl_t *head, uint32_t t) {
-	uint32_t deadline, i = 0;
+ts_fill_deadlines_task(task_t *task, ordl_t *head, tint_t t) {
+	tint_t deadline, i = 0;
 	or_elem_t *D = NULL;
 	do {
 		deadline = task->t_deadline + (i * task->t_period);
@@ -34,8 +34,8 @@ ts_fill_deadlines_task(task_t *task, ordl_t *head, uint32_t t) {
 
 
 int
-ts_extend_deadlines(task_set_t *ts, ordl_t* head, uint32_t prevb,
-    uint32_t newb) {
+ts_extend_deadlines(task_set_t *ts, ordl_t* head, tint_t prevb,
+    tint_t newb) {
 	if (prevb >= newb) {
 		return 0;
 	}
@@ -43,7 +43,7 @@ ts_extend_deadlines(task_set_t *ts, ordl_t* head, uint32_t prevb,
 	task_t *task;
 	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
 		task_t *task = ts_task(cookie);
-		uint32_t deadline, i=0;
+		tint_t deadline, i=0;
 		do {
 			deadline = task->t_deadline + (i * task->t_period);
 			i++;

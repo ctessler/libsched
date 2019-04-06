@@ -38,7 +38,7 @@ ordl_insert(ordl_t* head, or_elem_t *elem) {
 }
 
 or_elem_t *
-ordl_find(ordl_t* head, uint32_t deadline) {
+ordl_find(ordl_t* head, tint_t deadline) {
 	if (ordl_empty(head)) {
 		return NULL;
 	}

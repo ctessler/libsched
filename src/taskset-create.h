@@ -44,8 +44,8 @@ int tsc_bare_addn(task_set_t* ts, int n);
  *
  * @return number of tasks added 
  */
-int tsc_add_by_thread_count(task_set_t* ts, gsl_rng *r, uint32_t totalm,
-    uint32_t minm, uint32_t maxm);
+int tsc_add_by_thread_count(task_set_t* ts, gsl_rng *r, tint_t totalm,
+    tint_t minm, tint_t maxm);
 
 /**
  * Sets the periods of all tasks given a random source and range
@@ -57,7 +57,7 @@ int tsc_add_by_thread_count(task_set_t* ts, gsl_rng *r, uint32_t totalm,
  *
  * @return non-zero upon success
  */
-int tsc_set_periods(task_set_t* ts, gsl_rng *r, uint32_t minp, uint32_t maxp);
+int tsc_set_periods(task_set_t* ts, gsl_rng *r, tint_t minp, tint_t maxp);
 
 /**
  * Sets the threads per job of all tasks given a random source and range
@@ -69,7 +69,7 @@ int tsc_set_periods(task_set_t* ts, gsl_rng *r, uint32_t minp, uint32_t maxp);
  *
  * @return non-zero upon success
  */
-int tsc_set_threads(task_set_t* ts, gsl_rng *r, uint32_t minm, uint32_t maxm);
+int tsc_set_threads(task_set_t* ts, gsl_rng *r, tint_t minm, tint_t maxm);
 
 /** 
  * Sets the deadlines of the tasks given a uniform random source,
@@ -91,7 +91,7 @@ int tsc_set_threads(task_set_t* ts, gsl_rng *r, uint32_t minm, uint32_t maxm);
  *
  * @return non-zero upon success, zero otherwise.
  */
-int tsc_set_deadlines_min_halfp(task_set_t *ts, gsl_rng *r, uint32_t mind, uint32_t maxd);
+int tsc_set_deadlines_min_halfp(task_set_t *ts, gsl_rng *r, tint_t mind, tint_t maxd);
 
 /**
  * Sets the WCET of threads of tasks given a random source, for a
@@ -119,7 +119,7 @@ int tsc_set_wcet_gf(task_set_t* ts, gsl_rng *r, float minf, float maxf);
 void ges_stfu();
 
 /**
- * Returns a uint32 from the distribution given by random source 
+ * Returns a tint_t from the distribution given by random source 
  * between min and max
  *
  * @param[in] r random source
@@ -128,7 +128,7 @@ void ges_stfu();
  *
  * @return a number between min and max (inclusive)
  */
-uint32_t tsc_get_scaled(gsl_rng *r, uint32_t min, uint32_t max);
+tint_t tsc_get_scaled(gsl_rng *r, tint_t min, tint_t max);
 
 #endif /* TASKSET_CREATE_H */
 

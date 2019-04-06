@@ -62,11 +62,11 @@ check_ts(task_set_t *ts) {
 	task_link_t *cookie;
 	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
 		task_t *t = ts_task(cookie);
-		uint32_t m = t->t_threads;
+		tint_t m = t->t_threads;
 		if (m <= 0) {
-			fprintf(stderr, "Error: task %s has %u threads\n", t->t_name, m);
+			fprintf(stderr, "Error: task %s has %lu threads\n", t->t_name, m);
 		}
-		uint32_t wcet = t->wcet(m);
+		tint_t wcet = t->wcet(m);
 		if (wcet <= 0) {
 			fprintf(stderr,
 				"Error: task %s has %u threads and a WCET"

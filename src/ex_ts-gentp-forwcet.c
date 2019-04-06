@@ -23,9 +23,9 @@ static struct {
 	char* c_pname;
 	char* c_tsname;
 	float_t c_util;		
-	uint32_t c_minm;
-	uint32_t c_maxm;
-	uint32_t c_totalm;
+	tint_t c_minm;
+	tint_t c_maxm;
+	tint_t c_totalm;
 } clc;
 
 enum {
@@ -286,7 +286,7 @@ generate(task_set_t *orig, gen_parms_t *parms, FILE *output) {
 
 	if ((parms->gp_minm * ts_count(ts)) > parms->gp_totalm) {
 		printf("Total number of threads %u is smaller than min threads"
-		       " per job %u * %u tasks\n", parms->gp_totalm,
+		       " per job %lu * %u tasks\n", parms->gp_totalm,
 		       ts_count(ts), parms->gp_minm);
 		goto bail;
 	}
@@ -297,7 +297,7 @@ generate(task_set_t *orig, gen_parms_t *parms, FILE *output) {
 	/* ts-gen work */
 	if (clc.c_verbose) {
 		printf("Distributing the total thread count of M:");
-		printf("%u, total per job m in [%u, %u]\n",
+		printf("%u, total per job m in [%lu, %lu]\n",
 		       parms->gp_totalm, parms->gp_minm, parms->gp_maxm);
 	}
 	e = tsm_dist_threads(r, ts, parms->gp_totalm, parms->gp_minm, parms->gp_maxm);

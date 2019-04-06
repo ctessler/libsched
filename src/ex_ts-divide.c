@@ -17,8 +17,8 @@ static struct {
 	char* c_lname;
 	char* c_oname;
 	char* c_fname;	
-	uint32_t c_minm;
-	uint32_t c_maxm;
+	tint_t c_minm;
+	tint_t c_maxm;
 } clc;
 
 enum {
@@ -67,16 +67,16 @@ check_ts(task_set_t *ts) {
 	task_link_t *cookie;
 	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
 		task_t *t = ts_task(cookie);
-		uint32_t m = t->t_threads;
+		tint_t m = t->t_threads;
 		if (m <= 0) {
 			continue;
 		}
 		for (int j=1; j <=m; j++) {
-			uint32_t wcet = t->wcet(j);
+			tint_t wcet = t->wcet(j);
 			if (wcet <= 0) {
 				fprintf(stderr,
-					"Error: task %s has %u threads and a WCET"
-					" for %u threads of %u", t->t_name,
+					"Error: task %s has %lu threads and a WCET"
+					" for %u threads of %lu", t->t_name,
 					m, j, wcet);
 				return 0;
 			}

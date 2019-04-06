@@ -144,9 +144,9 @@ ts_next(task_set_t *ts, task_link_t *cookie) {
  *
  * @return greatest common divisor of a and b
  */
-static uint32_t
-gcd(uint32_t a, uint32_t b) {
-	uint32_t t;
+static tint_t
+gcd(tint_t a, tint_t b) {
+	tint_t t;
 	if (a < b) {
 		t = a; a = b; b = t;
 	}
@@ -164,8 +164,8 @@ gcd(uint32_t a, uint32_t b) {
  *
  * @return least common multiple of a and b
  */
-static uint32_t
-lcm(uint32_t a, uint32_t b) {
+static tint_t
+lcm(tint_t a, tint_t b) {
 	if (a == 0 || b == 0) {
 		return 0;
 	}
@@ -173,11 +173,11 @@ lcm(uint32_t a, uint32_t b) {
 	return frac * b;
 }
 
-uint32_t
+tint_t
 ts_hyperp(task_set_t *ts) {
 	task_link_t *cookie = ts_first(ts);
 	task_t *t;
-	uint32_t P=0;
+	tint_t P=0;
 
 	if (!cookie) {
 		return 0;
@@ -191,11 +191,11 @@ ts_hyperp(task_set_t *ts) {
 	return P;
 }
 
-uint32_t
+tint_t
 ts_dmax(task_set_t *ts) {
 	task_link_t *cookie = ts_first(ts);
 	task_t *t;
-	uint32_t dmax=0;
+	tint_t dmax=0;
 
 	if (!cookie) {
 		return 0;
@@ -242,7 +242,7 @@ ts_star(task_set_t *ts) {
 	max_r *= upd;
 	max_r = ceil(max_r);
 
-	uint32_t D = ts_dmax(ts);
+	tint_t D = ts_dmax(ts);
 	double_t max = max_r;
 
 	/* max(d_max, 1/(1-U) * sum(U * (p_i - d_i))) */
@@ -265,7 +265,7 @@ ts_star_debug(task_set_t *ts, FILE *f) {
 	double_t upd = 0, updi;
 
 	uint64_t P = ts_hyperp(ts);
-	uint32_t D = ts_dmax(ts);
+	tint_t D = ts_dmax(ts);
 	float_t U = ts_util(ts);
 	float_t x = 1 / (1 - U);
 	int32_t diffmax = ts_max_pdiff(ts);	
@@ -274,7 +274,7 @@ ts_star_debug(task_set_t *ts, FILE *f) {
 	fprintf(f, "Max (p - d) = %i\n", diffmax);
 	fprintf(f, "T*(tasks) = min(P, max(D))\n");
 	fprintf(f, "T*(tasks) = min(%lu, max(D))\n", P);
-	fprintf(f, "\tmax(D) = max(%u, Z)\n", D);
+	fprintf(f, "\tmax(D) = max(%lu, Z)\n", D);
 	fprintf(f, "\tZ = 1 / (1 - U) * sum\n");
 	fprintf(f, "\tZ = 1 / (1 - %f) * sum\n", U);
 	fprintf(f, "\tZ = %f * sum\n", x);
@@ -294,17 +294,17 @@ ts_star_debug(task_set_t *ts, FILE *f) {
 	fprintf(f, "\tZ = %f = %f * %f\n", Z, x, sum);
 	fprintf(f, "\tZ = %f = ceil(%f)\n", ceil(Z), Z);
 	Z = ceil(Z);
-	uint32_t maxD = D;
+	tint_t maxD = D;
 	if (D < Z) {
 		maxD = Z;
 	}
-	fprintf(f, "\tmax(D) = %u = max(%u, %f)\n", maxD, D, Z);
+	fprintf(f, "\tmax(D) = %lu = max(%lu, %f)\n", maxD, D, Z);
 
 	uint64_t star = P;
 	if (star > maxD) {
 		star = maxD;
 	}
-	fprintf(f, "T*(tasks) = %lu = min(%lu, %u)\n", star, P, maxD);
+	fprintf(f, "T*(tasks) = %lu = min(%lu, %lu)\n", star, P, maxD);
 
 	if (star != ts_star(ts)) {
 		fprintf(f, "star functions return different values\n");
@@ -351,14 +351,14 @@ ts_permit(task_set_t* ts) {
 }
 
 int64_t
-ts_slack(task_set_t *ts, uint32_t t) {
+ts_slack(task_set_t *ts, tint_t t) {
 	task_link_t *cookie;
 	int64_t demand = ts_demand(ts, t);
 	return 0;
 }
 
 int64_t
-ts_demand(task_set_t *ts, uint32_t t) {
+ts_demand(task_set_t *ts, tint_t t) {
 	task_link_t *cookie;
 	task_t *task;
 	int64_t demand = 0;
@@ -370,11 +370,11 @@ ts_demand(task_set_t *ts, uint32_t t) {
 }
 
 int64_t
-ts_demand_debug(task_set_t *ts, uint32_t t, FILE *f) {
+ts_demand_debug(task_set_t *ts, tint_t t, FILE *f) {
 	task_link_t *cookie;
 	task_t *task;
 	int64_t demand = 0;
-	fprintf(f, "Task Set Demand at time %u\n", t);
+	fprintf(f, "Task Set Demand at time %lu\n", t);
 	char *str = ts_string(ts); fprintf(f, "%s\n", str); free(str);
 	for (cookie = ts_first(ts); cookie; cookie = cookie->tl_next) {
 		task = ts_task(cookie);
@@ -383,7 +383,7 @@ ts_demand_debug(task_set_t *ts, uint32_t t, FILE *f) {
 		fprintf(f, "Total Demand: %li, %s adds %li demand\n",
 			demand, task->t_name, tdemand);
 	}
-	fprintf(f, "ts_demand(%u) = %li\n", t, demand);
+	fprintf(f, "ts_demand(%lu) = %li\n", t, demand);
 
 	if(demand != ts_demand(ts, t)) {
 		fprintf(f, "Demand functions return different values\n");
@@ -394,9 +394,9 @@ ts_demand_debug(task_set_t *ts, uint32_t t, FILE *f) {
 }
 
 
-uint32_t ts_count(task_set_t *ts) {
+tint_t ts_count(task_set_t *ts) {
 	task_link_t *cursor;
-	uint32_t count=0;
+	tint_t count=0;
 
 	for (cursor = ts->ts_head ; cursor ; cursor = cursor->tl_next) {
 		count++;
@@ -405,9 +405,9 @@ uint32_t ts_count(task_set_t *ts) {
 	return count;
 }
 
-uint32_t ts_threads(task_set_t *ts) {
+tint_t ts_threads(task_set_t *ts) {
 	task_link_t *cursor;
-	uint32_t count=0;
+	tint_t count=0;
 
 	for (cursor = ts->ts_head ; cursor ; cursor = cursor->tl_next) {
 		count += ts_task(cursor)->t_threads;
@@ -417,9 +417,9 @@ uint32_t ts_threads(task_set_t *ts) {
 }
 
 task_set_t *
-ts_divide(task_t *task, uint32_t maxm) {
+ts_divide(task_t *task, tint_t maxm) {
 	task_set_t *ts;
-	uint32_t m = task->t_threads;
+	tint_t m = task->t_threads;
 	
 	if ((task == NULL) || (m == 0)) {
 		return NULL;
@@ -442,7 +442,7 @@ ts_divide(task_t *task, uint32_t maxm) {
 }
 
 task_set_t *
-ts_divide_set(task_set_t *ts, uint32_t maxm) {
+ts_divide_set(task_set_t *ts, tint_t maxm) {
 	task_set_t *rv, *tmp;
 	task_link_t *cookie;
 	
