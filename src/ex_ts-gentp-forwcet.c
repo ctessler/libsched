@@ -173,9 +173,6 @@ main(int argc, char** argv) {
 		case 'v':
 			clc.c_verbose = 1;
 			break;
-		case 'w':
-			clc.c_wcet_scale = atoi(optarg);
-			break;
 		default:
 			printf("Unknown option %c\n", c);
 			usage();
@@ -237,9 +234,6 @@ main(int argc, char** argv) {
 	}
 	if (clc.c_totalm > 0) {
 		parms.gp_totalm = clc.c_totalm;
-	}
-	if (clc.c_wcet_scale != 0) {
-		parms.gp_wcet_scale = clc.c_wcet_scale;
 	}
 	if (clc.c_minp > 0) {
 		parms.gp_minp = clc.c_minp;
