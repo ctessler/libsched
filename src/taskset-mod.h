@@ -58,5 +58,36 @@ int tsm_set_deadlines(gsl_rng *r, task_set_t* ts, FILE *debug);
  */
 int tsm_force_concave(task_set_t *ts, FILE *debug);
 
+/**
+ * Scales WCET values by dividing by the provided integer
+ *
+ * @param[in|out] ts the task set
+ * @param[in] d the integer to divide by
+ *
+ * @return zero upon success, non-zero otherwise
+ */
+int tsm_wcet_div(task_set_t *ts, tint_t d);
+
+/**
+ * Scales WCET or period from 1 to max
+ *
+ * @param[in|out] ts the task set
+ * @param[in] max the maximum value permissible
+ *
+ * @return zero upon success, non-zero otherwise
+ */
+int tsm_wcet_scale(task_set_t *ts, tint_t max);
+int tsm_period_scale(task_set_t *ts, tint_t max);
+
+/**
+ * Rounds the periods of the task set to the nearest multiple of m
+ *
+ * Each period is raised to the nearest multiple of m.
+ *
+ * @param[in] ts the task set
+ * @param[in] m the base
+ */
+int tsm_period_mult(task_set_t *ts, tint_t m);
+
 #endif /* TASKSET_MOD_H */
 

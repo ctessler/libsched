@@ -183,7 +183,7 @@ uint64_t ts_star_debug(task_set_t *ts, FILE *f);
  * @return largest difference between period and deadline of any task
  * in the set
  */
-int32_t ts_max_pdiff(task_set_t * ts);
+tint_t ts_max_pdiff(task_set_t * ts);
 
 /**
  * Determines if a task set is permissible

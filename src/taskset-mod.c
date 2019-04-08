@@ -79,15 +79,22 @@ tsm_dist_threads(gsl_rng *r, task_set_t* ts, int M, int minm, int maxm) {
 
 static int
 uu_update_task(task_set_t *ts, task_t *t, double u) {
-	tint_t wcet = t->wcet(t->t_threads);
-
-	t->t_period = (double) wcet / u;
+	/* periods were set elsewhere, scale the WCET values */
+	tint_t maxw = t->wcet(t->t_threads);
+	tint_t target_wcet = t->t_period * u;
+	for (int i = 1; i <= t->t_threads; i++) {
+		double temp = ((double) t->wcet(i) / maxw) * target_wcet;
+		t->wcet(i) = temp;
+		if (t->wcet(i) == 0) {
+			t->wcet(i) = 1;
+		}
+	}
+	
 }
 
 int
 tsm_uunifast_periods(gsl_rng *r, task_set_t* ts, double u, FILE *debug) {
 	uunifast_cb(ts, u, r, debug, uu_update_task);
-
 	return 0;
 }
 
@@ -103,6 +110,20 @@ tsm_find_maxp(task_set_t* ts) {
 		}
 	}
 	return maxp;
+}
+
+static tint_t
+tsm_find_maxw(task_set_t* ts) {
+	task_link_t *cookie;
+	task_t *t;
+	tint_t maxw = 0;
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		t = ts_task(cookie);
+		if (t->wcet(t->t_threads) > maxw) {
+			maxw = t->wcet(t->t_threads);
+		}
+	}
+	return maxw;
 }
 
 int
@@ -122,6 +143,7 @@ tsm_set_deadlines(gsl_rng *r, task_set_t* ts, FILE *debug) {
 			char *s = task_string(t);
 			printf("Unconstrained task min[%lu]:\n%s\n", min, s);
 			free(s);
+			exit(-1);
 		}
 	}
 
@@ -161,4 +183,79 @@ tsm_force_concave(task_set_t *ts, FILE *debug) {
 	ts_move(scratch, ts);
 	ts_destroy(scratch);
 	return 0;
+}
+
+int
+tsm_wcet_div(task_set_t *ts, tint_t d) {
+	task_link_t *cookie;
+	task_t *t;
+
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		t = ts_task(cookie);
+
+		for (int i = 1; i <= t->t_threads; i++) {
+			t->wcet(i) = t->wcet(i) / d;
+			if (t->wcet(i) == 0) {
+				t->wcet(i) = 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+int
+tsm_wcet_scale(task_set_t *ts, tint_t max) {
+	task_link_t *cookie;
+	task_t *t;
+
+	tint_t maxw = tsm_find_maxw(ts);
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		t = ts_task(cookie);
+		for (int i = 1; i <= t->t_threads; i++) {
+			double temp = ((double) t->wcet(i) / maxw) * max;
+			printf("%s WCET %lu -> %f\n", t->t_name, t->wcet(i), temp);
+			t->wcet(i) = temp;
+			if (t->wcet(i) == 0) {
+				t->wcet(i) = 1;
+			}
+		}
+	}
+
+	return 0;
+}
+
+int
+tsm_period_scale(task_set_t *ts, tint_t max) {
+	task_link_t *cookie;
+	task_t *t;
+
+	tint_t maxp = tsm_find_maxp(ts);
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		t = ts_task(cookie);
+		for (int i = 1; i <= t->t_threads; i++) {
+			tint_t oldp = t->t_period;
+			double temp = ((double) oldp / maxp) * max;
+			t->t_period = temp;
+			if (t->t_period == 0) {
+				printf("override period[%lu] max[%lu] temp[%f]\n",
+				       oldp, maxp, temp);
+				t->t_period = 1;
+			}
+		}
+	}
+}
+
+int
+tsm_period_mult(task_set_t *ts, tint_t m) {
+	task_link_t *cookie;
+	task_t *t;
+
+	for (cookie = ts_first(ts); cookie; cookie = ts_next(ts, cookie)) {
+		t = ts_task(cookie);
+		tint_t remain = t->t_period % m;
+		tint_t diff = m - remain;
+		t->t_period += diff;
+	}
+	
 }

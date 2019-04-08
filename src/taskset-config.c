@@ -142,6 +142,7 @@ ts_parm_process(config_t *cfg, gen_parms_t *parms) {
 	config_lookup_int(cfg, "max-tpj", &parms->gp_maxm);
 	config_lookup_int(cfg, "min-deadline", &parms->gp_mind);
 	config_lookup_int(cfg, "max-deadline", &parms->gp_maxd);
+	config_lookup_int(cfg, "wcet-scale", &parms->gp_wcet_scale);
 	t = 0 ; config_lookup_float(cfg, "utilization", &t); parms->gp_util = t;
 	t = 0 ; config_lookup_float(cfg, "min-factor", &t); parms->gp_minf = t;
 	t = 0 ; config_lookup_float(cfg, "max-factor", &t); parms->gp_maxf = t;	

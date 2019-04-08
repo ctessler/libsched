@@ -99,7 +99,7 @@ tpj(task_set_t *ts, FILE *dbg) {
 	}
 	fprintf(dbg, "Absolute Deadlines:\n");
 	ordl_foreach(&head, cursor) {
-		fprintf(dbg, "%6u", cursor->oe_deadline);
+		fprintf(dbg, "%6lu", cursor->oe_deadline);
 	}
 	fprintf(dbg, "\n");
 

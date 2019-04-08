@@ -69,8 +69,8 @@ check_ts(task_set_t *ts) {
 		tint_t wcet = t->wcet(m);
 		if (wcet <= 0) {
 			fprintf(stderr,
-				"Error: task %s has %u threads and a WCET"
-				" for %u threads of %u", t->t_name,
+				"Error: task %s has %lu threads and a WCET"
+				" for %lu threads of %lu", t->t_name,
 				m, m, wcet);
 			return 0;
 		}

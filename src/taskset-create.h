@@ -12,6 +12,7 @@ typedef struct {
 	uint32_t gp_maxp;	/**< Maximum period */
 	uint32_t gp_mind;	/**< Minimum relative deadline */
 	uint32_t gp_maxd;	/**< Maximum relative deadline */
+	uint32_t gp_wcet_scale;	/**< Scaling WCET maximum*/
 	float_t gp_util;	/**< Task set utilization */
 	float_t gp_minf;	/**< Minimum growth factor */
 	float_t gp_maxf;	/**< Maximum growth factor */	

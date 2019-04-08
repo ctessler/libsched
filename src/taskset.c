@@ -169,8 +169,10 @@ lcm(tint_t a, tint_t b) {
 	if (a == 0 || b == 0) {
 		return 0;
 	}
-	double_t frac =  (double_t)( a / gcd(a, b) );
-	return frac * b;
+	double frac =  (double)( a / (double) gcd(a, b) );
+	tint_t rv = frac;
+	rv *= b; /* NECESSARY to avoid casting b as a double */
+	return rv;
 }
 
 tint_t
@@ -186,7 +188,12 @@ ts_hyperp(task_set_t *ts) {
 	P = ts_task(cookie)->t_period;
 	for (; cookie; cookie = cookie->tl_next) {
 		t = ts_task(cookie);
+		tint_t oldp = P;
 		P = lcm(P, t->t_period);
+		if (P == 0) {
+			printf("!!! (likely overflow) lcm of %lu and %lu is %lu\n",
+			       oldp, t->t_period, P);
+		}
 	}
 	return P;
 }
@@ -231,7 +238,7 @@ ts_star(task_set_t *ts) {
 	task_link_t *cookie;
 	task_t *t;
 	double_t upd = 0, updi;
-	int32_t maxd = ts_max_pdiff(ts);
+	tint_t maxd = ts_max_pdiff(ts);
 
 	double_t max_r = 1 / (1 - ts_util(ts));
 	for (cookie = ts_first(ts); cookie; cookie = cookie->tl_next) {
@@ -268,10 +275,10 @@ ts_star_debug(task_set_t *ts, FILE *f) {
 	tint_t D = ts_dmax(ts);
 	float_t U = ts_util(ts);
 	float_t x = 1 / (1 - U);
-	int32_t diffmax = ts_max_pdiff(ts);	
+	tint_t diffmax = ts_max_pdiff(ts);	
 
 	fprintf(f, "BEGIN T*\n");
-	fprintf(f, "Max (p - d) = %i\n", diffmax);
+	fprintf(f, "Max (p - d) = %li\n", diffmax);
 	fprintf(f, "T*(tasks) = min(P, max(D))\n");
 	fprintf(f, "T*(tasks) = min(%lu, max(D))\n", P);
 	fprintf(f, "\tmax(D) = max(%lu, Z)\n", D);
@@ -286,7 +293,7 @@ ts_star_debug(task_set_t *ts, FILE *f) {
 		t = ts_task(cookie);
 		float_t util = task_util(t);
 		float_t s = util * diffmax;
-		fprintf(f, "\t\t+ %s %f * %i = %f\n", t->t_name, util, diffmax, s);
+		fprintf(f, "\t\t+ %s %f * %li = %f\n", t->t_name, util, diffmax, s);
 		sum += s;
 		
 	}
@@ -314,11 +321,11 @@ ts_star_debug(task_set_t *ts, FILE *f) {
 	return star;
 }
 
-int32_t
+tint_t
 ts_max_pdiff(task_set_t * ts) {
 	task_link_t *cookie = NULL;
 	task_t *t;
-	int32_t maxd = 0, curd;
+	tint_t maxd = 0, curd;
 
 	for (cookie = ts_first(ts); cookie; cookie = cookie->tl_next) {
 		t = ts_task(cookie);

@@ -106,6 +106,19 @@ main(int argc, char** argv) {
 	char *str;
 	printf("Task Set:\n");
 	str = ts_string(ts); printf("%s\n\n", str); free(str);
+
+	/*
+	 * Check for overflow, it happens 
+	 */
+	tint_t star= ts_star(ts);
+	if (star == 0) {
+		printf("Unable to perform schedulability analysis."
+		       " Hyperperiod (likely) overflowed\n");
+		printf("Hyperperiod:%lu\n", ts_hyperp(ts));
+		rv = -1;
+		goto bail;
+	}
+	
 	feas_t feas;
 	if (clc.c_verbose) {
 		feas = tpj(ts, stdout);
@@ -116,8 +129,7 @@ main(int argc, char** argv) {
 	printf("After assigning non-preemptive chunks\n");
 	str = ts_string(ts); printf("%s\n", str); free(str);
 	printf("-------------------------------------------------\n");
-	printf("Utilization: %.4f, T*: %lu, Feasible: ", ts_util(ts),
-	    ts_star(ts));
+	printf("Utilization: %.4f, T*: %lu, Feasible: ", ts_util(ts), star);
 	switch (feas) {
 	case FEAS_YES:
 		printf("Yes\n");

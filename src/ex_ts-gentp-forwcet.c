@@ -22,18 +22,22 @@ static struct {
 	char* c_oname;
 	char* c_pname;
 	char* c_tsname;
-	float_t c_util;		
+	float_t c_util;
 	tint_t c_minm;
 	tint_t c_maxm;
+	tint_t c_minp;
+	tint_t c_maxp;
 	tint_t c_totalm;
 } clc;
 
 enum {
       ARG_MINM = CHAR_MAX + 1,
       ARG_MAXM,
+      ARG_MINP,
+      ARG_MAXP
 };
 
-static const char* short_options = "M:U:hl:o:p:s:v";
+static const char* short_options = "M:U:hl:o:p:s:vw:";
 static struct option long_options[] = {
     {"help",		no_argument, 		0, 'h'},
     {"log", 		required_argument, 	0, 'l'},
@@ -41,6 +45,8 @@ static struct option long_options[] = {
     {"param",		required_argument,	0, 'p'},
     {"min-tpj", 	required_argument, 	0, ARG_MINM},
     {"max-tpj", 	required_argument, 	0, ARG_MAXM},
+    {"min-period",	required_argument, 	0, ARG_MINP},
+    {"max-period",	required_argument, 	0, ARG_MAXP},
     {"task-set",	required_argument,	0, 's'},
     {"total-threads",	required_argument, 	0, 'M'},
     {"util",		required_argument,	0, 'U'},
@@ -52,8 +58,8 @@ static const char *usagec[] = {
 "ts-gentp: Task Set Generator with Task Set Parameters for Tasks with WCET values",
 "Usage: ts-gentp-forwcet [OPTIONS]",
 "OPTIONS:",
-"	-h/-help		This message",
-"	-l/-log <FILE>		Auditible log file",
+"	-h/--help		This message",
+"	-l/--log <FILE>		Auditible log file",
 "	-o/--output <FILE>	Output file",
 "	-p/--param <FILE>	Input parameter file",
 "	-s/--task-set		Task set with WCET values",
@@ -148,6 +154,12 @@ main(int argc, char** argv) {
 			break;
 		case ARG_MAXM: 
 			clc.c_maxm = atoi(optarg);
+			break;
+		case ARG_MINP: /* minp */
+			clc.c_minp = atoi(optarg);
+			break;
+		case ARG_MAXP: /* maxp */
+			clc.c_maxp = atoi(optarg);
 			break;			
 		case 'M': 
 			clc.c_totalm = atoi(optarg);
@@ -160,6 +172,9 @@ main(int argc, char** argv) {
 			break;
 		case 'v':
 			clc.c_verbose = 1;
+			break;
+		case 'w':
+			clc.c_wcet_scale = atoi(optarg);
 			break;
 		default:
 			printf("Unknown option %c\n", c);
@@ -210,7 +225,6 @@ main(int argc, char** argv) {
 		goto bail;
 	}
 	
-	
 	/* Check the provided command line options, set the parameters */
 	if (clc.c_util > 0) {
 		parms.gp_util = clc.c_util;
@@ -224,6 +238,16 @@ main(int argc, char** argv) {
 	if (clc.c_totalm > 0) {
 		parms.gp_totalm = clc.c_totalm;
 	}
+	if (clc.c_wcet_scale != 0) {
+		parms.gp_wcet_scale = clc.c_wcet_scale;
+	}
+	if (clc.c_minp > 0) {
+		parms.gp_minp = clc.c_minp;
+	}
+	if (clc.c_maxp > 0) {
+		parms.gp_maxp = clc.c_maxp;
+	}
+	
 
 	rv = generate(ts, &parms, ofile);
 bail:
@@ -258,7 +282,7 @@ int
 generate(task_set_t *orig, gen_parms_t *parms, FILE *output) {
 	task_set_t *ts = NULL;
 	gsl_rng *r = NULL;
-	int rv = -1, e;
+	int rv = -1, e = 0;
 	config_t cfg;
 	char *str;
 	
@@ -275,6 +299,17 @@ generate(task_set_t *orig, gen_parms_t *parms, FILE *output) {
 	if (parms->gp_minm > parms->gp_maxm) {
 		printf("Min threads per job: %u > %u max threads per job\n",
 		    parms->gp_totalm, parms->gp_minm);
+		return -1;
+	}
+
+	if (parms->gp_minp > parms->gp_maxp) {
+		printf("Min period %u > %u max period\n",
+		    parms->gp_minp, parms->gp_maxp);
+		return -1;
+	}
+	if (parms->gp_maxp <= 0) {
+		printf("A maximum period is required (--max-period) or max-period"
+		    " in the parameter file\n" );
 		return -1;
 	}
 
@@ -297,12 +332,18 @@ generate(task_set_t *orig, gen_parms_t *parms, FILE *output) {
 	/* ts-gen work */
 	if (clc.c_verbose) {
 		printf("Distributing the total thread count of M:");
-		printf("%u, total per job m in [%lu, %lu]\n",
+		printf("%u, total per job m in [%u, %u]\n",
 		       parms->gp_totalm, parms->gp_minm, parms->gp_maxm);
 	}
 	e = tsm_dist_threads(r, ts, parms->gp_totalm, parms->gp_minm, parms->gp_maxm);
 	if (e) {
 		printf("Unable to distribute threads to tasks)\n");
+		goto bail;
+	}
+
+	e = tsc_set_periods(ts, r, parms->gp_minp, parms->gp_maxp);
+	if (!e) {
+		printf("Unable to set periods of tasks\n");
 		goto bail;
 	}
 
