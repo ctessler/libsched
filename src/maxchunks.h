@@ -2,6 +2,8 @@
 #define MAXCHUNKS_H
 #include "taskset.h"
 #include "taskset-deadlines.h"
+#include "taskset-ot-deadlines.h"
+
 /**
  * Implementation of Baruah's maximum non-preemptive chunk algorithm
  *
@@ -14,6 +16,17 @@
  * task set is infeasible
  */
 int max_chunks(task_set_t *ts);
+
+/**
+ * max_chunks with status information sent to a log file
+ *
+ * @param[in|out] ts the task set
+ * @param[out] handle file handle to write status
+ *
+ * @return see max_chunks()
+ */
+int max_chunks_dbg(task_set_t *ts, FILE* handle);
+int maxchunks_dbg(task_set_t *ts, FILE* handle);
 
 /**
  * Non-preemptive check
