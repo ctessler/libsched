@@ -1,5 +1,6 @@
 CFLAGS =-ggdb -Isrc
 CFLAGS += $(shell pkg-config --cflags libconfig)
+CFLAGS += -D_GNU_SOURCE
 LDFLAGS := -L./lib -lsched -lm -lgsl -lgslcblas
 LDFLAGS += $(shell pkg-config --libs libconfig)
 VALGRIND := valgrind --leak-check=full --error-exitcode=1 -q
@@ -127,7 +128,7 @@ bin/ts-gentp-forwcet: $(tsf_objs) lib/libsched.a
 # Unit Tests
 #
 ut_srcs = unittest.c ut_suites.c ut_cunit.c ut_task.c ut_tpj.c ut_taskset.c ut_ordl.c \
-    ut_deadlines.c
+    ut_deadlines.c ut_ordt.c
 ut_objs = $(patsubst %.c,$(OBJ)/%.o,$(ut_srcs))
 unittest: bin/unittest 
 	$(VALGRIND) bin/unittest
@@ -151,11 +152,13 @@ vgcheck: $(BINS) unittest
 lib_srcs = \
 	maxchunks.c \
 	ordl.c \
+	ordt.c \
 	task.c \
 	taskset.c \
 	taskset-config.c \
 	taskset-create.c \
 	taskset-deadlines.c \
+	taskset-ot-deadlines.c \
 	taskset-mod.c \
 	tpj.c \
 	uunifast.c
