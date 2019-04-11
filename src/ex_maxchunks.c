@@ -14,6 +14,7 @@
 static struct {
 	int c_verbose;
 	char* c_fname;
+	char* c_log;
 	int c_nonp;
 } clc;
 
@@ -21,6 +22,7 @@ static const char* short_options = "hl:s:v";
 static struct option long_options[] = {
     {"task-set", required_argument, 0, 's'},
     {"help", no_argument, 0, 'h'},
+    {"log", required_argument, 0, 'l'},
     {"nonp", no_argument, &clc.c_nonp, 1},
     {"verbose", no_argument, &clc.c_verbose, 1},
     {0, 0, 0, 0}
@@ -45,6 +47,7 @@ main(int argc, char** argv) {
 	config_t cfg;
 	task_set_t *ts = NULL;
 	int rv = 0;
+	FILE *log = fopen("/dev/null", "w");
 
 	config_init(&cfg);
 	while(1) {
@@ -59,13 +62,15 @@ main(int argc, char** argv) {
 		case 0:
 			break;
 		case 'l':
-			/* Needs to be implemented */
-			printf("Log file not implemented\n");
-			usage();
-			goto bail;
+			clc.c_log = strdup(optarg);
+			printf("Log file: %s\n", clc.c_log);
+			break;
 		case 's':
 			clc.c_fname = strdup(optarg);
 			printf("Task set file: %s\n", clc.c_fname);
+			break;
+		case 'v':
+			clc.c_verbose = 1;
 			break;
 		}
 	}
@@ -75,6 +80,15 @@ main(int argc, char** argv) {
 		usage();
 		goto bail;
 	}
+	if (clc.c_verbose) {
+		printf("Verbose enable\n");
+		fclose(log);
+		log = stdout;
+	}
+	if (clc.c_log) {
+		log = fopen(clc.c_log, "w");
+	}
+
 
 	if (CONFIG_TRUE != config_read_file(&cfg, clc.c_fname)) {
 		printf("Unable to read configuration file: %s\n",
@@ -107,8 +121,13 @@ main(int argc, char** argv) {
 		rv = -1;
 		goto bail;
 	}
-	
-	int feas = max_chunks(ts);
+	int feas_one = maxchunks_dbg(ts, log);
+	int feas = max_chunks_dbg(ts, log);
+	if (feas_one != feas) {
+		printf("Feasibility tests have different results\n");
+		rv = -1;
+		goto bail;
+	}
 	if (clc.c_nonp) {
 		/* Non-preemptive check */
 		feas = max_chunks_nonp(ts);
@@ -135,6 +154,7 @@ main(int argc, char** argv) {
 		break;
 	}
 bail:
+	fclose(log);
 	ts_destroy(ts);
 	config_destroy(&cfg);
 	if (clc.c_fname) {
