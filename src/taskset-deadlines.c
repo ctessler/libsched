@@ -1,39 +1,84 @@
 #include "taskset-deadlines.h"
 
-int
-ts_fill_deadlines(task_set_t *ts, ordl_t *head, tint_t t) {
+tint_t
+ts_fill_deadlines_dbg(task_set_t *ts, ordl_t *head, tint_t t, FILE *dbg) {
 	task_link_t *cookie;
 	task_t *task;
+	int doclose = 0;
+	tint_t count = 0;
+	if (dbg == NULL) {
+		dbg = fopen("/dev/null", "w");
+		doclose = 1;
+	}
 	for (cookie = ts_first(ts); cookie; cookie = cookie->tl_next) {
 		task = ts_task(cookie);
-		ts_fill_deadlines_task(task, head, t);
+		fprintf(dbg, "%s: filling to %lu ... \n", task->t_name, t);
+		fflush(dbg);
+		tint_t thisc = ts_fill_deadlines_task_dbg(task, head, t, dbg);
+		fprintf(dbg, "%s: %lu deadlines added\n", task->t_name, thisc);
+		count += thisc;
 	}
-	return 1;
+
+	if (doclose) {
+		fclose(dbg);
+	}
+	return count;
+
+}
+tint_t
+ts_fill_deadlines(task_set_t *ts, ordl_t *head, tint_t t) {
+	return ts_fill_deadlines_dbg(ts, head, t, NULL);
 }
 
-int
-ts_fill_deadlines_task(task_t *task, ordl_t *head, tint_t t) {
+tint_t
+ts_fill_deadlines_task_dbg(task_t *task, ordl_t *head, tint_t t, FILE *dbg) {
+	int doclose = 0;
+	if (dbg == NULL) {
+		dbg = fopen("/dev/null", "w");
+		doclose = 1;
+	}
 	tint_t deadline, i = 0;
 	or_elem_t *D = NULL;
+	tint_t est = ceil(t / (double) task->t_period);
+	tint_t tenth = ceil(est / 10.0);
+	fprintf(dbg, "Estimate: %lu, tenth: %lu\n", est, tenth);
+	fprintf(dbg, "%s: [", task->t_name); fflush(dbg);
 	do {
 		deadline = task->t_deadline + (i * task->t_period);
 		if (deadline <= t) {
+			tint_t mod = i % tenth;
 			D = ordl_find(head, deadline);
 			if (!D) {
 				D = oe_alloc();
 				D->oe_deadline = deadline;
 				ordl_insert(head, D);
+				if (mod == 0) {
+					fprintf(dbg, "+"); fflush(dbg);
+				}
+			} else {
+				if (mod == 0) {				
+					fprintf(dbg, "."); fflush(dbg);
+				}
 			}
 			ts_add(D->oe_tasks, task);
 		}
 		i++;
 	} while (deadline <= t);
+	fprintf(dbg, "]\n");
 
+	if (doclose) {
+		fclose(dbg);
+	}
 	return i;
+}	
+
+tint_t
+ts_fill_deadlines_task(task_t *task, ordl_t *head, tint_t t) {
+	return ts_fill_deadlines_task_dbg(task, head, t, NULL);
 }
 
 
-int
+tint_t
 ts_extend_deadlines(task_set_t *ts, ordl_t* head, tint_t prevb,
     tint_t newb) {
 	if (prevb >= newb) {

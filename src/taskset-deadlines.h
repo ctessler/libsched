@@ -13,8 +13,8 @@
  *
  * @return non-zero upon success, zero otherwise
  */
-int ts_fill_deadlines(task_set_t *ts, ordl_t *head, tint_t t);
-
+tint_t ts_fill_deadlines(task_set_t *ts, ordl_t *head, tint_t t);
+tint_t ts_fill_deadlines_dbg(task_set_t *ts, ordl_t *head, tint_t t, FILE *dbg);
 /**
  * Adds all of the deadlines from an individual task to the ordered
  * absolute deadline list up to and including deadlines at t
@@ -25,8 +25,8 @@ int ts_fill_deadlines(task_set_t *ts, ordl_t *head, tint_t t);
  *
  * @return the number of deadlines added to head
  */
-int ts_fill_deadlines_task(task_t *task, ordl_t *head, tint_t t);
-
+tint_t ts_fill_deadlines_task(task_t *task, ordl_t *head, tint_t t);
+tint_t ts_fill_deadlines_task_dbg(task_t *task, ordl_t *head, tint_t t, FILE *dbg);
 /**
  * Adds new deadlines for all tasks to the set of ordered deadlines.
  *
@@ -39,7 +39,7 @@ int ts_fill_deadlines_task(task_t *task, ordl_t *head, tint_t t);
  *
  * @return the number of deadlines added.
  */
-int ts_extend_deadlines(task_set_t *ts, ordl_t *head, tint_t prevb,
+tint_t ts_extend_deadlines(task_set_t *ts, ordl_t *head, tint_t prevb,
     tint_t newb);
 
 #endif /* TASKSET_DEADLINES_H */
