@@ -121,13 +121,7 @@ main(int argc, char** argv) {
 		rv = -1;
 		goto bail;
 	}
-	int feas_one = maxchunks_dbg(ts, log);
-	int feas = max_chunks_dbg(ts, log);
-	if (feas_one != feas) {
-		printf("Feasibility tests have different results\n");
-		rv = -1;
-		goto bail;
-	}
+	int feas = maxchunks_dbg(ts, log);
 	if (clc.c_nonp) {
 		/* Non-preemptive check */
 		feas = max_chunks_nonp(ts);
