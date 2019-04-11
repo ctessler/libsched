@@ -3,7 +3,7 @@
 
 #include <math.h>
 #include "task.h"
-#include "search.h"
+#include <search.h>
 
 /**
  * Feasibility constants for tests

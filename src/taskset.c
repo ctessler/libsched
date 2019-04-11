@@ -10,6 +10,9 @@ ts_alloc() {
 
 void
 ts_free(task_set_t* ts) {
+	if (!ts) {
+		return;
+	}
 	task_link_t *cur, *next;
 	for (cur = ts->ts_head; cur; cur = next) {
 		next = cur->tl_next;
