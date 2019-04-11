@@ -91,7 +91,7 @@ tpj(task_set_t *ts, FILE *dbg) {
 	
 	ordl_t head;
 	ordl_init(&head);
-	ts_fill_deadlines(ts, &head, star);
+	ts_fill_deadlines_dbg(ts, &head, star, dbg);
 
 	if (!dbg) {
 		dbg = fopen("/dev/null", "w");
