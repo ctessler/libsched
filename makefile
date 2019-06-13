@@ -16,7 +16,7 @@ dirs := bin obj lib
 
 .PHONY: clean src test $(BINS) vgcheck
 
-all: $(BINS) unittest vgcheck
+all: $(BINS) test vgcheck
 
 $(OBJ)/%.o: $(SRC)/%.c | $(dirs)
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -122,24 +122,10 @@ ts-gentp-forwcet: bin/ts-gentp-forwcet
 bin/ts-gentp-forwcet: $(tsf_objs) lib/libsched.a
 	$(CC) -o $@ $(tsf_objs) $(LDFLAGS) $(CFLAGS)
 
-
-
-#
-# Unit Tests
-#
-ut_srcs = unittest.c ut_suites.c ut_cunit.c ut_task.c ut_tpj.c ut_taskset.c ut_ordl.c \
-    ut_deadlines.c ut_ordt.c
-ut_objs = $(patsubst %.c,$(OBJ)/%.o,$(ut_srcs))
-unittest: bin/unittest 
-	$(VALGRIND) bin/unittest
-bin/unittest: LDFLAGS += -lcunit
-bin/unittest: $(ut_objs) lib/libsched.a
-	$(CC) -o $@ $(ut_objs) $(LDFLAGS) $(CFLAGS)
-
 #
 # valgrind check the executables
 #
-vgcheck: $(BINS) unittest
+vgcheck: $(BINS) 
 	$(VALGRIND) bin/maxchunks -s ex/1task.ts > /dev/null
 	$(VALGRIND) bin/uunifast -s ex/uunifast.ts -u .9 > /dev/null
 	$(VALGRIND) bin/ts-gen -n 5 --minp 5 --maxp 20 > /dev/null
@@ -169,5 +155,9 @@ lib/libsched.a: $(lib_objs)
 $(dirs):
 	mkdir $@
 
-clean:
+test:
+	make -C $@ $(TGT)
+
+clean: TGT=clean
+clean: test
 	rm -rf $(dirs)

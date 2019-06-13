@@ -1,7 +1,7 @@
 # Unit Test Makefile
 
-OBJ?=../obj
-BIN?=../bin
+OBJ=../obj
+BIN=../bin
 OBJS=$(patsubst %.c,$(OBJ)/%.o,$(wildcard *.c))
 
 $(OBJ)/%.o : %.c
