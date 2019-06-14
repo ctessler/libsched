@@ -6,7 +6,7 @@
 
 #include "tpj.h"
 #include "taskset-config.h"
-#include "ex_tasks.h"
+#include "tasks_ex.h"
 
 /**
  * global command line configuration
