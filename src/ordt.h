@@ -109,4 +109,4 @@ static inline ot_elem_t *ote_alloc(void) {
 void ote_free(ot_elem_t *elem);
 
 
-#endif /* ORDL_H */
+#endif /* ORDT_H */
