@@ -7,7 +7,7 @@
 #include "taskset-config.h"
 #include "tpj.h"
 
-#define EX_ONESPLIT "ex/one_split.ts"
+#define EX_ONESPLIT "../ex/one_split.ts"
 
 /* Individual tests */
 static void ex_exists(void);
