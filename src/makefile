@@ -16,6 +16,7 @@ $(LIB)/libsched.a: $(OBJS)
 
 $(LIB)/libsched.so: $(OBJS)
 	gcc -shared -o $@ $(OBJS) $(LDFLAGS)
+	rm -rf $(OBJS)
 
 clean:
 	rm -rf $(LIB)/libsched.a $(OBJS)
