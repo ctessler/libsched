@@ -12,13 +12,16 @@ LDFLAGS += -L../lib -lsched -lgsl -lconfig -lc
 # LDFLAGS += -L../lib -lgsl -lgslcblas -lsched -lm -lc -lconfig -lgslcblas -lgsl
 # LDFLAGS += $(shell pkg-config --libs libconfig)
 
-all: $(BINS)
+all: $(BINS) strip
 
 $(OBJ)/%.o : %.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
 $(BINS): $(OBJS)
-	$(CC) $(OBJ)/$(@F).o -o $@ $(LDFLAGS) 
+	$(CC) $(OBJ)/$(@F).o -o $@ $(LDFLAGS)
+
+strip: $(BINS)
+	rm -rf $(OBJS)
 
 clean:
 	rm -rf $(BINS) $(OBJS)
