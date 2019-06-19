@@ -9,7 +9,7 @@
 #define DT_THREADS	"threads" 	/** Number of threads per node */
 #define DT_OBJECT	"object"	/** Executable object */
 #define DT_WCET_ONE	"wcetone"	/** WCET of ONE thread */
-#define DT_WCET		"WCET"		/** WCET of DT_THREADS */
+#define DT_WCET		"wcet"		/** WCET of DT_THREADS */
 #define DT_FACTOR	"factor"	/** Growth factor of node */
 
 #define DT_DIRTY	0x1	/** Task is dirty */
@@ -30,6 +30,7 @@ typedef struct {
 	 * accessor methods
 	 */
 	char	dn_name[DT_NAMELEN];
+	char	dn_label[DT_NAMELEN * 2];
 	tint_t	dn_object;
 	tint_t	dn_threads;
 	tint_t	dn_wcet_one;	/** Single thread WCET */
@@ -76,6 +77,26 @@ void dtask_free(dtask_t *task);
 int dtask_insert(dtask_t *task, dnode_t *node);
 
 /**
+ * Removes a node from the DAG
+ *
+ * @param[in|out] task the dag task
+ * @param[in] the node in the task
+ *
+ * @return non-zero upon success, zero otherwise
+ */
+int dtask_remove(dtask_t *task, dnode_t *node);
+
+/**
+ * Removes a node from the DAG by name
+ *
+ * @param[in] task the dag task
+ * @param[in] the name of the node in the task
+ *
+ * @return non-zero upon success, zero otherwise
+ */
+int dtask_name_remove(dtask_t *task, char *name);
+
+/**
  * Finds a node in the DAG by name
  *
  * @param[in] name of the node
@@ -83,6 +104,28 @@ int dtask_insert(dtask_t *task, dnode_t *node);
  * @return the dnode_t upon success, NULL if not found
  */
 dnode_t *dtask_name_search(dtask_t *task, char *name);
+
+/**
+ * Adds an edge into the DAG task
+ *
+ * @param[in|out] task the dag task
+ * @param[in] src the node the edge starts from
+ * @param[in] dst the node the edge ends with
+ *
+ * @return non-zero upon success, zero otherwise
+ */
+int dtask_insert_edge(dtask_t *task, dnode_t *src, dnode_t *dst);
+
+/**
+ * Removes an edge from the DAG task
+ *
+ * @param[in|out] task the dag task
+ * @param[in] src the node the edge starts from
+ * @param[in] dst the node the edge ends with
+ *
+ * @return non-zero upon success, zero otherwise
+ */
+int dtask_remove_edge(dtask_t *task, dnode_t *src, dnode_t *dst);
 
 /**
  * Writes the task to dot file
@@ -115,7 +158,7 @@ tint_t dtask_workload(dtask_t* task);
 /**
  * Allocates a DAG node
  *
- * @param[in] name the name of the node
+ * @param[in] name the name of the node, immutable.
  *
  * @return the dag node upon success, NULL otherwise
  */
@@ -125,5 +168,30 @@ dnode_t *dnode_alloc(char* name);
  * Releases a DAG node
  */
 void dnode_free(dnode_t *node);
+
+/**
+ * Node getters and setters
+ */
+tint_t dnode_get_object(dnode_t *node);
+void dnode_set_object(dnode_t *node, tint_t obj);
+tint_t dnode_get_threads(dnode_t *node);
+void dnode_set_threads(dnode_t *node, tint_t threads);
+tint_t dnode_get_wcet_one(dnode_t *node);
+void dnode_set_wcet_one(dnode_t *node, tint_t wcet_one);
+tint_t dnode_get_wcet(dnode_t *node);
+float_t dnode_get_factor(dnode_t *node);
+void dnode_set_factor(dnode_t *node, float_t factor);
+
+/**
+ * Updates the node
+ *
+ * If a node is present in a task, and the parameters are modified the
+ * node must be updated for it to be reflected in the task
+ *
+ * @param[in] node the node
+ *
+ * @return non-zero upon success, zero otherwise
+ */
+int dnode_update(dnode_t *node);
 
 #endif /* TASK_H */

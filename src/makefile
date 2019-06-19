@@ -1,5 +1,5 @@
 # Library makefile
-OBJ=../obj
+OBJ=../objlib
 LIB=../lib
 
 CFLAGS += -I. -fPIC -D_GNU_SOURCE
@@ -9,18 +9,20 @@ LDFLAGS += $(shell pkg-config libgvc --libs)
 
 all: $(LIB)/libsched.so
 
+$(OBJ):
+	mkdir $@
+
 OBJS=$(patsubst %.c,$(OBJ)/%.o,$(wildcard *.c))
-$(OBJ)/%.o : %.c
+$(OBJ)/%.o : %.c  | $(OBJ)
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
 
-$(LIB)/libsched.a: $(OBJS)
+$(LIB)/libsched.a: $(OBJS) 
 	ar rcs $@ $^
 
 $(LIB)/libsched.so: $(OBJS)
 	gcc -shared -o $@ $(OBJS) $(LDFLAGS)
-	rm -rf $(OBJS)
 
 clean:
-	rm -rf $(LIB)/libsched.a $(OBJS)
+	rm -rf $(LIB)/libsched.a $(OBJS) $(OBJ)
 
 
