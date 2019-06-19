@@ -1,5 +1,6 @@
 CFLAGS =-ggdb -Isrc
 CFLAGS += $(shell pkg-config --cflags libconfig)
+CFLAGS += $(shell pkg-config libgvc --cflags)
 CFLAGS += -D_GNU_SOURCE -fPIC
 LDFLAGS := -L./lib -lsched -lm -lgsl -lgslcblas
 LDFLAGS += $(shell pkg-config --libs libconfig)
