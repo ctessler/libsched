@@ -3,7 +3,9 @@ OBJ=../obj
 LIB=../lib
 
 CFLAGS += -I. -fPIC -D_GNU_SOURCE
+CFLAGS += $(shell pkg-config libgvc --cflags)
 LDFLAGS += -lm -ldl -lgsl -lgslcblas
+LDFLAGS += $(shell pkg-config libgvc --libs)
 
 all: $(LIB)/libsched.so
 
