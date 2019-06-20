@@ -33,9 +33,50 @@ dtask_alloc(char* name) {
 
 void
 dtask_free(dtask_t *task) {
-	agclose(task->dt_graph);
-	task->dt_graph = NULL;
+	if (task->dt_graph) {
+		agclose(task->dt_graph);
+		task->dt_graph = NULL;
+	}
 	free(task);
+}
+
+dtask_t *
+dtask_copy(dtask_t *task) {
+	dtask_t *ntask = NULL;
+	if (!task) {
+		return NULL;
+	}
+	FILE *tmp = tmpfile();
+	if (!tmp) {
+		return NULL;
+	}
+	if (!dtask_write(task, tmp)) {
+		goto bail;
+	}
+	rewind(tmp);
+
+	ntask = calloc(1, sizeof(dtask_t));
+	strncpy(ntask->dt_name, task->dt_name, DT_NAMELEN);
+	ntask->dt_graph = agread(tmp, NULL);
+	if (!ntask->dt_graph) {
+		goto bail;
+	}
+	
+	ntask->dt_period = task->dt_period;
+	ntask->dt_deadline = task->dt_deadline;
+	ntask->dt_cpathlen = task->dt_cpathlen;
+	ntask->dt_workload = task->dt_workload;
+
+	fclose(tmp);
+	return ntask;
+bail:
+	if (tmp) {
+		fclose(tmp);
+	}
+	if (ntask) {
+		dtask_free(ntask);
+	}
+	return NULL;
 }
 
 dnode_t *

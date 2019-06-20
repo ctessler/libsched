@@ -62,6 +62,16 @@ dtask_t *dtask_alloc(char* name);
 void dtask_free(dtask_t *task);
 
 /**
+ * Copies a DAG task
+ *
+ * @param[in] task the dag task being copied
+ *
+ * @return the new dag task upon success, NULL otherwise.
+ */
+dtask_t *dtask_copy(dtask_t *task);
+
+
+/**
  * Inserts a node into the DAG
  *
  * @note After being inserted, the dn_node_t tracks its place in the

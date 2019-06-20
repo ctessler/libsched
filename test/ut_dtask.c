@@ -16,6 +16,7 @@ static void dtask_ut_insert_edge(void);
 static void dtask_ut_remove_edge(void);
 static void dtask_w(void);
 static void dtask_node_update(void);
+static void dtask_ut_copy(void);
 
 CU_TestInfo ut_dtask_tests[] = {
     { "Allocate and Deallocate", dtask_allocate},
@@ -26,6 +27,7 @@ CU_TestInfo ut_dtask_tests[] = {
     { "Remove Edge", dtask_ut_remove_edge},    
     { "Write a file", dtask_w},
     { "Update a node", dtask_node_update},
+    { "Copy a DAG task", dtask_ut_copy},
     CU_TEST_INFO_NULL
 };
 
@@ -241,4 +243,48 @@ dtask_node_update(void) {
 	
 	dnode_free(node);
 	dtask_free(task);
+}
+
+static void
+dtask_ut_copy(void) {
+	dtask_t *task = dtask_alloc("test");
+	dnode_t *n0 = dnode_alloc("n_0");
+	dnode_t *n1 = dnode_alloc("n_1");
+
+	n0->dn_object = 1;
+	n0->dn_threads = 2;
+	n0->dn_wcet_one = 3;
+	n0->dn_wcet = 4;
+	n0->dn_factor = 0.5;
+	dtask_insert(task, n0);
+
+	n1->dn_object = 6;
+	n1->dn_threads = 7;
+	n1->dn_wcet_one = 8;
+	n1->dn_wcet = 9;
+	n1->dn_factor = 1.0;
+	dtask_insert(task, n1);
+
+	dtask_insert_edge(task, n0, n1);
+	
+	dtask_t *cp = dtask_copy(task);
+	CU_ASSERT_TRUE(cp != NULL);
+
+	CU_ASSERT_TRUE(strcmp(cp->dt_name, task->dt_name) == 0);
+	dnode_t *nt = dtask_name_search(cp, "n_0");
+	CU_ASSERT_TRUE(nt != NULL);
+	dnode_free(nt);
+	nt = dtask_name_search(cp, "n_1");
+	CU_ASSERT_TRUE(nt != NULL);
+	dnode_free(nt);
+
+	dedge_t *e = dtask_search_edge(cp, "n_0", "n_1");
+	CU_ASSERT_TRUE(e != NULL);
+	dedge_free(e);
+	
+	dnode_free(n0);
+	dnode_free(n1);
+	dtask_free(task);
+
+
 }
