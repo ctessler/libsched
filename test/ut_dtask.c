@@ -13,6 +13,7 @@ static void dtask_node_alloc(void);
 static void dtask_insert_search(void);
 static void dtask_insert_remove(void);
 static void dtask_ut_insert_edge(void);
+static void dtask_ut_remove_edge(void);
 static void dtask_w(void);
 static void dtask_node_update(void);
 
@@ -22,6 +23,7 @@ CU_TestInfo ut_dtask_tests[] = {
     { "Insert and Search", dtask_insert_search},
     { "Insert and Remove", dtask_insert_remove},
     { "Insert Edge", dtask_ut_insert_edge},
+    { "Remove Edge", dtask_ut_remove_edge},    
     { "Write a file", dtask_w},
     { "Update a node", dtask_node_update},
     CU_TEST_INFO_NULL
@@ -128,6 +130,43 @@ dtask_ut_insert_edge(void) {
 	FILE *file = fopen("ut-example.dot", "w");
 	dtask_write(task, file);
 	fclose(file);
+
+	dnode_free(n0);
+	dnode_free(n1);
+	dtask_free(task);
+
+}
+
+static void
+dtask_ut_remove_edge(void) {
+	dtask_t *task = dtask_alloc("test");
+	dnode_t *n0 = dnode_alloc("n_0");
+	dnode_t *n1 = dnode_alloc("n_1");
+
+	n0->dn_object = 1;
+	n0->dn_threads = 2;
+	n0->dn_wcet_one = 3;
+	n0->dn_wcet = 4;
+	n0->dn_factor = 0.5;
+	dtask_insert(task, n0);
+
+	n1->dn_object = 6;
+	n1->dn_threads = 7;
+	n1->dn_wcet_one = 8;
+	n1->dn_wcet = 9;
+	n1->dn_factor = 1.0;
+	dtask_insert(task, n1);
+	
+	int rv = dtask_insert_edge(task, n0, n1);
+	dedge_t *edge = dtask_search_edge(task, n0->dn_name, n1->dn_name);
+	CU_ASSERT_TRUE(edge != NULL);
+	dedge_free(edge);
+
+	rv = dtask_remove_edge(task, n0, n1);
+	CU_ASSERT_TRUE(rv > 0);
+
+	edge = dtask_search_edge(task, n0->dn_name, n1->dn_name);
+	CU_ASSERT_TRUE(edge == NULL);
 
 	dnode_free(n0);
 	dnode_free(n1);

@@ -12,8 +12,6 @@
 #define DT_WCET		"wcet"		/** WCET of DT_THREADS */
 #define DT_FACTOR	"factor"	/** Growth factor of node */
 
-#define DT_DIRTY	0x1	/** Task is dirty */
-
 typedef struct {
 	Agraph_t *dt_graph;
 	char	dt_name[DT_NAMELEN];
@@ -21,7 +19,6 @@ typedef struct {
 	tint_t	dt_deadline;	/** Relative deadline of the task, settable */
 	tint_t	dt_cpathlen;	/** Critical path length, NOT settable */
 	tint_t	dt_workload;	/** Workload, NOT settable */
-	uint8_t dt_flags;	/** Internal flags, NOT settable */
 } dtask_t;
 
 typedef struct {
@@ -42,6 +39,13 @@ typedef struct {
 	/** This node in dn_graph */
 	Agnode_t	*dn_node;
 } dnode_t;
+
+typedef struct {
+	char de_name[DT_NAMELEN];
+	char de_label[DT_NAMELEN * 2];
+	char de_sname[DT_NAMELEN]; /* Source node name */
+	char de_dname[DT_NAMELEN]; /* Destination node name */
+} dedge_t;
 
 /**
  * Allocates a DAG Task
@@ -128,6 +132,18 @@ int dtask_insert_edge(dtask_t *task, dnode_t *src, dnode_t *dst);
 int dtask_remove_edge(dtask_t *task, dnode_t *src, dnode_t *dst);
 
 /**
+ * Finds an edge by names
+ *
+ * @param[in] task the dag task
+ * @param[in] sname source node name
+ * @param[in] dname dest node name
+ *
+ * @return a dedge_t if the edge exists (that must be freed), NULL
+ * otherwise
+ */
+dedge_t* dtask_search_edge(dtask_t* task, char *sname, char *dname);
+
+/**
  * Writes the task to dot file
  *
  * @param[in] task the dag task
@@ -154,6 +170,10 @@ tint_t dtask_cpathlen(dtask_t* task);
  * @return the workload
  */
 tint_t dtask_workload(dtask_t* task);
+
+/*********************************************************************
+ DAG Node
+ *********************************************************************/
 
 /**
  * Allocates a DAG node
@@ -193,5 +213,14 @@ void dnode_set_factor(dnode_t *node, float_t factor);
  * @return non-zero upon success, zero otherwise
  */
 int dnode_update(dnode_t *node);
+
+/*********************************************************************
+ DAG edge
+ *********************************************************************/
+dedge_t* dedge_alloc(char *name);
+void dedge_free(dedge_t *edge);
+
+void dedge_set_src(dedge_t *edge, char *name);
+void dedge_set_dst(dedge_t *edge, char *name);
 
 #endif /* TASK_H */

@@ -4,6 +4,7 @@ static GVC_t *gvc = NULL;
 
 static void dnode_to_agnode(dnode_t *src, Agnode_t *dst);
 static void agnode_to_dnode(Agnode_t *src, dnode_t *dst);
+static void dedge_make_label(dedge_t *edge);
 
 /**
  * DAG TASK
@@ -126,8 +127,47 @@ dtask_insert_edge(dtask_t *task, dnode_t *src, dnode_t *dst) {
 }
 
 int
-dtast_remove_edge(dtask_t *task, dnode_t *src, dnode_t *dst) {
+dtask_remove_edge(dtask_t *task, dnode_t *src, dnode_t *dst) {
+	dnode_t *a = dtask_name_search(task, src->dn_name);
+ 	dnode_t *b = dtask_name_search(task, dst->dn_name);
 
+	if (!a || !b) {
+		return 0;
+	}
+
+	Agedge_t *edge = agedge(task->dt_graph, a->dn_node, b->dn_node, NULL, FALSE);
+	free(a);
+	free(b);
+	if (!edge) {
+		return 0;
+	}
+
+	agdelete(task->dt_graph, edge);
+	return 1;
+}
+
+dedge_t *
+dtask_search_edge(dtask_t *task, char *sname, char *dname) {
+	dnode_t *a = dtask_name_search(task, sname);
+	dnode_t *b = dtask_name_search(task, dname);
+
+	if (!a || !b) {
+		return 0;
+	}
+
+	Agedge_t *edge = agedge(task->dt_graph, a->dn_node, b->dn_node, NULL, FALSE);
+	free(a);
+	free(b);
+	if (!edge) {
+		return NULL;
+	}
+
+	dedge_t *e = dedge_alloc(agnameof(edge));
+	dedge_set_src(e, sname);
+	dedge_set_dst(e, dname);
+	dedge_make_label(e);
+
+	return e;
 }
 
 int
@@ -145,6 +185,8 @@ dnode_t *
 dnode_alloc(char* name) {
 	dnode_t *node = calloc(1, sizeof(dnode_t));
 	strncpy(node->dn_name, name, DT_NAMELEN);
+
+	return node;
 }
 
 void
@@ -299,4 +341,35 @@ dnode_update(dnode_t *node) {
 	node->dn_dirty = 0;
 
 	return 1;
+}
+
+/*
+ * DAG Edge
+ */
+dedge_t*
+dedge_alloc(char* name) {
+	dedge_t *edge = calloc(1, sizeof(dedge_t));
+	strncpy(edge->de_name, name, DT_NAMELEN);
+
+	return edge;
+}
+
+void
+dedge_free(dedge_t *edge) {
+	free(edge);
+}
+
+void
+dedge_set_src(dedge_t *edge, char *name) {
+	strncpy(edge->de_sname, name, DT_NAMELEN);
+}
+
+void
+dedge_set_dst(dedge_t *edge, char *name) {
+	strncpy(edge->de_dname, name, DT_NAMELEN);
+}
+
+void
+dedge_make_label(dedge_t *edge) {
+	sprintf(edge->de_label, "%s -> %s", edge->de_sname, edge->de_dname);
 }
