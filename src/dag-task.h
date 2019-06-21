@@ -11,6 +11,9 @@
 #define DT_WCET_ONE	"wcetone"	/** WCET of ONE thread */
 #define DT_WCET		"wcet"		/** WCET of DT_THREADS */
 #define DT_FACTOR	"factor"	/** Growth factor of node */
+/** Sadly necessary attributes */
+#define DT_VISITED	"visited"	/** marked visited */
+#define DT_MARKED	"marked"	/** "permanent" mark */
 
 typedef struct {
 	Agraph_t *dt_graph;
@@ -33,7 +36,11 @@ typedef struct {
 	tint_t	dn_wcet_one;	/** Single thread WCET */
 	tint_t	dn_wcet;	/** Total WCET for dn_threads */
 	float_t	dn_factor;
-	uint8_t dn_dirty;
+	struct {
+		unsigned int dirty:1;
+		unsigned int marked:1;
+		unsigned int visited:1;
+	} dn_flags;
 	/** The last task this node was inserted into */
 	dtask_t		*dn_task;
 	/** This node in dn_graph */
@@ -45,6 +52,8 @@ typedef struct {
 	char de_label[DT_NAMELEN * 2];
 	char de_sname[DT_NAMELEN]; /* Source node name */
 	char de_dname[DT_NAMELEN]; /* Destination node name */
+	Agedge_t *de_edge;
+	Agraph_t *de_graph;
 } dedge_t;
 
 /**
@@ -232,5 +241,9 @@ void dedge_free(dedge_t *edge);
 
 void dedge_set_src(dedge_t *edge, char *name);
 void dedge_set_dst(dedge_t *edge, char *name);
+
+dedge_t* dedge_out_first(dnode_t *node);
+dedge_t* dedge_out_first_name(dtask_t *task, char *name);
+dedge_t* dedge_out_next(dedge_t *edge);
 
 #endif /* TASK_H */

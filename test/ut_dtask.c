@@ -4,6 +4,7 @@
 #include <libconfig.h>
 
 #include "dag-task.h"
+#include "dag-walk.h"
 
 int ut_dtask_init(void) { return 0; }
 int ut_dtask_cleanup(void) { return 0; }
@@ -17,6 +18,7 @@ static void dtask_ut_remove_edge(void);
 static void dtask_w(void);
 static void dtask_node_update(void);
 static void dtask_ut_copy(void);
+static void dtask_topo(void);
 
 CU_TestInfo ut_dtask_tests[] = {
     { "Allocate and Deallocate", dtask_allocate},
@@ -28,6 +30,7 @@ CU_TestInfo ut_dtask_tests[] = {
     { "Write a file", dtask_w},
     { "Update a node", dtask_node_update},
     { "Copy a DAG task", dtask_ut_copy},
+    { "Topological Sort", dtask_topo},
     CU_TEST_INFO_NULL
 };
 
@@ -218,29 +221,29 @@ dtask_node_update(void) {
 	CU_ASSERT_TRUE(node->dn_task == task);
 
 	dnode_set_object(node, 5);
-	CU_ASSERT_TRUE(node->dn_dirty == 1);
+	CU_ASSERT_TRUE(node->dn_flags.dirty == 1);
 	dnode_update(node);
-	CU_ASSERT_TRUE(node->dn_dirty == 0);
-	
+	CU_ASSERT_TRUE(node->dn_flags.dirty == 0);
+
 	dnode_set_threads(node, 6);
-	CU_ASSERT_TRUE(node->dn_dirty == 1);
+	CU_ASSERT_TRUE(node->dn_flags.dirty == 1);
 	dnode_update(node);
-	CU_ASSERT_TRUE(node->dn_dirty == 0);
+	CU_ASSERT_TRUE(node->dn_flags.dirty == 0);
 
 	dnode_set_wcet_one(node, 7);
-	CU_ASSERT_TRUE(node->dn_dirty == 1);
+	CU_ASSERT_TRUE(node->dn_flags.dirty == 1);
 	dnode_update(node);
-	CU_ASSERT_TRUE(node->dn_dirty == 0);	
+	CU_ASSERT_TRUE(node->dn_flags.dirty == 0);
 
 	dnode_set_factor(node, 0.8);
-	CU_ASSERT_TRUE(node->dn_dirty == 1);
+	CU_ASSERT_TRUE(node->dn_flags.dirty == 1);
 	dnode_update(node);
-	CU_ASSERT_TRUE(node->dn_dirty == 0);
+	CU_ASSERT_TRUE(node->dn_flags.dirty == 0);
 
 	FILE *file = fopen("ut-dno.dot", "w");
 	dtask_write(task, file);
 	fclose(file);
-	
+
 	dnode_free(node);
 	dtask_free(task);
 }
@@ -266,7 +269,7 @@ dtask_ut_copy(void) {
 	dtask_insert(task, n1);
 
 	dtask_insert_edge(task, n0, n1);
-	
+
 	dtask_t *cp = dtask_copy(task);
 	CU_ASSERT_TRUE(cp != NULL);
 
@@ -281,10 +284,47 @@ dtask_ut_copy(void) {
 	dedge_t *e = dtask_search_edge(cp, "n_0", "n_1");
 	CU_ASSERT_TRUE(e != NULL);
 	dedge_free(e);
-	
+
 	dnode_free(n0);
 	dnode_free(n1);
 	dtask_free(task);
+}
+
+static void
+dtask_topo(void) {
+	char buff[DT_NAMELEN];
+	dtask_t *task = dtask_alloc("test");
+	dnode_t *nodes[6];
+	int marked[6];
+	for (int i = 0; i < 6; i++) {
+		sprintf(buff, "n_%d", i);
+		marked[i] = 0;
+		nodes[i] = dnode_alloc(buff);
+		dnode_set_wcet_one(nodes[i], i);
+		dtask_insert(task, nodes[i]);
+	}
+
+	dtask_insert_edge(task, nodes[0], nodes[1]);
+	dtask_insert_edge(task, nodes[0], nodes[2]);
+	dtask_insert_edge(task, nodes[1], nodes[3]);
+	dtask_insert_edge(task, nodes[2], nodes[3]);
+	dtask_insert_edge(task, nodes[3], nodes[4]);
+	dtask_insert_edge(task, nodes[4], nodes[5]);
 
 
+	dnode_t **topo = dag_topological(nodes[0]);
+	for (int i=0; topo[i] != NULL; i++) {
+		marked[dnode_get_wcet_one(topo[i])] = 1;
+		dnode_free(topo[i]);
+	}
+
+	for (int i=0; i < 6; i++) {
+		CU_ASSERT_TRUE(marked[i] == 1);
+	}
+
+	for (int i = 0; i < 6; i++) {
+		dnode_free(nodes[i]);
+	}
+
+	dtask_free(task);
 }
