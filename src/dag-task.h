@@ -14,6 +14,9 @@
 /** Sadly necessary attributes */
 #define DT_VISITED	"visited"	/** marked visited */
 #define DT_MARKED	"marked"	/** "permanent" mark */
+#define DT_DISTANCE	"distance"	/** distance from current node */
+
+typedef struct dnode_s dnode_t;
 
 typedef struct {
 	Agraph_t *dt_graph;
@@ -22,9 +25,13 @@ typedef struct {
 	tint_t	dt_deadline;	/** Relative deadline of the task, settable */
 	tint_t	dt_cpathlen;	/** Critical path length, NOT settable */
 	tint_t	dt_workload;	/** Workload, NOT settable */
+	dnode_t *dt_source;	/** Source node, NOT settable */
+	struct {
+		unsigned int dirty:1;
+	} dt_flags;
 } dtask_t;
 
-typedef struct {
+struct dnode_s {
 	/*
 	 * There are no user settable fields for nodes, use the
 	 * accessor methods
@@ -36,16 +43,21 @@ typedef struct {
 	tint_t	dn_wcet_one;	/** Single thread WCET */
 	tint_t	dn_wcet;	/** Total WCET for dn_threads */
 	float_t	dn_factor;
+	/** The last task this node was inserted into */
+	dtask_t		*dn_task;
+	/** This node in dn_graph */
+	Agnode_t	*dn_node;
+	/** Flags, these are ugly here but save more complex
+	    structures in the walks */
 	struct {
 		unsigned int dirty:1;
 		unsigned int marked:1;
 		unsigned int visited:1;
 	} dn_flags;
-	/** The last task this node was inserted into */
-	dtask_t		*dn_task;
-	/** This node in dn_graph */
-	Agnode_t	*dn_node;
-} dnode_t;
+	/** Distance, again saves more complex structure in longest
+	    path calculation */
+	tint_t dn_distance;
+};
 
 typedef struct {
 	char de_name[DT_NAMELEN];
@@ -173,6 +185,12 @@ dedge_t* dtask_search_edge(dtask_t* task, char *sname, char *dname);
 int dtask_write(dtask_t *task, FILE *file);
 
 /**
+ * Returns the source node of the dag task
+ *
+ * must be dnode_freed()'d
+ */
+dnode_t *dtask_source(dtask_t *task);
+/**
  * Gets the critical path length of the task
  *
  * @param[in] the dag task
@@ -189,6 +207,14 @@ tint_t dtask_cpathlen(dtask_t* task);
  * @return the workload
  */
 tint_t dtask_workload(dtask_t* task);
+
+/**
+ * Clears the marks on all nodes and edges in the DAG task
+ *
+ * @param[in] task the dag task to clear marks upon
+ */
+void dtask_unmark(dtask_t *task);
+
 
 /*********************************************************************
  DAG Node

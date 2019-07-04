@@ -19,6 +19,7 @@ static void dtask_w(void);
 static void dtask_node_update(void);
 static void dtask_ut_copy(void);
 static void dtask_topo(void);
+static void dtask_pathlen(void);
 
 CU_TestInfo ut_dtask_tests[] = {
     { "Allocate and Deallocate", dtask_allocate},
@@ -26,11 +27,12 @@ CU_TestInfo ut_dtask_tests[] = {
     { "Insert and Search", dtask_insert_search},
     { "Insert and Remove", dtask_insert_remove},
     { "Insert Edge", dtask_ut_insert_edge},
-    { "Remove Edge", dtask_ut_remove_edge},    
+    { "Remove Edge", dtask_ut_remove_edge},
     { "Write a file", dtask_w},
     { "Update a node", dtask_node_update},
     { "Copy a DAG task", dtask_ut_copy},
     { "Topological Sort", dtask_topo},
+    { "Critical Path Length", dtask_pathlen},
     CU_TEST_INFO_NULL
 };
 
@@ -328,3 +330,56 @@ dtask_topo(void) {
 
 	dtask_free(task);
 }
+
+static void
+dtask_pathlen(void) {
+	char buff[DT_NAMELEN];
+	dtask_t *task = dtask_alloc("test");
+	dnode_t *nodes[6];
+	int marked[6];
+	for (int i = 0; i < 6; i++) {
+		sprintf(buff, "n_%d", i);
+		marked[i] = 0;
+		nodes[i] = dnode_alloc(buff);
+		dnode_set_wcet_one(nodes[i], i+1);
+		dnode_set_threads(nodes[i], (i+1)*2);
+		dnode_set_object(nodes[i], i);
+		dnode_set_factor(nodes[i], .75);
+		dtask_insert(task, nodes[i]);
+	}
+
+	dtask_insert_edge(task, nodes[0], nodes[1]);
+	dtask_insert_edge(task, nodes[0], nodes[2]);
+	dtask_insert_edge(task, nodes[1], nodes[3]);
+	dtask_insert_edge(task, nodes[2], nodes[3]);
+	dtask_insert_edge(task, nodes[3], nodes[4]);
+	dtask_insert_edge(task, nodes[4], nodes[5]);
+	
+	/* After nodes are inserted, they should not be referred to again */
+	for (int i = 0; i < 6; i++) {
+		dnode_free(nodes[i]);
+	}
+
+	/* Calculet the maximum distances to each node */
+	dnode_t *source = dtask_source(task);
+	dnode_t **topo = dag_maxd(source);
+	dnode_free(source);
+
+	/* The final node should have the expected critical path length */
+	CU_ASSERT(topo[5]->dn_distance == 137);
+	for (int i=0; topo[i] != NULL; i++) {
+		dnode_free(topo[i]);
+	}
+	tint_t cpathlen = dtask_cpathlen(task);
+	CU_ASSERT(cpathlen == 137);
+
+	tint_t workload = dtask_workload(task);
+	CU_ASSERT(workload == 144);
+	
+	FILE *file = fopen("ut-pathlen.dot", "w");
+	dtask_write(task, file);
+	fclose(file);
+
+	dtask_free(task);
+}
+

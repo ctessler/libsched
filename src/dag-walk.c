@@ -34,10 +34,42 @@ dag_topological(dnode_t* node) {
 	userd.id_count = agnnodes(node->dn_task->dt_graph);
 	userd.id_list = calloc(userd.id_count + 1, sizeof(dnode_t*));
 	userd.id_cur = userd.id_count - 1;
-	
+
 	int rv = ddfs(node, topological_pre, NULL, topological_post, &userd);
+	dtask_unmark(node->dn_task);
 
 	return userd.id_list;
 }
 
+dnode_t **
+dag_maxd(dnode_t *node) {
+	char buff[DT_NAMELEN];
+	dnode_t **topo = dag_topological(node);
 
+	dtask_t *task = node->dn_task;
+	Agraph_t *g = task->dt_graph;
+
+	for (int i=0; topo[i]; i++) {
+		Agnode_t *n = topo[i]->dn_node;
+		Agedge_t *e;
+		tint_t maxd = 0;
+		for (e = agfstin(g,n); e; e = agnxtin(g,e)) {
+			Agnode_t *a = agtail(e); /* These are backwards ... */
+			Agnode_t *b = aghead(e); /* ... I don't know why */
+			tint_t prec_d = atoi(agget(a, DT_DISTANCE));
+			if (prec_d > maxd) {
+				maxd = prec_d;
+			}
+		}
+		/* The distance of each node is the maximum completion time */
+		topo[i]->dn_distance = dnode_get_wcet(topo[i]) + maxd;
+
+		/* Update the task */
+		dnode_t *this = dtask_name_search(task, topo[i]->dn_name);
+		this->dn_distance = topo[i]->dn_distance;
+		this->dn_flags.dirty = 1;
+		dnode_update(this);
+		dnode_free(this);
+	}
+	return topo;
+}

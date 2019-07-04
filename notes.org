@@ -49,3 +49,8 @@
   # Merged Non-Preemptive Bundle on the merged tasuk set
   > maxchunks --nonp -s 07-merged.ts
   
+
+* DAG Task Set Visualization
+  dtask_write() -> DOTFILE
+  dot2tex -tmath --autosize DOTFILE > TEXFILE
+  pdflatex TEXFILE 

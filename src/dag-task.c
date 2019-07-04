@@ -1,5 +1,5 @@
 #include "dag-task.h"
-
+#include "dag-walk.h"
 static GVC_t *gvc = NULL;
 
 static void dnode_to_agnode(dnode_t *src, Agnode_t *dst);
@@ -29,6 +29,7 @@ dtask_alloc(char* name) {
 	agattr(task->dt_graph, AGNODE, DT_FACTOR, "0");
 	agattr(task->dt_graph, AGNODE, DT_MARKED, "0");
 	agattr(task->dt_graph, AGNODE, DT_VISITED, "0");
+	agattr(task->dt_graph, AGNODE, DT_DISTANCE, "0");	
 	agattr(task->dt_graph, AGNODE, "texlbl", "");
 
 	return task;
@@ -36,6 +37,9 @@ dtask_alloc(char* name) {
 
 void
 dtask_free(dtask_t *task) {
+	if (task->dt_source) {
+		dnode_free(task->dt_source);
+	}
 	if (task->dt_graph) {
 		agclose(task->dt_graph);
 		task->dt_graph = NULL;
@@ -110,6 +114,7 @@ dtask_insert(dtask_t *task, dnode_t *node) {
 		/* Could not allocate */
 		return 0;
 	}
+	task->dt_flags.dirty = 1;
 	/* Fill node values into ag_node */
 	dnode_to_agnode(node, ag_node);
 
@@ -128,6 +133,7 @@ dtask_name_remove(dtask_t *task, char *name) {
 		return 0;
 	}
 	agdelete(task->dt_graph, ag_node);
+	task->dt_flags.dirty = 1;
 
 	return 1;
 }
@@ -137,7 +143,7 @@ dtask_remove(dtask_t *task, dnode_t *node) {
 	if (!dtask_name_remove(task, node->dn_name)) {
 		return 0;
 	}
-
+	
 	node->dn_task = NULL;
 	node->dn_node = NULL;
 	node->dn_flags.dirty = 0;
@@ -167,6 +173,7 @@ dtask_insert_edge(dtask_t *task, dnode_t *src, dnode_t *dst) {
 		/* Could not add the edge */
 		return 0;
 	}
+	task->dt_flags.dirty = 1;	
 	return 1;
 }
 
@@ -187,6 +194,7 @@ dtask_remove_edge(dtask_t *task, dnode_t *src, dnode_t *dst) {
 	}
 
 	agdelete(task->dt_graph, edge);
+	task->dt_flags.dirty = 1;	
 	return 1;
 }
 
@@ -220,6 +228,89 @@ dtask_write(dtask_t *task, FILE *file) {
 	return 1;
 }
 
+static void
+dtask_source_workload(dtask_t *task) {
+	Agnode_t *n;
+	dnode_t *source, *node;
+	tint_t workload = 0;
+	for (n = agfstnode(task->dt_graph); n; n = agnxtnode(task->dt_graph, n)) {
+		int indegree = agdegree(task->dt_graph, n, TRUE, FALSE);
+		if (indegree == 0) {
+			source = dnode_alloc(agnameof(n));
+			agnode_to_dnode(n, source);
+			source->dn_task = task;
+			dnode_free(task->dt_source);
+			task->dt_source = source;
+		}
+		tint_t wcet = atoi(agget(n, DT_WCET));
+		workload += wcet;
+	}
+	task->dt_workload = workload;
+}
+
+/**
+ * Source must be valid before calling this function
+ */
+static void
+dtask_find_cpathlen(dtask_t *task) {
+	dtask_unmark(task);
+	dnode_t **sorted = dag_maxd(task->dt_source);
+	int sink = agnnodes(task->dt_graph) - 1;
+	task->dt_cpathlen = sorted[sink]->dn_distance;
+
+	for (int i=0; sorted[i]; i++) {
+		dnode_free(sorted[i]);
+	}
+}
+
+static void
+dtask_update(dtask_t *task) {
+	if (!task->dt_flags.dirty) {
+		return;
+	}
+	dtask_source_workload(task);
+	if (!task->dt_source) {
+		return;
+	}
+	dtask_find_cpathlen(task);
+}
+
+
+dnode_t *
+dtask_source(dtask_t *task) {
+	dtask_update(task);
+
+	dnode_t *source = NULL;
+	if (task->dt_source) {
+		source = dtask_name_search(task, task->dt_source->dn_name);
+	}
+	
+	return source;
+}
+
+tint_t
+dtask_cpathlen(dtask_t* task) {
+	dtask_update(task);
+
+	return task->dt_cpathlen;
+}
+
+tint_t
+dtask_workload(dtask_t* task) {
+	dtask_update(task);
+
+	return task->dt_workload;
+}
+
+void
+dtask_unmark(dtask_t *task) {
+	Agnode_t *n;
+	for (n = agfstnode(task->dt_graph); n; n = agnxtnode(task->dt_graph, n)) {
+		agset(n, DT_VISITED, "0");
+		agset(n, DT_MARKED, "0");		
+	}
+}
+
 /**
  * DAG NODE
  */
@@ -233,6 +324,9 @@ dnode_alloc(char* name) {
 
 void
 dnode_free(dnode_t *node) {
+	if (!node) {
+		return;
+	}
 	memset(node->dn_name, 0, DT_NAMELEN);
 	free(node);
 }
@@ -242,8 +336,11 @@ dnode_free(dnode_t *node) {
  */
 static void
 dnode_make_label(dnode_t *node) {
-	sprintf(node->dn_label, "${%s = \\langle o_%ld, %ld, %ld, %f \\rangle}$",
-		node->dn_name, node->dn_object, node->dn_threads, node->dn_wcet,
+	sprintf(node->dn_label, "${d:%ld, %s = \\langle o_%ld, t:%ld, c_1:%ld, c:%ld, "
+		"F:%0.2f \\rangle}$",
+		node->dn_distance,
+		node->dn_name, node->dn_object, node->dn_threads,
+		dnode_get_wcet_one(node), dnode_get_wcet(node),
 		node->dn_factor);
 }
 
@@ -255,20 +352,28 @@ dnode_to_agnode(dnode_t *src, Agnode_t *dst) {
 	char buff[DT_NAMELEN];
 
 	/* Set the attributes of the node */
+	sprintf(buff, "%ld", dnode_get_object(src));
 	sprintf(buff, "%ld", src->dn_object);
 	agset(dst, DT_OBJECT, buff);
 
-	sprintf(buff, "%ld", src->dn_threads);
+	sprintf(buff, "%ld", dnode_get_threads(src));
+	sprintf(buff, "%ld", src->dn_threads);	
 	agset(dst, DT_THREADS, buff);
 
+	sprintf(buff, "%ld", dnode_get_wcet_one(src));
 	sprintf(buff, "%ld", src->dn_wcet_one);
 	agset(dst, DT_WCET_ONE, buff);
 
+	sprintf(buff, "%ld", dnode_get_wcet(src));
 	sprintf(buff, "%ld", src->dn_wcet);
 	agset(dst, DT_WCET, buff);
 
+	sprintf(buff, "%f", dnode_get_factor(src));
 	sprintf(buff, "%f", src->dn_factor);
 	agset(dst, DT_FACTOR, buff);
+
+	sprintf(buff, "%ld", src->dn_distance);
+	agset(dst, DT_DISTANCE, buff);
 
 	if (src->dn_flags.visited) {
 		agset(dst, DT_VISITED, "1");
@@ -276,6 +381,7 @@ dnode_to_agnode(dnode_t *src, Agnode_t *dst) {
 	if (src->dn_flags.marked) {
 		agset(dst, DT_MARKED, "1");
 	}
+
 
 	dnode_make_label(src);
 	agset(dst, "texlbl", src->dn_label);
@@ -295,6 +401,7 @@ agnode_to_dnode(Agnode_t *src, dnode_t *dst) {
 	dst->dn_flags.dirty = 0;
 	dst->dn_flags.marked = atoi(agget(src, DT_MARKED));	
 	dst->dn_flags.visited = atoi(agget(src, DT_VISITED));
+	dst->dn_node = src;
 }
 
 /**
@@ -305,7 +412,13 @@ dnode_calc_wcet(dnode_t *node) {
 	tint_t threads = node->dn_threads;
 	if (threads == 0) {
 		node->dn_wcet = 0;
+		return;
 	}
+	if (node->dn_wcet_one == 0) {
+		node->dn_wcet = 0;
+		return;
+	}
+		
 	tint_t wcet1 = node->dn_wcet_one;
 	float_t factor = node->dn_factor;
 
@@ -377,6 +490,10 @@ dnode_set_factor(dnode_t *node, float_t factor) {
 int
 dnode_update(dnode_t *node) {
 	/* Search for the node first */
+	if (!node->dn_task) {
+		/* Cannot update a node that's not in a task */
+		return 0;
+	}
 	Agraph_t *ag_graph = node->dn_task->dt_graph;
 	Agnode_t *ag_node = agnode(ag_graph, node->dn_name, FALSE);
 	if (!ag_node) {
@@ -438,6 +555,9 @@ dedge_make_label(dedge_t *edge) {
 
 dedge_t*
 dedge_out_first(dnode_t *node) {
+	if (!node->dn_node) {
+		return NULL;
+	}
 	Agedge_t *edge = agfstout(node->dn_task->dt_graph, node->dn_node);
 	if (!edge) {
 		return NULL;

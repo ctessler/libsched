@@ -12,7 +12,7 @@ $(OBJ)/%.o : %.c
 
 $(BIN)/unittest: CFLAGS += -I../src
 $(BIN)/unittest: LDFLAGS += -lcunit -L../lib -lsched -lm -lconfig
-$(BIN)/unittest: $(OBJS)
+$(BIN)/unittest: $(OBJS) ../lib/libsched.so
 	$(CC)  $(OBJS) -o $@ $(LDFLAGS)	
 
 run-test: $(BIN)/unittest
