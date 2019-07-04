@@ -134,10 +134,6 @@ dtask_ut_insert_edge(void) {
 	CU_ASSERT_TRUE(rv == 0);
 
 	
-	FILE *file = fopen("ut-example.dot", "w");
-	dtask_write(task, file);
-	fclose(file);
-
 	dnode_free(n0);
 	dnode_free(n1);
 	dtask_free(task);
@@ -198,6 +194,7 @@ dtask_w(void) {
 	dnode_free(node);
 	dtask_free(task);
 	fclose(file);
+	remove("ut-dtask.dot");
 }
 
 static void
@@ -241,10 +238,6 @@ dtask_node_update(void) {
 	CU_ASSERT_TRUE(node->dn_flags.dirty == 1);
 	dnode_update(node);
 	CU_ASSERT_TRUE(node->dn_flags.dirty == 0);
-
-	FILE *file = fopen("ut-dno.dot", "w");
-	dtask_write(task, file);
-	fclose(file);
 
 	dnode_free(node);
 	dtask_free(task);
@@ -376,10 +369,6 @@ dtask_pathlen(void) {
 	tint_t workload = dtask_workload(task);
 	CU_ASSERT(workload == 144);
 	
-	FILE *file = fopen("ut-pathlen.dot", "w");
-	dtask_write(task, file);
-	fclose(file);
-
 	dtask_free(task);
 }
 
