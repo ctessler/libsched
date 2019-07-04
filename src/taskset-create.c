@@ -13,7 +13,7 @@ tsc_get_scaled(gsl_rng *r, tint_t min, tint_t max) {
 	return scaled;
 }
 
-static double
+double
 tsc_get_scaled_dbl(gsl_rng *r, double min, double max) {
 	unsigned long int gsl_range;
 	double random, new_range;
@@ -155,7 +155,6 @@ tsc_set_wcet_gf(task_set_t* ts, gsl_rng *r, float minf, float maxf) {
 }
 
 void ges_stfu() {
-	
 	int restore_fd = dup(fileno(stderr));
 	#pragma GCC diagnostic push
 	#pragma GCC diagnostic ignored "-Wunused-result"
@@ -165,5 +164,5 @@ void ges_stfu() {
 	/* STFU! */
 	gsl_rng_env_setup();
 
-	dup2(fileno(stderr), restore_fd);
+	dup2(restore_fd, fileno(stderr));	
 }

@@ -259,6 +259,16 @@ void dnode_set_factor(dnode_t *node, float_t factor);
  */
 int dnode_update(dnode_t *node);
 
+/**
+ * Returns the in-degree or out-degree of a node
+ *
+ * @param[in] node
+ *
+ * @return the number of incoming our outgoing edges, < 0 indicates an error. 
+ */
+int dnode_indegree(dnode_t *node);
+int dnode_outdegree(dnode_t *node);
+
 /*********************************************************************
  DAG edge
  *********************************************************************/

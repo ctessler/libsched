@@ -511,6 +511,51 @@ dnode_update(dnode_t *node) {
 	return 1;
 }
 
+int
+dnode_indegree(dnode_t *node) {
+	if (!node) {
+		return -1;
+	}
+	if (!node->dn_task) {
+		return -1;
+	}
+	Agraph_t *g = node->dn_task->dt_graph;
+	if (!g) {
+		return -1;
+	}
+	Agnode_t *n = node->dn_node;
+	if (!n) {
+		return -1;
+	}
+	if (node->dn_flags.dirty) {
+		dnode_update(node);
+		n = node->dn_node;		
+	}
+	return agdegree(g, n, TRUE, FALSE);
+}
+
+int
+dnode_outdegree(dnode_t *node) {
+	if (!node) {
+		return -1;
+	}
+	if (!node->dn_task) {
+		return -1;
+	}
+	Agraph_t *g = node->dn_task->dt_graph;
+	if (!g) {
+		return -1;
+	}
+	Agnode_t *n = node->dn_node;
+	if (!n) {
+		return -1;
+	}
+	if (node->dn_flags.dirty) {
+		dnode_update(node);
+		n = node->dn_node;		
+	}
+	return agdegree(g, n, FALSE, TRUE);
+}
 /*
  * DAG Edge
  */

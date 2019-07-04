@@ -131,5 +131,17 @@ void ges_stfu();
  */
 tint_t tsc_get_scaled(gsl_rng *r, tint_t min, tint_t max);
 
+/**
+ * Returns a double from the distribution given by random source 
+ * between min and max
+ *
+ * @param[in] r random source
+ * @param[in] min imum value
+ * @param[in] max imum value
+ *
+ * @return a number between min and max (inclusive)
+ */
+double tsc_get_scaled_dbl(gsl_rng *r, double min, double max);
+
 #endif /* TASKSET_CREATE_H */
 
