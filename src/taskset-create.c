@@ -163,6 +163,7 @@ void ges_stfu() {
 
 	/* STFU! */
 	gsl_rng_env_setup();
+	fflush(stderr);
 
 	dup2(restore_fd, fileno(stderr));	
 }

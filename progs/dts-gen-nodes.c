@@ -21,7 +21,7 @@ static struct {
 	float_t c_edgep;
 } clc;
 
-static const char* short_options = "hl:o:n:e:v";
+static const char* short_options = "a:hl:o:n:e:v";
 static struct option long_options[] = {
     {"help",		no_argument, 		0, 'h'},
     {"log", 		required_argument, 	0, 'l'},

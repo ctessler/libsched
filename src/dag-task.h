@@ -15,6 +15,8 @@
 #define DT_VISITED	"visited"	/** marked visited */
 #define DT_MARKED	"marked"	/** "permanent" mark */
 #define DT_DISTANCE	"distance"	/** distance from current node */
+#define DT_DEADLINE	"deadline"	/** deadline of the task */
+#define DT_PERIOD	"period"	/** period of the task */
 
 typedef struct dnode_s dnode_t;
 
@@ -185,6 +187,16 @@ dedge_t* dtask_search_edge(dtask_t* task, char *sname, char *dname);
 int dtask_write(dtask_t *task, FILE *file);
 
 /**
+ * Reads a task from a  dot file
+ *
+ * @param[out] task the dag task
+ * @param[in] file being read
+ *
+ * @return the task upon success, NULL otherwise.
+ */
+dtask_t* dtask_read(FILE *file);
+
+/**
  * Returns the source node of the dag task
  *
  * must be dnode_freed()'d
@@ -214,6 +226,18 @@ tint_t dtask_workload(dtask_t* task);
  * @param[in] task the dag task to clear marks upon
  */
 void dtask_unmark(dtask_t *task);
+
+/**
+ * Gets the next node of the task
+ *
+ * @param[in] the task
+ * @param[in] the current node (NULL to start)
+ * 
+ * @return the next node in the graph if one exists, NULL
+ * otherwise. The returned node must be dnode_free()'d 
+ */
+dnode_t *dtask_next_node(dtask_t* task, dnode_t *node);
+
 
 
 /*********************************************************************

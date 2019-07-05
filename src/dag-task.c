@@ -31,6 +31,8 @@ dtask_alloc(char* name) {
 	agattr(task->dt_graph, AGNODE, DT_VISITED, "0");
 	agattr(task->dt_graph, AGNODE, DT_DISTANCE, "0");	
 	agattr(task->dt_graph, AGNODE, "texlbl", "");
+	agattr(task->dt_graph, AGRAPH, DT_DEADLINE, "0");
+	agattr(task->dt_graph, AGRAPH, DT_PERIOD, "0");	
 
 	return task;
 }
@@ -228,6 +230,29 @@ dtask_write(dtask_t *task, FILE *file) {
 	return 1;
 }
 
+dtask_t *
+dtask_read(FILE *file) {
+	if (!gvc) {
+		gvc = gvContext();
+	}
+	dtask_t *task = calloc(1, sizeof(dtask_t));
+	task->dt_graph = agread(file, NULL);
+	if (!task->dt_graph) {
+		goto bail;
+	}
+	
+	sprintf(task->dt_name, "%s", agnameof(task->dt_graph));
+	task->dt_period = atoi(agget(task->dt_graph, DT_PERIOD));
+	task->dt_deadline = atoi(agget(task->dt_graph, DT_DEADLINE));
+	
+	return task;
+bail:
+	if (task) {
+		dtask_free(task);
+	}
+	return NULL;
+}
+
 static void
 dtask_source_workload(dtask_t *task) {
 	Agnode_t *n;
@@ -309,6 +334,27 @@ dtask_unmark(dtask_t *task) {
 		agset(n, DT_VISITED, "0");
 		agset(n, DT_MARKED, "0");		
 	}
+}
+
+dnode_t *
+dtask_next_node(dtask_t *task, dnode_t *node) {
+	Agnode_t *agnext;
+	dnode_t *next;
+	if (!task) {
+		return NULL;
+	}
+	if (node) {
+		agnext = agnxtnode(task->dt_graph, node->dn_node);
+	} else {
+		agnext = agfstnode(task->dt_graph);
+	}
+	if (!agnext) {
+		return NULL;
+	}
+	next = dnode_alloc(agnameof(agnext));
+	agnode_to_dnode(agnext, next);
+	next->dn_task = task;
+	return next;
 }
 
 /**
