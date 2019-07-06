@@ -1,0 +1,93 @@
+strict digraph "Task{n=6,e=0.20}" {
+	graph [bb="0,0,270,180",
+		cpathlen=49,
+		deadline=53,
+		period=59,
+		workload=98
+	];
+	node [distance=0,
+		factor=0,
+		label="\N",
+		marked=0,
+		object=0,
+		shape=rectangle,
+		threads=0,
+		visited=0,
+		wcet=0,
+		wcetone=0
+	];
+	n_0	 [distance=6,
+		factor=0.649382,
+		height=0.5,
+		object=2,
+		pos="135,162",
+		texlbl="${d:6, n_0 = \langle o_2, c_1:6, c(1):6, F:0.65 \rangle}$",
+		threads=1,
+		wcet=6,
+		wcetone=6,
+		width=0.75];
+	n_1	 [distance=12,
+		factor=0.649382,
+		height=0.5,
+		object=2,
+		pos="27,90",
+		texlbl="${d:12, n_1 = \langle o_2, c_1:6, c(1):6, F:0.65 \rangle}$",
+		threads=1,
+		wcet=6,
+		wcetone=6,
+		width=0.75];
+	n_0 -> n_1 [key="n_0 -> n_1",
+	pos="e,54.244,108.16 107.75,143.83 94.061,134.71 77.309,123.54 62.617,113.74"];
+n_2 [distance=35,
+	factor=0.247560,
+	height=0.5,
+	object=1,
+	pos="99,90",
+	texlbl="${d:35, n_2 = \langle o_1, c_1:29, c(1):29, F:0.25 \rangle}$",
+	threads=1,
+	wcet=29,
+	wcetone=29,
+	width=0.75];
+n_0 -> n_2 [key="n_0 -> n_2",
+pos="e,108.21,108.41 125.92,143.83 121.94,135.88 117.18,126.37 112.79,117.57"];
+n_3 [distance=20,
+factor=0.523578,
+height=0.5,
+pos="171,90",
+texlbl="${d:20, n_3 = \langle o_0, c_1:14, c(1):14, F:0.52 \rangle}$",
+threads=1,
+wcet=14,
+wcetone=14,
+width=0.75];
+n_0 -> n_3 [key="n_0 -> n_3",
+pos="e,161.79,108.41 144.08,143.83 148.06,135.88 152.82,126.37 157.21,117.57"];
+n_4 [distance=35,
+factor=0.247560,
+height=0.5,
+object=1,
+pos="243,90",
+texlbl="${d:35, n_4 = \langle o_1, c_1:29, c(1):29, F:0.25 \rangle}$",
+threads=1,
+wcet=29,
+wcetone=29,
+width=0.75];
+n_0 -> n_4 [key="n_0 -> n_4",
+pos="e,215.76,108.16 162.25,143.83 175.94,134.71 192.69,123.54 207.38,113.74"];
+n_5 [distance=49,
+factor=0.523578,
+height=0.5,
+pos="135,18",
+texlbl="${d:49, n_5 = \langle o_0, c_1:14, c(1):14, F:0.52 \rangle}$",
+threads=1,
+wcet=14,
+wcetone=14,
+width=0.75];
+n_1 -> n_5 [key="n_1 -> n_5",
+pos="e,107.76,36.163 54.253,71.831 67.939,62.707 84.691,51.539 99.383,41.745"];
+n_2 -> n_5 [key="n_2 -> n_5",
+pos="e,125.79,36.413 108.08,71.831 112.06,63.877 116.82,54.369 121.21,45.572"];
+n_3 -> n_5 [key="n_3 -> n_5",
+pos="e,144.21,36.413 161.92,71.831 157.94,63.877 153.18,54.369 148.79,45.572"];
+n_4 -> n_5 [key="n_4 -> n_5",
+pos="e,162.24,36.163 215.75,71.831 202.06,62.707 185.31,51.539 170.62,41.745"];
+}
