@@ -78,8 +78,8 @@ main(int argc, char** argv) {
 	gsl_rng *r = NULL;
 	dtask_t *task = NULL;
 	int rv = -1; /* Assume failure */
-	tint_t *wcet; /* Arrays of objects wcet and growth factor */
-	float_t *growf;
+	tint_t *wcet = NULL; /* Arrays of objects wcet and growth factor */
+	float_t *growf = NULL;
 
 	/*
 	 * Initializer for the GNU Scientific Library for random numbers
