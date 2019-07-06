@@ -15,8 +15,11 @@
 #define DT_VISITED	"visited"	/** marked visited */
 #define DT_MARKED	"marked"	/** "permanent" mark */
 #define DT_DISTANCE	"distance"	/** distance from current node */
+/* Task variables */
 #define DT_DEADLINE	"deadline"	/** deadline of the task */
 #define DT_PERIOD	"period"	/** period of the task */
+#define DT_CPATHLEN	"cpathlen"	/** critical path length */
+#define DT_WORKLOAD	"workload"	/** workload */
 
 typedef struct dnode_s dnode_t;
 

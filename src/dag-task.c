@@ -38,7 +38,7 @@ dtask_alloc(char* name) {
 	dtask_t *task = calloc(1, sizeof(dtask_t));
 	strncpy(task->dt_name, name, DT_NAMELEN);
 	task->dt_graph = agopen(name, Agstrictdirected, NULL);
-
+	
 	/* Set defaults for the graph */
 	agattr(task->dt_graph, AGNODE, "shape", "rectangle");
 	agattr(task->dt_graph, AGNODE, DT_THREADS, "0");
@@ -52,7 +52,8 @@ dtask_alloc(char* name) {
 	agattr(task->dt_graph, AGNODE, "texlbl", "");
 	agattr(task->dt_graph, AGRAPH, DT_DEADLINE, "0");
 	agattr(task->dt_graph, AGRAPH, DT_PERIOD, "0");	
-
+	agattr(task->dt_graph, AGRAPH, DT_WORKLOAD, "0");
+	agattr(task->dt_graph, AGRAPH, DT_CPATHLEN, "0");
 	return task;
 }
 
@@ -243,9 +244,22 @@ dtask_search_edge(dtask_t *task, char *sname, char *dname) {
 
 int
 dtask_write(dtask_t *task, FILE *file) {
+	#if 0 /* Don't do this, it'll be written to the file as a node */
+	char buff[DT_NAMELEN * 2];
+	sprintf(buff, "${L = %ld, C = %ld, D = %ld, P = %ld}$",
+		dtask_cpathlen(task), dtask_workload(task), task->dt_deadline,
+		task->dt_period);
+	Agnode_t *n = agnode(task->dt_graph, "key", TRUE);
+	agset(n, "label", buff);
+	#endif
+	
 	gvLayout(gvc, task->dt_graph, "dot");
 	gvRender(gvc, task->dt_graph, "dot", file);
 	gvFreeLayout(gvc, task->dt_graph);
+
+	#if 0
+	agdelete(task->dt_graph, n);
+	#endif
 	return 1;
 }
 
@@ -263,6 +277,8 @@ dtask_read(FILE *file) {
 	sprintf(task->dt_name, "%s", agnameof(task->dt_graph));
 	task->dt_period = atoi(agget(task->dt_graph, DT_PERIOD));
 	task->dt_deadline = atoi(agget(task->dt_graph, DT_DEADLINE));
+	task->dt_cpathlen = atoi(agget(task->dt_graph, DT_CPATHLEN));
+	task->dt_workload = atoi(agget(task->dt_graph, DT_WORKLOAD));
 	dtask_source_workload(task);
 	
 	return task;
@@ -314,7 +330,12 @@ dtask_update(dtask_t *task) {
 	agset(task->dt_graph, DT_PERIOD, buff);
 	sprintf(buff, "%ld", task->dt_deadline);
 	agset(task->dt_graph, DT_DEADLINE, buff);
+	sprintf(buff, "%ld", task->dt_workload);
+	agset(task->dt_graph, DT_WORKLOAD, buff);
+	sprintf(buff, "%ld", task->dt_cpathlen);
+	agset(task->dt_graph, DT_CPATHLEN, buff);
 
+	
 	return 1;
 }
 
