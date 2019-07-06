@@ -189,12 +189,20 @@ int dtask_write(dtask_t *task, FILE *file);
 /**
  * Reads a task from a  dot file
  *
- * @param[out] task the dag task
  * @param[in] file being read
  *
  * @return the task upon success, NULL otherwise.
  */
 dtask_t* dtask_read(FILE *file);
+
+/**
+ * Reads a task from a dot file by path
+ *
+ * @param[in] path to file being read
+ *
+ * @return the task upon success, NULL otherwise.
+ */
+dtask_t* dtask_read_path(char *path);
 
 /**
  * Returns the source node of the dag task
@@ -238,6 +246,14 @@ void dtask_unmark(dtask_t *task);
  */
 dnode_t *dtask_next_node(dtask_t* task, dnode_t *node);
 
+/**
+ * Updates the cgraph supporting the task
+ *
+ * @param[in] the task
+ *
+ * @return non-zero upon success, zero otherwise
+ */
+int dtask_update(dtask_t *task);
 
 
 /*********************************************************************

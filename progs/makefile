@@ -7,7 +7,7 @@ OBJS=$(patsubst %.c,$(OBJ)/%.o,$(wildcard *.c))
 BINS=$(patsubst %.c,$(BIN)/%,$(wildcard *.c))
 
 CFLAGS += -I../src
-LDFLAGS += -L../lib -lsched -lgsl -lconfig -lc
+LDFLAGS += -L../lib -lsched -lgsl -lconfig -lc -lm
 
 all: $(BINS) 
 

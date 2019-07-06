@@ -44,6 +44,7 @@ dag_topological(dnode_t* node) {
 dnode_t **
 dag_maxd(dnode_t *node) {
 	char buff[DT_NAMELEN];
+	dtask_unmark(node->dn_task);
 	dnode_t **topo = dag_topological(node);
 
 	dtask_t *task = node->dn_task;
