@@ -72,3 +72,54 @@ dag_maxd(dnode_t *node) {
 	}
 	return topo;
 }
+
+typedef struct {
+	dnode_t *pud_tgt;
+	int pud_found;
+	int pud_len;
+} pathud_t;
+
+static ddo_t
+path_pre(dnode_t* node, void *userd) {
+	pathud_t *ud = userd;
+
+	if (node->dn_flags.visited) {
+		return DFS_SKIP;
+	}
+
+	ud->pud_len++;
+	if (dnode_has_name(node, ud->pud_tgt->dn_name)) {
+		ud->pud_found = 1;
+		/* Error out, strange but works */
+		return DFS_ERR;
+	}
+
+	return DFS_GOOD;	
+}
+
+static ddo_t
+path_visit(dnode_t* node, void* userd) {
+	node->dn_flags.dirty = 1;
+	node->dn_flags.visited = 1;
+	dnode_update(node);
+}
+
+static ddo_t
+path_post(dnode_t* node, void* userd) {
+	pathud_t *ud = userd;
+	ud->pud_len--;
+}
+
+
+int
+dag_pathlen(dnode_t *a, dnode_t *b) {
+	pathud_t ud;
+	ud.pud_tgt = b;
+	ud.pud_len = 0;
+	ud.pud_found = 0;
+	
+	int rv = ddfs(a, path_pre, path_visit, path_post, &ud);
+	dtask_unmark(a->dn_task);
+	
+	return ud.pud_len;
+}

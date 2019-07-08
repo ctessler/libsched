@@ -2,8 +2,11 @@
 #include "dag-walk.h"
 static GVC_t *gvc = NULL;
 
-static void dnode_to_agnode(dnode_t *src, Agnode_t *dst);
 void agnode_to_dnode(Agnode_t *src, dnode_t *dst);
+
+static void dnode_to_agnode(dnode_t *src, Agnode_t *dst);
+static void dnode_calc_wcet(dnode_t *node);
+static void dnode_make_label(dnode_t *node);
 static void dedge_make_label(dedge_t *edge);
 static void agedge_to_dedge(Agedge_t *src, dedge_t *dst);
 
@@ -184,7 +187,8 @@ dtask_insert_edge(dtask_t *task, dnode_t *src, dnode_t *dst) {
 		/* Nodes must be in the task */
 		return 0;
 	}
-	Agedge_t *edge = agedge(task->dt_graph, src->dn_node, dst->dn_node, NULL, FALSE);
+	Agedge_t *edge = agedge(task->dt_graph, src->dn_node, dst->dn_node,
+	    NULL, FALSE);
 	if (edge) {
 		/* Edge is already present */
 		return 0;
@@ -208,7 +212,8 @@ dtask_remove_edge(dtask_t *task, dnode_t *src, dnode_t *dst) {
 		return 0;
 	}
 
-	Agedge_t *edge = agedge(task->dt_graph, a->dn_node, b->dn_node, NULL, FALSE);
+	Agedge_t *edge = agedge(task->dt_graph, a->dn_node, b->dn_node, NULL,
+	    FALSE);
 	free(a);
 	free(b);
 	if (!edge) {
@@ -422,6 +427,24 @@ dnode_free(dnode_t *node) {
 	}
 	memset(node->dn_name, 0, DT_NAMELEN);
 	free(node);
+}
+
+dnode_t *
+dnode_copy(dnode_t *orig) {
+	dnode_t *copy = dnode_alloc(orig->dn_name);
+
+	copy->dn_node = orig->dn_node;
+	copy->dn_task = orig->dn_task;
+	dnode_set_object(copy, dnode_get_object(orig));
+	dnode_set_threads(copy, dnode_get_threads(orig));
+	dnode_set_wcet_one(copy, dnode_get_wcet_one(orig));
+	dnode_set_factor(copy, dnode_get_factor(orig));
+	dnode_calc_wcet(copy);
+	copy->dn_flags.dirty = 0;
+	copy->dn_flags = orig->dn_flags;
+	dnode_make_label(copy);
+
+	return copy;
 }
 
 /**
@@ -648,6 +671,14 @@ dnode_outdegree(dnode_t *node) {
 		n = node->dn_node;		
 	}
 	return agdegree(g, n, FALSE, TRUE);
+}
+
+int
+dnode_has_name(dnode_t* node, char* name) {
+	if (strlen(node->dn_name) != strlen(name)) {
+		return 0;
+	}
+	return (0 == strcmp(node->dn_name, name));
 }
 /*
  * DAG Edge

@@ -2,6 +2,7 @@
 #define DAG_COLLAPSE_H
 
 #include "dag-task.h"
+#include "dag-node-list.h"
 
 /**
  * Counts the number of candidates

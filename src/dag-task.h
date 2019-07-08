@@ -234,6 +234,8 @@ tint_t dtask_workload(dtask_t* task);
 /**
  * Clears the marks on all nodes and edges in the DAG task
  *
+ * Existing references to nodes are *UNAFFECTED*
+ *
  * @param[in] task the dag task to clear marks upon
  */
 void dtask_unmark(dtask_t *task);
@@ -278,6 +280,11 @@ dnode_t *dnode_alloc(char* name);
 void dnode_free(dnode_t *node);
 
 /**
+ * Returns a copy of the node which must be dnode_free()'d
+ */
+dnode_t *dnode_copy(dnode_t *node);
+
+/**
  * Node getters and setters
  */
 tint_t dnode_get_object(dnode_t *node);
@@ -311,6 +318,16 @@ int dnode_update(dnode_t *node);
  */
 int dnode_indegree(dnode_t *node);
 int dnode_outdegree(dnode_t *node);
+
+/**
+ * Returns true if the name of the node is the one given
+ *
+ * @param[in] node
+ * @param[in] name
+ *
+ * @return TRUE fi the node is named "name"
+ */
+int dnode_has_name(dnode_t *node, char *name);
 
 /*********************************************************************
  DAG edge

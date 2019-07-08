@@ -21,7 +21,10 @@ static void dtask_node_update(void);
 static void dtask_ut_copy(void);
 static void dtask_topo(void);
 static void dtask_pathlen(void);
+static void dtask_2sharedc(void);
+static void dtask_path(void);
 static void dtask_2collapse(void);
+
 
 CU_TestInfo ut_dtask_tests[] = {
     { "Allocate and Deallocate", dtask_allocate},
@@ -35,6 +38,8 @@ CU_TestInfo ut_dtask_tests[] = {
     { "Copy a DAG task", dtask_ut_copy},
     { "Topological Sort", dtask_topo},
     { "Critical Path Length", dtask_pathlen},
+    { "One Shared Predecessor", dtask_2sharedc},
+    { "Multihop Path", dtask_path}, 
     { "Two Collapse", dtask_2collapse},
     CU_TEST_INFO_NULL
 };
@@ -372,6 +377,135 @@ dtask_pathlen(void) {
 	tint_t workload = dtask_workload(task);
 	CU_ASSERT(workload == 144);
 	
+	dtask_free(task);
+}
+
+
+static void
+dtask_2sharedc(void) {
+	char buff[DT_NAMELEN];
+	dtask_t *task = dtask_alloc("test");
+	dnode_t *nodes[4];
+
+
+	for (int i = 0; i < 4; i++) {
+		sprintf(buff, "n_%d", i);
+		nodes[i] = dnode_alloc(buff);
+		dnode_set_threads(nodes[i], 1);
+		dnode_set_factor(nodes[i], .1 + i * .05);
+		dtask_insert(task, nodes[i]);
+	}
+	dnode_set_wcet_one(nodes[0], 10);
+	dnode_set_object(nodes[0], 0);	
+	dnode_set_wcet_one(nodes[1], 20);
+	dnode_set_object(nodes[1], 1);	
+	dnode_set_wcet_one(nodes[2], 20);
+	dnode_set_object(nodes[2], 1);	
+	dnode_set_wcet_one(nodes[3], 15);
+	dnode_set_object(nodes[3], 2);
+
+	for (int i = 0; i < 4; i++) {
+		dnode_update(nodes[i]);
+	}
+
+	dtask_insert_edge(task, nodes[0], nodes[1]);
+	dtask_insert_edge(task, nodes[0], nodes[2]);
+	dtask_insert_edge(task, nodes[1], nodes[3]);
+	dtask_insert_edge(task, nodes[2], nodes[3]);
+
+	dnl_t *a = dnl_preds(nodes[1]);
+	dnl_t *b = dnl_preds(nodes[2]);
+	int count = dnl_sharedc(a, b);
+	CU_ASSERT(count == 1);
+
+	dnl_clear(a); free(a);
+	dnl_clear(b); free(b);
+		
+
+	/* After nodes are inserted, they should not be referred to again */
+	for (int i = 0; i < 4; i++) {
+		dnode_free(nodes[i]);
+	}
+
+	dtask_free(task);
+}
+
+static void
+dtask_path(void) {
+	char buff[DT_NAMELEN];
+	dtask_t *task = dtask_alloc("test");
+	dnode_t *nodes[4];
+
+
+	for (int i = 0; i < 4; i++) {
+		sprintf(buff, "n_%d", i);
+		nodes[i] = dnode_alloc(buff);
+		dnode_set_threads(nodes[i], 1);
+		dnode_set_factor(nodes[i], .1 + i * .05);
+		dtask_insert(task, nodes[i]);
+	}
+	dnode_set_wcet_one(nodes[0], 10);
+	dnode_set_object(nodes[0], 0);	
+	dnode_set_wcet_one(nodes[1], 20);
+	dnode_set_object(nodes[1], 1);	
+	dnode_set_wcet_one(nodes[2], 20);
+	dnode_set_object(nodes[2], 1);	
+	dnode_set_wcet_one(nodes[3], 15);
+	dnode_set_object(nodes[3], 2);
+
+	for (int i = 0; i < 4; i++) {
+		dnode_update(nodes[i]);
+	}
+
+	dtask_insert_edge(task, nodes[0], nodes[1]);
+	dtask_insert_edge(task, nodes[0], nodes[2]);
+	dtask_insert_edge(task, nodes[1], nodes[3]);
+	dtask_insert_edge(task, nodes[2], nodes[3]);
+
+	/* After nodes are inserted, they should not be referred to again */
+	for (int i = 0; i < 4; i++) {
+		dnode_free(nodes[i]);
+	}
+
+	dnode_t *a;
+	dnode_t *b;
+	int rv;
+	a = dtask_name_search(task, "n_0");
+	b = dtask_name_search(task, "n_3");
+	rv = dag_pathlen(a, b);
+	dnode_free(a);
+	dnode_free(b);
+	CU_ASSERT(rv == 3);
+	
+
+	a = dtask_name_search(task, "n_0");
+	b = dtask_name_search(task, "n_1");
+	rv = dag_pathlen(a, b);
+	dnode_free(a);
+	dnode_free(b);
+	CU_ASSERT(rv == 2);
+
+	a = dtask_name_search(task, "n_0");
+	b = dtask_name_search(task, "n_2");
+	rv = dag_pathlen(a, b);
+	dnode_free(a);
+	dnode_free(b);
+	CU_ASSERT(rv == 2);
+
+	a = dtask_name_search(task, "n_3");
+	b = dtask_name_search(task, "n_0");
+	rv = dag_pathlen(a, b);
+	dnode_free(a);
+	dnode_free(b);
+	CU_ASSERT(rv == 0);
+
+	a = dtask_name_search(task, "n_1");
+	b = dtask_name_search(task, "n_2");
+	rv = dag_pathlen(a, b);
+	dnode_free(a);
+	dnode_free(b);
+	CU_ASSERT(rv == 0);
+
 	dtask_free(task);
 }
 

@@ -2,6 +2,11 @@
 
 extern void agnode_to_dnode(Agnode_t *src, dnode_t *dst);
 
+static char **
+ingress_nodes(dnode_t *node) {
+
+}
+
 static tint_t
 fact(tint_t n) {
 	tint_t rv = 1;
@@ -50,6 +55,36 @@ dtask_count_cand(dtask_t *task) {
 
 int
 dtask_can_collapse(dnode_t *a, dnode_t *b) {
+	int count;
+	int rv = 0;
+	dnl_t *pred_a = dnl_preds(a);
+	dnl_t *succ_a = dnl_succs(a);
+	dnl_t *pred_b = dnl_preds(b);
+	dnl_t *succ_b = dnl_succs(b);
 
-	return 0;
+	/*
+	 * To avoid creating a loop
+	 *
+	 * No path between a and b (greater than length 1) is permitted.
+	 */
+
+	count = dnl_sharedc(pred_b, succ_a);
+	if (count > 0) {
+		goto bail;
+	}
+
+ bail:
+	dnl_clear(pred_a);
+	dnl_clear(succ_a);
+	dnl_clear(pred_b);
+	dnl_clear(succ_b);
+
+	free(pred_a);
+	free(succ_a);
+	free(pred_b);
+	free(succ_b);
+
+	return rv;
 }
+
+
