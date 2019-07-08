@@ -54,36 +54,26 @@ dtask_count_cand(dtask_t *task) {
 
 
 int
-dtask_can_collapse(dnode_t *a, dnode_t *b) {
-	int count;
+dag_can_collapse(dnode_t *a, dnode_t *b) {
+	if (dnode_get_object(a) != dnode_get_object(b)) {
+		return 0;
+	}
 	int rv = 0;
-	dnl_t *pred_a = dnl_preds(a);
-	dnl_t *succ_a = dnl_succs(a);
-	dnl_t *pred_b = dnl_preds(b);
-	dnl_t *succ_b = dnl_succs(b);
 
-	/*
-	 * To avoid creating a loop
-	 *
-	 * No path between a and b (greater than length 1) is permitted.
-	 */
+	dnode_t *cp_a = dnode_copy(a);
+	dnode_t *cp_b = dnode_copy(b);
 
-	count = dnl_sharedc(pred_b, succ_a);
-	if (count > 0) {
+	if (dag_pathlen(a, b) > 2) {
+		goto bail;
+	}
+	if (dag_pathlen(b, a) > 2) {
 		goto bail;
 	}
 
- bail:
-	dnl_clear(pred_a);
-	dnl_clear(succ_a);
-	dnl_clear(pred_b);
-	dnl_clear(succ_b);
-
-	free(pred_a);
-	free(succ_a);
-	free(pred_b);
-	free(succ_b);
-
+	rv = 1;
+bail:
+	dnode_free(cp_a);
+	dnode_free(cp_b);	
 	return rv;
 }
 
