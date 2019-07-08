@@ -3,18 +3,9 @@
 static GVC_t *gvc = NULL;
 
 static void dnode_to_agnode(dnode_t *src, Agnode_t *dst);
-static void agnode_to_dnode(Agnode_t *src, dnode_t *dst);
+void agnode_to_dnode(Agnode_t *src, dnode_t *dst);
 static void dedge_make_label(dedge_t *edge);
 static void agedge_to_dedge(Agedge_t *src, dedge_t *dst);
-
-static tint_t
-fact(tint_t n) {
-	tint_t rv = 1;
-	for (tint_t i = n ; i > 1 ; --i) {
-		rv *= i;
-	}
-	return rv;
-}
 
 /**
  * DAG TASK
@@ -411,41 +402,7 @@ dtask_next_node(dtask_t *task, dnode_t *node) {
 	return next;
 }
 
-int
-dtask_count_cand(dtask_t *task) {
-	Agnode_t *agnext;
 
-	int max = agnnodes(task->dt_graph);
-	int *obj = calloc(max, sizeof(max));
-
-	for (agnext = agfstnode(task->dt_graph); agnext;
-	     agnext = agnxtnode(task->dt_graph, agnext)) {
-		dnode_t* node = dnode_alloc(agnameof(agnext));
-		agnode_to_dnode(agnext, node);
-		int idx = node->dn_object;
-		obj[idx] += 1;
-		dnode_free(node);
-	}
-	int total = 0;
-	for (int i=0; i < max; i++) {
-		/*
-		 * Combinations per object:
-		 * / n \      k!
-		 * |   | = -------
-		 * \ k /   2! * (k - 2)!
-		 *
-		 */
-		if (obj[i] <= 1) {
-			continue;
-		}
-		int count = obj[i];
-		int numer = fact(count);
-		tint_t denom = 2 * fact(count - 2);
-		total += numer / denom;
-	}
-	free(obj);
-	return total;
-}
 
 /**
  * DAG NODE
@@ -526,7 +483,7 @@ dnode_to_agnode(dnode_t *src, Agnode_t *dst) {
 /**
  * Fills in the dnode with values from the Agnode
  */
-static void
+void
 agnode_to_dnode(Agnode_t *src, dnode_t *dst) {
 	dst->dn_object = atoi(agget(src, DT_OBJECT));
 	dst->dn_threads = atoi(agget(src, DT_THREADS));

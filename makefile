@@ -42,3 +42,4 @@ $(subs): | $(dirs)
 clean: TGT=clean
 clean: $(subs)
 	rm -rf $(dirs)
+	rm -rf *.aux *.dot *.pdf *.tex *.log

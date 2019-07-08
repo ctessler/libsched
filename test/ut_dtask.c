@@ -5,6 +5,7 @@
 
 #include "dag-task.h"
 #include "dag-walk.h"
+#include "dag-collapse.h"
 
 int ut_dtask_init(void) { return 0; }
 int ut_dtask_cleanup(void) { return 0; }
@@ -408,6 +409,9 @@ dtask_2collapse(void) {
 
 	int count = dtask_count_cand(task);
 	CU_ASSERT(count == 1);
+
+	int yes = dtask_can_collapse(nodes[1], nodes[2]);
+	CU_ASSERT(yes == 1);
 
 	/* After nodes are inserted, they should not be referred to again */
 	for (int i = 0; i < 4; i++) {

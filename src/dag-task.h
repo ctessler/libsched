@@ -258,17 +258,6 @@ dnode_t *dtask_next_node(dtask_t* task, dnode_t *node);
  */
 int dtask_update(dtask_t *task);
 
-/**
- * Counts the number of candidates
- *
- * Candiades are unique pairs with identical objects 
- *
- * @param[in] task the task
- *
- * @return the number of candidates in the task
- */
-int dtask_count_cand(dtask_t *task);
-
 
 /*********************************************************************
  DAG Node
