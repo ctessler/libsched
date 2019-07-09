@@ -241,6 +241,24 @@ tint_t dtask_workload(dtask_t* task);
 float_t dtask_util(dtask_t* task);
 
 /**
+ * Calculates the number of cores required for the task
+ *
+ * @param[in] the dag task
+ * 
+ * @return the number of required cores
+ */
+tint_t dtask_cores(dtask_t* task);
+
+/**
+ * Determines if the task is trivially infeasible
+ *
+ * @param[in] task the dag task
+ *
+ * @return true if infeasible, false if feasible
+ */
+int dtask_infeasible(dtask_t* task);
+
+/**
  * Clears the marks on all nodes and edges in the DAG task
  *
  * Existing references to nodes are *UNAFFECTED*

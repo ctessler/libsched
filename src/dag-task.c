@@ -378,6 +378,29 @@ dtask_util(dtask_t* task) {
 	return (float_t) task->dt_workload / (float_t) task->dt_period;
 }
 
+tint_t
+dtask_cores(dtask_t* task) {
+	dtask_update(task);
+
+	tint_t L = dtask_cpathlen(task);
+	tint_t C = dtask_workload(task);
+	tint_t D = task->dt_deadline;
+
+	float_t num = C - L;
+	float_t den = D - L;
+
+	float_t rv = ceil( num / den );
+
+	return rv;
+}
+
+int
+dtask_infeasible(dtask_t* task) {
+	dtask_update(task);
+
+	return (dtask_cpathlen(task) >= task->dt_deadline);
+}
+
 void
 dtask_unmark(dtask_t *task) {
 	char buff[DT_NAMELEN];
