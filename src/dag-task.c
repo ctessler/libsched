@@ -371,6 +371,13 @@ dtask_workload(dtask_t* task) {
 	return task->dt_workload;
 }
 
+float_t
+dtask_util(dtask_t* task) {
+	dtask_update(task);
+
+	return (float_t) task->dt_workload / (float_t) task->dt_period;
+}
+
 void
 dtask_unmark(dtask_t *task) {
 	char buff[DT_NAMELEN];

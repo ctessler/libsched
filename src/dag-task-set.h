@@ -35,6 +35,7 @@ typedef struct dtask_elem {
 dtask_set_t* dts_alloc();
 #define dts_init(head) LIST_INIT(head)
 #define dts_empty(head) LIST_EMPTY(head)
+void dts_free(dtask_set_t *dts);
 
 /**
  * Adds an element to the head of the list

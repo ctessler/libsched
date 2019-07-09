@@ -1,0 +1,116 @@
+strict digraph "Task{n=8,e=0.20}" {
+	graph [bb="0,0,217,324",
+		cpathlen=130,
+		deadline=130,
+		period=124,
+		workload=205
+	];
+	node [distance=0,
+		factor=0,
+		label="\N",
+		marked=0,
+		object=0,
+		shape=rectangle,
+		threads=0,
+		visited=0,
+		wcet=0,
+		wcetone=0
+	];
+	n_0	 [distance=32,
+		factor=0.470393,
+		height=0.5,
+		object=1,
+		pos="126,306",
+		texlbl="${d:32, n_0 = \langle o_1, c_1:32, c(1):32, F:0.47 \rangle}$",
+		threads=1,
+		wcet=32,
+		wcetone=32,
+		width=0.75];
+	n_1	 [distance=58,
+		factor=0.193343,
+		height=0.5,
+		object=2,
+		pos="27,234",
+		texlbl="${d:58, n_1 = \langle o_2, c_1:26, c(1):26, F:0.19 \rangle}$",
+		threads=1,
+		wcet=26,
+		wcetone=26,
+		width=0.75];
+	n_0 -> n_1 [key="n_0 -> n_1",
+	pos="e,51.974,252.16 101.02,287.83 88.707,278.88 73.689,267.96 60.406,258.3"];
+n_2 [distance=64,
+	factor=0.470393,
+	height=0.5,
+	object=1,
+	pos="99,234",
+	texlbl="${d:64, n_2 = \langle o_1, c_1:32, c(1):32, F:0.47 \rangle}$",
+	threads=1,
+	wcet=32,
+	wcetone=32,
+	width=0.75];
+n_0 -> n_2 [key="n_0 -> n_2",
+pos="e,105.9,252.41 119.19,287.83 116.24,279.96 112.71,270.57 109.44,261.85"];
+n_3 [distance=81,
+factor=0.333014,
+height=0.5,
+pos="108,162",
+texlbl="${d:81, n_3 = \langle o_0, c_1:17, c(1):17, F:0.33 \rangle}$",
+threads=1,
+wcet=17,
+wcetone=17,
+width=0.75];
+n_0 -> n_3 [key="n_0 -> n_3",
+pos="e,119.75,180.18 131.28,287.84 135.81,269.5 140.77,240.45 135,216 132.83,206.81 128.84,197.4 124.59,189.06"];
+n_4 [distance=49,
+factor=0.333014,
+height=0.5,
+pos="190,162",
+texlbl="${d:49, n_4 = \langle o_0, c_1:17, c(1):17, F:0.33 \rangle}$",
+threads=1,
+wcet=17,
+wcetone=17,
+width=0.75];
+n_0 -> n_4 [key="n_0 -> n_4",
+pos="e,181.96,180.09 134.11,287.76 145.12,262.98 164.9,218.47 177.74,189.59"];
+n_6 [distance=90,
+factor=0.470393,
+height=0.5,
+object=1,
+pos="35,90",
+texlbl="${d:90, n_6 = \langle o_1, c_1:32, c(1):32, F:0.47 \rangle}$",
+threads=1,
+wcet=32,
+wcetone=32,
+width=0.75];
+n_1 -> n_6 [key="n_1 -> n_6",
+pos="e,33.995,108.09 28.013,215.76 29.378,191.2 31.82,147.25 33.425,118.35"];
+n_2 -> n_3 [key="n_2 -> n_3",
+pos="e,105.7,180.41 101.27,215.83 102.23,208.13 103.38,198.97 104.45,190.42"];
+n_5 [distance=98,
+factor=0.333014,
+height=0.5,
+pos="108,90",
+texlbl="${d:98, n_5 = \langle o_0, c_1:17, c(1):17, F:0.33 \rangle}$",
+threads=1,
+wcet=17,
+wcetone=17,
+width=0.75];
+n_3 -> n_5 [key="n_3 -> n_5",
+pos="e,108,108.41 108,143.83 108,136.13 108,126.97 108,118.42"];
+n_7 [distance=130,
+factor=0.470393,
+height=0.5,
+object=1,
+pos="108,18",
+texlbl="${d:130, n_7 = \langle o_1, c_1:32, c(1):32, F:0.47 \rangle}$",
+threads=1,
+wcet=32,
+wcetone=32,
+width=0.75];
+n_4 -> n_7 [key="n_4 -> n_7",
+pos="e,120.87,36.158 181.44,143.74 172.62,125.32 158.2,96.221 144,72 138.67,62.91 132.43,53.255 126.66,44.662"];
+n_6 -> n_7 [key="n_6 -> n_7",
+pos="e,89.585,36.163 53.421,71.831 62.153,63.219 72.732,52.785 82.242,43.405"];
+n_5 -> n_7 [key="n_5 -> n_7",
+pos="e,108,36.413 108,71.831 108,64.131 108,54.974 108,46.417"];
+}

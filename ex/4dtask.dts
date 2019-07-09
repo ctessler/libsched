@@ -23,5 +23,8 @@ dts-version = 1.0;
 # Individual tasks are relative paths to DAG tasks
 #
 tasks = (
-    "collapse-02.dot"
+    "dtask-01.dot",
+    "dtask-02.dot",
+    "dtask-03.dot",
+    "dtask-04.dot"
 );

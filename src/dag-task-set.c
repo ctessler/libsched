@@ -8,6 +8,11 @@ dts_alloc() {
 	return task;
 }
 
+void
+dts_free(dtask_set_t *dts) {
+	free(dts);
+}
+
 
 int
 dts_insert(dtask_set_t* head, dtask_elem_t *elem) {

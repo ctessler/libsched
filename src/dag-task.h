@@ -232,6 +232,15 @@ tint_t dtask_cpathlen(dtask_t* task);
 tint_t dtask_workload(dtask_t* task);
 
 /**
+ * Calculates the utilization of the task
+ *
+ * @param[in] the dag task
+ *
+ * @return the utilization
+ */
+float_t dtask_util(dtask_t* task);
+
+/**
  * Clears the marks on all nodes and edges in the DAG task
  *
  * Existing references to nodes are *UNAFFECTED*

@@ -156,7 +156,7 @@ main(int argc, char** argv) {
 	} else {
 		/* Make sure all the values have been updated */
 		tint_t work = dtask_workload(task);
-		task->dt_period = ceil((double) work * clc.c_util);
+		task->dt_period = ceil((double) work / clc.c_util);
 	}
 	dtask_update(task);
 	dtask_write(task, ofile);
