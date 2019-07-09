@@ -1,0 +1,31 @@
+#
+# 1dtask.ts: One DAG Task Task Set file
+#
+# libconfig readable description of a task set with one task
+#
+
+# Version, required.
+dts-version = 1.0;
+
+#
+# Structure of the task set
+#
+# tasks = (
+#   { <PATH_TASK_1> },
+#   { <PATH_TASK_2> },
+#   ...
+#   { <PATH_TASK_N> }
+# );
+#
+# tasks
+#   Required top level list container of all tasks
+#
+# Individual tasks are relative paths to DAG tasks
+#
+tasks = (
+    "dtask-06.dot",
+    "dtask-07.dot",
+    "dtask-07.dot",
+    "dtask-05.dot",    
+    "dtask-05.dot"
+);

@@ -197,7 +197,6 @@ main(int argc, char** argv) {
 	dts_foreach(dts, cursor) {
 		dtask_t *task = cursor->dts_task;
 		/* Remove the task from the original task set */
-		cursor->dts_task = NULL;
 		dtask_elem_t *elem = dtse_alloc(task);
 		
 		int cores;
@@ -214,7 +213,6 @@ main(int argc, char** argv) {
 			dts_insert_head(low, elem);
 		}
 	}
-	dts_clear(dts);
 	dts_free(dts);
 	dts = NULL;
 	
@@ -263,7 +261,7 @@ static int
 best_fit(int m_low, task_set_t** ts, task_t *task) {
 	int cur = -1;
 	float_t best = 1.1;
-	float_t nec = 1 - task_util(task);
+	float_t nec = task_util(task);
 	for (int i=0; i < m_low; i++) {
 		float_t remain = 1 - ts_util(ts[i]);
 		if (remain > nec) {
