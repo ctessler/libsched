@@ -27,6 +27,18 @@ int dtask_count_cand(dtask_t *task);
  */
 int dag_can_collapse(dnode_t *a, dnode_t *b);
 
+/**
+ * Collapses two nodes
+ *
+ * @note Assumes caller has verified a and b pass dag_can_collapse()
+ *
+ * @param[in] a node to be collapsed with b
+ * @param[in] b node to be collapsed with a
+ *
+ * @return true if the nodes have been collapsed, false otherwise.
+ */
+int dag_collapse(dnode_t *a, dnode_t *b);
+
 
 
 #endif

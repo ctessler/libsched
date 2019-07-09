@@ -606,6 +606,9 @@ dtask_2collapse(void) {
 	int yes = dag_can_collapse(nodes[1], nodes[2]);
 	CU_ASSERT(yes == 1);
 
+	yes = dag_collapse(nodes[1], nodes[2]);
+	CU_ASSERT(yes == 1);
+
 	/* After nodes are inserted, they should not be referred to again */
 	for (int i = 0; i < 4; i++) {
 		dnode_free(nodes[i]);

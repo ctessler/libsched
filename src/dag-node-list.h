@@ -142,6 +142,7 @@ dnl_elem_t *dnl_find(dnl_t* head, char *name);
  */
 dnl_elem_t* dnle_alloc(dnode_t* node);
 dnl_elem_t* dnle_free(dnl_elem_t* e);
+dnl_elem_t* dnle_copy(dnl_elem_t *e);
 
 
 /**
@@ -161,6 +162,16 @@ dnl_t *dnl_preds(dnode_t *node);
  * @return a list of nodes with edges starting at the given node 
  */
 dnl_t *dnl_succs(dnode_t *node);
+
+/**
+ * Appends (uniquely) the nodes of nlist to orig
+ *
+ * @param[in|out] orig the list being appended to
+ * @param[in] nlist the new list being appended to a
+ *
+ * @return the number of nodes appended
+ */
+int dnl_append(dnl_t* orig, dnl_t* nlist);
 
 /**
  * Returns the number of common nodes among two lists

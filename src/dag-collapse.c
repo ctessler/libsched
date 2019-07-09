@@ -78,3 +78,49 @@ bail:
 }
 
 
+int
+dag_collapse(dnode_t* a, dnode_t* b) {
+	char buff[DT_NAMELEN];
+	/* Get the list of preds/succs */
+	dnl_t *preds = dnl_preds(a);
+	dnl_t *preds_b = dnl_preds(b);
+	dnl_t *succs = dnl_succs(a);
+	dnl_t *succs_b = dnl_succs(b);
+
+	dnl_append(preds, preds_b);
+	dnl_append(succs, succs_b);	
+
+
+	/* Create the new node */
+	snprintf(buff, DT_NAMELEN, "%s,%s", a->dn_name, b->dn_name);
+	dnode_t *n = dnode_copy(a);
+	sprintf(n->dn_name, "%s", buff);
+	dnode_set_threads(n, dnode_get_threads(a) + dnode_get_threads(b));
+
+	/* Insert the new node into the task */
+	dtask_t *task = a->dn_task;
+	dtask_insert(task, n);
+
+	/* Insert edges from the predecessors */
+	dnl_elem_t *cursor;
+	dnl_foreach(preds, cursor) {
+		dtask_insert_edge(task, cursor->dnl_node, n);
+	}
+
+	/* Insert edges to the successors */
+	dnl_foreach(succs, cursor) {
+		dtask_insert_edge(task, n, cursor->dnl_node);
+	}
+
+	/* Remove the old nodes */
+	dtask_remove(task, a);
+	dtask_remove(task, b);
+
+	/* Release the node lists */
+	dnl_clear(preds); free(preds);
+	dnl_clear(preds_b); free(preds_b);	
+	dnl_clear(succs); free(succs);
+	dnl_clear(succs_b); free(succs_b);	
+
+	return 1;
+}

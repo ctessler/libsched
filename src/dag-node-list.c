@@ -17,6 +17,12 @@ dnle_free(dnl_elem_t* e) {
 	free(e);
 }
 
+dnl_elem_t*
+dnle_copy(dnl_elem_t *e) {
+	dnl_elem_t *cp = dnle_alloc(e->dnl_node);
+	return cp;
+}
+
 
 int
 dnl_insert(dnl_t* head, dnl_elem_t *elem) {
@@ -74,6 +80,7 @@ dnl_preds(dnode_t *node) {
 
 		dnode_t *pred = dnode_alloc(agnameof(a));
 		agnode_to_dnode(a, pred);
+		pred->dn_task = node->dn_task;
 		dnl_elem_t *elem = dnle_alloc(pred);
 		dnode_free(pred);
 		dnl_insert_head(h, elem);
@@ -96,7 +103,8 @@ dnl_succs(dnode_t *node) {
 		Agnode_t *b = aghead(e); /* b is the successor */
 
 		dnode_t *succ = dnode_alloc(agnameof(b));
-		agnode_to_dnode(a, succ);
+		agnode_to_dnode(b, succ);
+		succ->dn_task = node->dn_task;		
 		dnl_elem_t *elem = dnle_alloc(succ);
 		dnode_free(succ);
 		dnl_insert_head(h, elem);
@@ -117,6 +125,24 @@ dnl_sharedc(dnl_t *a, dnl_t *b) {
 				count++;
 			}
 		}
+	}
+	return count;
+}
+
+int
+dnl_append(dnl_t* orig, dnl_t* nlist) {
+	dnl_elem_t *cursor;
+	int count = 0;
+	dnl_foreach(nlist, cursor) {
+		char *name = cursor->dnl_node->dn_name;
+		dnl_elem_t *inlist = dnl_find(orig, name);
+		if (inlist) {
+			/* Already in the predecessor list */
+			continue;
+		}
+		dnl_elem_t *cp = dnle_copy(inlist);
+		dnl_insert_head(orig, cp);
+		count++;
 	}
 	return count;
 }
