@@ -39,6 +39,14 @@ int dag_can_collapse(dnode_t *a, dnode_t *b);
  */
 int dag_collapse(dnode_t *a, dnode_t *b);
 
+/**
+ * Collapses all candidates in a task
+ *
+ * @param[in] task the dag task
+ *
+ * @return the number of collapses
+ */
+int dag_collapse_all(dtask_t *task);
 
 
 #endif

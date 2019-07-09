@@ -1,9 +1,12 @@
 #!/bin/bash
 
+GSL_RNG_SEED=`date +%s`
+
 GSL_RNG_TYPE=ranlxs2 GSL_RNG_SEED=`date +%s` bin/dts-gen-nodes -n 6 -e 0.2 -o vis-01.dot
 dot2tex -tmath -p --autosize vis-01.dot > vis-01.tex
 pdflatex vis-01.tex
 
+(( ++GSL_RND_SEED ))
 GSL_RNG_TYPE=ranlxs2 GSL_RNG_SEED=`date +%s` \
     bin/dts-demand -t vis-01.dot -w 50 -j 3 -f 0.7 -o vis-02.dot
 dot2tex -tmath -p --autosize vis-02.dot > vis-02.tex

@@ -62,6 +62,9 @@ dtask_alloc(char* name) {
 
 void
 dtask_free(dtask_t *task) {
+	if (!task) {
+		return;
+	}
 	if (task->dt_source) {
 		dnode_free(task->dt_source);
 	}

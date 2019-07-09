@@ -191,8 +191,7 @@ summary(dtask_elem_t *e) {
 		e->dts_task->dt_deadline,
 		dtask_util(e->dts_task),
 		dtask_cores(e->dts_task),
-		(dtask_infeasible(e->dts_task) ? "infeas" : "feas")
-		);
+		(dtask_infeasible(e->dts_task) ? "infeas" : "feas"));
 
 	return buff;
 }

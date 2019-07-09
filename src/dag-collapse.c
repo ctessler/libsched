@@ -2,11 +2,6 @@
 
 extern void agnode_to_dnode(Agnode_t *src, dnode_t *dst);
 
-static char **
-ingress_nodes(dnode_t *node) {
-
-}
-
 static tint_t
 fact(tint_t n) {
 	tint_t rv = 1;
@@ -14,6 +9,14 @@ fact(tint_t n) {
 		rv *= i;
 	}
 	return rv;
+}
+
+/**
+ * 
+ */
+static int
+cand_names(dtask_t *task, char** names, int *namec) {
+
 }
 
 int

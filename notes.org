@@ -54,3 +54,8 @@
   dtask_write() -> DOTFILE
   dot2tex -tmath --autosize DOTFILE > TEXFILE
   pdflatex TEXFILE 
+
+* Newly Minted Tasks
+  Adjust the definition of serialization.
+  Don't allow collapse if the workload exceeds the deadline. -- Wait
+  what? That shouldn't be necessary according do observation 3.
