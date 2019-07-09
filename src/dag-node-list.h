@@ -144,7 +144,6 @@ dnl_elem_t* dnle_alloc(dnode_t* node);
 dnl_elem_t* dnle_free(dnl_elem_t* e);
 dnl_elem_t* dnle_copy(dnl_elem_t *e);
 
-
 /**
  * Gets the list of immediate predecessors to this node
  *
@@ -162,6 +161,16 @@ dnl_t *dnl_preds(dnode_t *node);
  * @return a list of nodes with edges starting at the given node 
  */
 dnl_t *dnl_succs(dnode_t *node);
+
+/**
+ * Gets the list of nodes with the given object
+ *
+ * @param[in] task the task
+ * @param[in] object the object id
+ *
+ * @return a new list of nodes that share the same object
+ */
+dnl_t *dnl_by_obj(dtask_t *task, tint_t object);
 
 /**
  * Appends (uniquely) the nodes of nlist to orig

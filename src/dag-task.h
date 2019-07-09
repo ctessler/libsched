@@ -260,6 +260,16 @@ dnode_t *dtask_next_node(dtask_t* task, dnode_t *node);
  */
 int dtask_update(dtask_t *task);
 
+/**
+ * Max Object Identifier
+ *
+ * @param[in] task the task
+ *
+ * @return the maximum object identifier in the task, -1 if none is
+ * assinged. 
+ */
+int dtask_max_object(dtask_t *task);
+
 
 /*********************************************************************
  DAG Node

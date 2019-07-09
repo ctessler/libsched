@@ -407,7 +407,21 @@ dtask_next_node(dtask_t *task, dnode_t *node) {
 	return next;
 }
 
+int
+dtask_max_object(dtask_t *task) {
+	int max = -1;
 
+	Agnode_t *n;
+	for (n = agfstnode(task->dt_graph); n;
+	     n = agnxtnode(task->dt_graph, n)) {
+		int v = atoi(agget(n, DT_OBJECT));
+		if (v > max) {
+			max = v;
+		}
+	}
+
+	return max;
+}
 
 /**
  * DAG NODE

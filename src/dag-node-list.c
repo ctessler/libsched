@@ -113,6 +113,28 @@ dnl_succs(dnode_t *node) {
 	return h;
 }
 
+dnl_t *
+dnl_by_obj(dtask_t *task, tint_t object) {
+	dnl_t *h = calloc(1, sizeof(dnl_t));
+	dnl_init(h);
+
+	dnode_t *n = NULL, *prev = NULL;
+	while (n = dtask_next_node(task, prev)) {
+		if (prev) {
+			dnode_free(prev);
+		}
+		prev = n;
+		if (dnode_get_object(n) != object) {
+			continue;
+		}
+		dnl_elem_t *elem = dnle_alloc(n);
+		dnl_insert_head(h, elem);
+	}
+	
+	return h;
+}
+
+
 int
 dnl_sharedc(dnl_t *a, dnl_t *b) {
 	dnl_elem_t *a_cursor, *b_cursor;
@@ -146,3 +168,4 @@ dnl_append(dnl_t* orig, dnl_t* nlist) {
 	}
 	return count;
 }
+
