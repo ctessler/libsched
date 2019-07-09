@@ -69,7 +69,7 @@ typedef struct dnl_elem {
 #define dnl_remove(elem) LIST_REMOVE(elem, dnl_glue)
 
 /**
- * Adds an element to the list according to the value of its absolute deadline.
+ * Adds an element to the list 
  *
  * @param[in] head the head of the list
  * @param[in] elem the element being added
