@@ -406,6 +406,12 @@ dtask_util(dtask_t* task) {
 
 tint_t
 dtask_cores(dtask_t* task) {
+	float_t f = dtask_coresf(task);
+	return ceil(f);
+}
+
+float_t
+dtask_coresf(dtask_t* task) {
 	dtask_update(task);
 
 	tint_t L = dtask_cpathlen(task);
@@ -415,7 +421,7 @@ dtask_cores(dtask_t* task) {
 	float_t num = C - L;
 	float_t den = D - L;
 
-	float_t rv = ceil( num / den );
+	float_t rv = num / den;
 
 	return rv;
 }

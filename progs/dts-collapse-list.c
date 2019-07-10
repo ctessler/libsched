@@ -19,14 +19,16 @@ static struct {
 	char* c_oname;
 	char* c_tname;
 	char* c_list_name;
+	int c_ignore; /** ignore beneficial test */
 } clc;
 
-static const char* short_options = "hl:o:vt:L:";
+static const char* short_options = "hl:o:vt:L:I";
 static struct option long_options[] = {
     {"help",		no_argument, 		0, 'h'},
     {"log", 		required_argument, 	0, 'l'},
     {"output", 		required_argument, 	0, 'o'},
     {"verbose", 	no_argument, 		&clc.c_verbose, 1},
+    {"ignore",		no_argument,		0, 'I'},
     {0, 0, 0, 0}
 };
 
@@ -38,6 +40,7 @@ static const char *usagec[] = {
 "	-l/-log <FILE>		Auditible log file",
 "	-o/--output <FILE>	Output file",
 "	-v/--verbose		Verbose output",
+"	-I/--ignore		Ignore \"beneficial\" test",
 "REQUIRED:",
 "	-L/--list <FILE>	Collapse list, from dts-cand-order",
 "",
@@ -100,6 +103,9 @@ main(int argc, char** argv) {
 			break;
 		case 'L':
 			clc.c_list_name = strdup(optarg);
+			break;
+		case 'I':
+			clc.c_ignore = 1;
 			break;
 		default:
 			printf("Unknown option %c\n", c);
@@ -164,11 +170,44 @@ main(int argc, char** argv) {
 			dnode_free(b);
 			continue;
 		}
+		dtask_t *copy = dtask_copy(task);
+		dnode_t *ca = dtask_name_match(copy, a_name);
+		dnode_t *cb = dtask_name_match(copy, b_name);
+		int beneficial = 1;
+		if (!dag_collapse(ca, cb)) {
+			fprintf(stderr, "Collapse of %s and %s failed\n",
+				ca->dn_name, cb->dn_name);
+			goto bail;
+		}
+		float_t pre_m = dtask_coresf(task);
+		float_t post_m = dtask_coresf(copy);
+		if (pre_m < post_m) {
+			fprintf(stderr, "Collapse of %s and %s is not "
+				"beneficial: m increases\n",
+				ca->dn_name, cb->dn_name);
+			beneficial = 0;
+		}
+		tint_t post_l = dtask_cpathlen(copy);
+		if (post_l > task->dt_deadline) {
+			fprintf(stderr, "Collapse of %s and %s is not "
+				"beneficial: L > D\n",
+				ca->dn_name, cb->dn_name);
+			beneficial = 0;
+		}
+		dnode_free(ca);
+		dnode_free(cb);
+		dtask_free(copy);
+
+		if (!beneficial && !clc.c_ignore) {
+			goto next_iter;
+		}
+		
 		if (!dag_collapse(a, b)) {
 			fprintf(stderr, "Collapse of %s and %s failed\n",
 				a->dn_name, b->dn_name);
 			goto bail;
 		}
+	next_iter:
 		dtask_update(task);
 		dnode_free(a); a = NULL;
 		dnode_free(b); b = NULL;

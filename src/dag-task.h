@@ -259,6 +259,15 @@ float_t dtask_util(dtask_t* task);
 tint_t dtask_cores(dtask_t* task);
 
 /**
+ * Calculates the number of cores required for the task
+ *
+ * @param[in] the dag task
+ * 
+ * @return the number of required cores
+ */
+float_t dtask_coresf(dtask_t* task);
+
+/**
  * Determines if the task is trivially infeasible
  *
  * @param[in] task the dag task
