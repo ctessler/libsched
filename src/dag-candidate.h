@@ -3,6 +3,7 @@
 
 #include "dag-node-list.h"
 #include "string-list.h"
+#include "dag-collapse.h"
 
 /* Needed before including taskset.h */
 typedef LIST_HEAD(cand_head, cand) cand_list_t;
@@ -109,6 +110,22 @@ cand_t* task_cand_next(dtask_t* task, cand_t *c);
 #define cand_next(elem) LIST_NEXT(elem, cand_glue)
 
 /**
+ * Insert an element into the candidate list in decreasing delta_c order
+ *
+ * @param[in] head of the candidate list
+ * @param[in] cand the element being added
+ */
+void cand_ins_maxb(cand_list_t *head, cand_t *cand);
+
+/**
+ * Insert an element into the candidate list in increasing delta_l order
+ *
+ * @param[in] head of the candidate list
+ * @param[in] cand the element being added
+ */
+void cand_ins_minp(cand_list_t *head, cand_t *cand);
+
+/**
  * Removes all candidates from the list, each of the candidates is
  * cand_free()'d 
  *
@@ -147,6 +164,24 @@ cand_t *cand_find(cand_list_t* head, char *name);
 cand_t*	cand_alloc();
 void	cand_free(cand_t *c);
 cand_t*	cand_copy(cand_t *e);
+
+
+/**
+ * Calculate the change in critical path length for a candidate
+ *
+ * Requires dag_can_collapse has been called before invocation
+ *
+ * delta = (old l) - (new l)
+ */
+int cand_delta_l(cand_t *cand);
+/**
+ * Calculate the change in workload for a candidate
+ *
+ * Requires dag_can_collapse has been called before invocation
+ *
+ * delta = (old c) - (new c)
+ */
+int cand_delta_c(cand_t *cand);
 
 cand_list_t* corder_arb(dtask_t *task);
 cand_list_t* corder_maxb(dtask_t *task);

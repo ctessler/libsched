@@ -11,14 +11,6 @@ fact(tint_t n) {
 	return rv;
 }
 
-/**
- * 
- */
-static int
-cand_names(dtask_t *task, char** names, int *namec) {
-
-}
-
 int
 dtask_count_cand(dtask_t *task) {
 	Agnode_t *agnext;
@@ -123,7 +115,10 @@ dag_collapse(dnode_t* a, dnode_t* b) {
 	dnl_clear(preds); free(preds);
 	dnl_clear(preds_b); free(preds_b);	
 	dnl_clear(succs); free(succs);
-	dnl_clear(succs_b); free(succs_b);	
+	dnl_clear(succs_b); free(succs_b);
+
+	/* Update the task */
+	dtask_update(task);
 
 	return 1;
 }

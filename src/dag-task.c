@@ -18,19 +18,30 @@ dtask_source_workload(dtask_t *task) {
 	Agnode_t *n;
 	dnode_t *source, *node;
 	tint_t workload = 0;
-	for (n = agfstnode(task->dt_graph); n; n = agnxtnode(task->dt_graph, n)) {
+
+	dnode_free(task->dt_source);
+	task->dt_source = NULL;
+
+	int count = 0;
+	for (n = agfstnode(task->dt_graph); n;
+	     n = agnxtnode(task->dt_graph, n)) {
 		int indegree = agdegree(task->dt_graph, n, TRUE, FALSE);
-		if (indegree == 0) {
+		if (indegree == 0 && !task->dt_source) {
 			source = dnode_alloc(agnameof(n));
 			agnode_to_dnode(n, source);
 			source->dn_task = task;
-			dnode_free(task->dt_source);
 			task->dt_source = source;
 		}
 		tint_t wcet = atoi(agget(n, DT_WCET));
 		workload += wcet;
+		count++;
 	}
 	task->dt_workload = workload;
+
+	if (count > 1 && !task->dt_source) {
+		/* no source?!? */
+		raise(SIGSEGV);
+	}
 }
 
 dtask_t *

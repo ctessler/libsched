@@ -154,7 +154,16 @@ main(int argc, char** argv) {
 		goto bail;
 	}
 
-	cand_list_t *cand_list = corder_arb(task);
+	cand_list_t *cand_list;
+	if (clc.c_arb) {
+		cand_list = corder_arb(task);
+	}
+	if (clc.c_maxb) {
+		cand_list = corder_maxb(task);
+	}
+	if (clc.c_minp) {
+		cand_list = corder_minp(task);
+	}
 	cand_t *cand = NULL;
 	for(cand = cand_first(cand_list); cand; cand = cand_next(cand)) {
 		fprintf(ofile, "%s %s\n", cand->c_a->dn_name,
