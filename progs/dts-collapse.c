@@ -64,7 +64,8 @@ main(int argc, char** argv) {
 	gsl_rng *r = NULL;
 	dtask_t *task = NULL;
 	int rv = -1; /* Assume failure */
-
+	dnode_t *a=NULL, *b=NULL;
+	
 	/*
 	 * Initializer for the GNU Scientific Library for random numbers
 	 * Suggested values for environment variables
@@ -108,9 +109,15 @@ main(int argc, char** argv) {
 			goto bail;
 		}
 	}
+	if (!clc.c_tname) {
+		fprintf(stderr, "--task-file is a required option\n");
+		usage();
+		goto bail;
+	}
 
 	if (!argv[optind]) {
 		fprintf(stderr, "<ID1> required\n");
+		usage();
 		goto bail;
 	}
 	clc.c_id1 = strdup(argv[optind]);
@@ -118,13 +125,11 @@ main(int argc, char** argv) {
 	optind++;
 	if (!argv[optind]) {
 		fprintf(stderr, "<ID2> required\n");
+		usage();
 		goto bail;
 	}
 	clc.c_id2 = strdup(argv[optind]);
 
-	if (!clc.c_tname) {
-		fprintf(stderr, "--taks-file is a required option\n");
-	}
 	if (clc.c_oname) {
 		ofile = fopen(clc.c_oname, "w");
 		if (!ofile) {
@@ -142,7 +147,7 @@ main(int argc, char** argv) {
 		goto bail;
 	}
 
-	dnode_t *a, *b;
+
 	a = dtask_name_search(task, clc.c_id1);
 	b = dtask_name_search(task, clc.c_id2);
 
