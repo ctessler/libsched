@@ -174,7 +174,7 @@ dnl_append(dnl_t* orig, dnl_t* nlist) {
 			/* Already in the predecessor list */
 			continue;
 		}
-		dnl_elem_t *cp = dnle_copy(inlist);
+		dnl_elem_t *cp = dnle_copy(cursor);
 		dnl_insert_head(orig, cp);
 		count++;
 	}

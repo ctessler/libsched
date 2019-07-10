@@ -146,6 +146,15 @@ int dtask_name_remove(dtask_t *task, char *name);
 dnode_t *dtask_name_search(dtask_t *task, char *name);
 
 /**
+ * Matches a node in the DAG by name
+ *
+ * @param[in] name the partial name of a node
+ *
+ * @return the dnode_t upon success, NULL if not found
+ */
+dnode_t *dtask_name_match(dtask_t *task, char *name);
+
+/**
  * Adds an edge into the DAG task
  *
  * @param[in|out] task the dag task

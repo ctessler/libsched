@@ -129,6 +129,29 @@ dtask_name_search(dtask_t *task, char *name) {
 	return node;
 }
 
+dnode_t *
+dtask_name_match(dtask_t *task, char *name) {
+	dnode_t *exact = dtask_name_search(task, name);
+	if (exact) {
+		return exact;
+	}
+
+	dnode_t* best = NULL;
+	Agnode_t *agnode = agfstnode(task->dt_graph);
+	for(; agnode; agnode = agnxtnode(task->dt_graph, agnode)) {
+		char *agname = agnameof(agnode);
+		if (strstr(agname, name) == 0) {
+			continue;
+		}
+		/* found */
+		best = dnode_alloc(agname);
+		agnode_to_dnode(agnode, best);
+		best->dn_task = task;
+	}
+
+	return best;
+}
+
 int
 dtask_insert(dtask_t *task, dnode_t *node) {
 	/* Search for the node first */
