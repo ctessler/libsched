@@ -18,6 +18,7 @@ typedef struct dnl_elem {
 	dnode_t *dnl_node;		/**< Node */
 } dnl_elem_t;
 
+
 /**
  * Initializes the list
  *
@@ -27,6 +28,8 @@ typedef struct dnl_elem {
  *
  * @param[in|out] head head of the list, must be a pointer.
  */
+dnl_t* dnl_alloc();
+void dnl_free(dnl_t *head);
 #define dnl_init(head) LIST_INIT(head)
 #define dnl_empty(head) LIST_EMPTY(head)
 

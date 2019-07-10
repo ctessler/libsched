@@ -2,6 +2,18 @@
 
 void agnode_to_dnode(Agnode_t *src, dnode_t *dst);
 
+dnl_t*
+dnl_alloc() {
+	dnl_t *h = calloc(1, sizeof(dnl_t));
+	return h;
+}
+void
+dnl_free(dnl_t *head) {
+	dnl_init(head);
+	free(head);
+}
+
+
 dnl_elem_t*
 dnle_alloc(dnode_t *node) {
 	dnl_elem_t *e = calloc(sizeof(dnl_elem_t), 1);
@@ -168,4 +180,3 @@ dnl_append(dnl_t* orig, dnl_t* nlist) {
 	}
 	return count;
 }
-
