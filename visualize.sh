@@ -3,7 +3,7 @@
 GSL_RNG_SEED=`date +%s`
 
 GSL_RNG_TYPE=ranlxs2 GSL_RNG_SEED=`date +%s` \
-    bin/dts-gen-nodes -n 6 -e 0.2 -o vis-01.dot
+    bin/dts-gen-nodes -n 8 -e 0.2 -o vis-01.dot
 ./dtask2pdf.sh vis-01.dot
 
 (( ++GSL_RND_SEED ))
