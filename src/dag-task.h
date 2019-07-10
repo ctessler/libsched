@@ -15,6 +15,7 @@
 #define DT_VISITED	"visited"	/** marked visited */
 #define DT_MARKED	"marked"	/** "permanent" mark */
 #define DT_DISTANCE	"distance"	/** distance from current node */
+#define DT_COLLAPSED	"collapsed"	/** Count of collapsed nodes */
 /* Task variables */
 #define DT_DEADLINE	"deadline"	/** deadline of the task */
 #define DT_PERIOD	"period"	/** period of the task */
@@ -30,6 +31,7 @@ typedef struct {
 	tint_t	dt_deadline;	/** Relative deadline of the task, settable */
 	tint_t	dt_cpathlen;	/** Critical path length, NOT settable */
 	tint_t	dt_workload;	/** Workload, NOT settable */
+	tint_t	dt_collapsed;	/** Count of collapsed nodes, NOT settable */
 	dnode_t *dt_source;	/** Source node, NOT settable */
 	struct {
 		unsigned int dirty:1;

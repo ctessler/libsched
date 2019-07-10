@@ -207,6 +207,7 @@ main(int argc, char** argv) {
 				a->dn_name, b->dn_name);
 			goto bail;
 		}
+		task->dt_collapsed++;
 	next_iter:
 		dtask_update(task);
 		dnode_free(a); a = NULL;
@@ -214,6 +215,7 @@ main(int argc, char** argv) {
 	}
 	dtask_update(task);
 	dtask_write(task, ofile);
+	
 	rv = 0;
 bail:
 	if (task) {

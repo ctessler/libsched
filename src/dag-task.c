@@ -57,6 +57,7 @@ dtask_alloc(char* name) {
 	agattr(task->dt_graph, AGRAPH, DT_PERIOD, "0");	
 	agattr(task->dt_graph, AGRAPH, DT_WORKLOAD, "0");
 	agattr(task->dt_graph, AGRAPH, DT_CPATHLEN, "0");
+	agattr(task->dt_graph, AGRAPH, DT_COLLAPSED, "0");
 	return task;
 }
 
@@ -310,6 +311,7 @@ dtask_read(FILE *file) {
 	task->dt_deadline = atoi(agget(task->dt_graph, DT_DEADLINE));
 	task->dt_cpathlen = atoi(agget(task->dt_graph, DT_CPATHLEN));
 	task->dt_workload = atoi(agget(task->dt_graph, DT_WORKLOAD));
+	task->dt_collapsed = atoi(agget(task->dt_graph, DT_COLLAPSED));
 	dtask_source_workload(task);
 	
 	return task;
@@ -365,7 +367,8 @@ dtask_update(dtask_t *task) {
 	agset(task->dt_graph, DT_WORKLOAD, buff);
 	sprintf(buff, "%ld", task->dt_cpathlen);
 	agset(task->dt_graph, DT_CPATHLEN, buff);
-
+	sprintf(buff, "%ld", task->dt_collapsed);
+	agset(task->dt_graph, DT_COLLAPSED, buff);
 	
 	return 1;
 }
