@@ -212,6 +212,7 @@ main(int argc, char** argv) {
 		dnode_free(a); a = NULL;
 		dnode_free(b); b = NULL;
 	}
+	dtask_update(task);
 	dtask_write(task, ofile);
 	rv = 0;
 bail:
