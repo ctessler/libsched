@@ -46,8 +46,8 @@ static const char *usagec[] = {
 "OPERATION:",
 "	dts-collapse produces the list of candidates per object",
 "",
-"EXAMPLES:"
-"	# Find all candidates for task dtask.dot"
+"EXAMPLES:",
+"	# Find all candidates for task dtask.dot",
 "	> dts-candidates -t dtask.dot -o dtask.cands",
 };
 
@@ -110,7 +110,9 @@ main(int argc, char** argv) {
 	}
 
 	if (!clc.c_tname) {
-		fprintf(stderr, "--taks-file is a required option\n");
+		fprintf(stderr, "--task-file is a required option\n");
+		usage();
+		goto bail;
 	}
 	if (clc.c_oname) {
 		ofile = fopen(clc.c_oname, "w");
