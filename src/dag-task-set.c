@@ -82,3 +82,13 @@ dtse_free(dtask_elem_t* e) {
 	free(e);
 }
 
+float_t
+dts_util(dtask_set_t *dts) {
+	float_t util = 0;
+	dtask_elem_t *e;
+	
+	dts_foreach(dts, e) {
+		util += dtask_util(e->dts_task);
+	}
+	return util;
+}

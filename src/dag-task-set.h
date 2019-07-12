@@ -149,4 +149,9 @@ dtask_elem_t* dtse_alloc(dtask_t* task);
 void dtse_free(dtask_elem_t* e);
 
 
+/**
+ * Utilization of the task set
+ */
+float_t dts_util(dtask_set_t *dts);
+
 #endif /* DAG_TASK_SET_H */
