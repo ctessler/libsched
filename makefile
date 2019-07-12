@@ -17,7 +17,7 @@ subs := src progs test
 
 .PHONY: clean src progs test vgcheck
 
-all: $(subs) vgcheck
+all: $(subs) #vgcheck
 
 $(OBJ)/%.o: $(SRC)/%.c | $(dirs)
 	$(CC) $(CFLAGS) -c -o $@ $<
