@@ -5,4 +5,5 @@ new=${2:-${pdf}}
 dot2tex -tmath -p --autosize $1 > $tex
 latexmk -pdf $tex
 latexmk -c $tex
+rm $tex
 mv $pdf $new
