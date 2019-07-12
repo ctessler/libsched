@@ -38,7 +38,7 @@ static struct option long_options[] = {
 };
 
 static const char *usagec[] = {
-"dts-cand-order: DAG Task Candidate List Ordered by Heuristics"
+"dts-cand-order: DAG Task Candidate List Ordered by Heuristics",
 "Usage: dts-cand-order -t <TASK FILE> [OPTIONS]",
 "OPTIONS:",
 "	-h/-help		This message",
