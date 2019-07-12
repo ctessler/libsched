@@ -50,12 +50,7 @@ static const char *usagec[] = {
 "OPERATION:",
 "	dts-deadline assigns a deadline to a new task. If the -b option",
 "	is provided the deadline is chosen from a random sampling in the",
-"	range [l, p] where 'p' is the period of the task and 'l' is the",
-"	critical path length of the task",
-""
-"	When using the -b option, the critical path length may be greater",
-"	than the period. In such a case the deadline will be set to the critical",
-"	path length.",
+"	range [1, p] where 'p' is the period of the task",
 "",
 "EXAMPLES:"
 "	# Create a task",
@@ -171,10 +166,7 @@ main(int argc, char** argv) {
 	} else {
 		tint_t cpathlen = dtask_cpathlen(task);
 		tint_t period = task->dt_period;
-		task->dt_deadline = tsc_get_scaled(r, cpathlen, period);
-		if (cpathlen > period) {
-			task->dt_deadline = cpathlen;
-		}
+		task->dt_deadline = tsc_get_scaled(r, 1, period);
 		if (task->dt_deadline == 0) {
 			fprintf(stderr, "Error!\n");
 			goto bail;
