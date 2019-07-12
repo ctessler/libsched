@@ -172,7 +172,8 @@ task_cand_first(dtask_t *task) {
 		object++;
 
 		if (object > max) {
-			goto done;
+			cand_free(cand);
+			return NULL;
 		}
 		a = find_first_by_obj(task, object);
 		if (a) {
