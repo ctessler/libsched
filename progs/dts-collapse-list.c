@@ -60,6 +60,13 @@ usage() {
 	}
 }
 
+#define vprintf(...)					\
+	do {						\
+		if (clc.c_verbose) {			\
+			fprintf(stderr, __VA_ARGS__);	\
+		}					\
+	} while(0)
+
 int
 main(int argc, char** argv) {
 	FILE *ofile = stdout;
@@ -164,7 +171,7 @@ main(int argc, char** argv) {
 			goto bail;
 		}
 		if (!dag_can_collapse(a, b)) {
-			fprintf(stderr, "Cannot collapse %s and %s, skipping\n",
+			vprintf("Cannot collapse %s and %s, skipping\n",
 				a->dn_name, b->dn_name);
 			dnode_free(a);
 			dnode_free(b);
@@ -182,14 +189,14 @@ main(int argc, char** argv) {
 		float_t pre_m = dtask_coresf(task);
 		float_t post_m = dtask_coresf(copy);
 		if (pre_m < post_m) {
-			fprintf(stderr, "Collapse of %s and %s is not "
+			vprintf("Collapse of %s and %s is not "
 				"beneficial: m increases\n",
 				ca->dn_name, cb->dn_name);
 			beneficial = 0;
 		}
 		tint_t post_l = dtask_cpathlen(copy);
 		if (post_l > task->dt_deadline) {
-			fprintf(stderr, "Collapse of %s and %s is not "
+			vprintf("Collapse of %s and %s is not "
 				"beneficial: L > D\n",
 				ca->dn_name, cb->dn_name);
 			beneficial = 0;
