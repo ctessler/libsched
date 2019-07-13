@@ -542,7 +542,7 @@ dnode_copy(dnode_t *orig) {
  */
 static void
 dnode_make_label(dnode_t *node) {
-	sprintf(node->dn_label, "${d:%ld, %s = \\langle o_%ld, c_1:%ld, c(%ld):%ld, "
+	sprintf(node->dn_label, "${d:%ld, %s = \\langle o_{%ld}, c_1:%ld, c(%ld):%ld, "
 		"F:%0.2f \\rangle}$",
 		node->dn_distance,
 		node->dn_name, node->dn_object, 

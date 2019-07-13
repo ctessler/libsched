@@ -128,17 +128,11 @@ main(int argc, char** argv) {
 	dtask_update(task);
 	int infeas = dtask_infeasible(task);
 	if (infeas) {
-		rv = 0;
+		fprintf(ofile, "INFEASIBLE\n");
+	} else {
+		fprintf(ofile, "FEASIBLE\n");
 	}
-
-	if (clc.c_verbose) {
-		if (infeas) {
-			fprintf(ofile, "INFEASIBLE\n");
-		} else {
-			fprintf(ofile, "FEASIBLE\n");
-		}
-	}
-	
+	rv = 0;
 bail:
 	if (task) {
 		dtask_free(task);

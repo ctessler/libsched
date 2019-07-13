@@ -151,7 +151,7 @@ main(int argc, char** argv) {
 	/* Create the DAG Task */
 	task = dtask_alloc(clc.c_tname);
 	for (int i=0; i < clc.c_nodes; i++) {
-		sprintf(buff, "n_%d", i);
+		sprintf(buff, "n_{%d}", i);
 		dnode_t *n = dnode_alloc(buff);
 		dtask_insert(task, n);
 		dnode_free(n);
@@ -162,13 +162,13 @@ main(int argc, char** argv) {
 
 	/* The first node is reserved as the source node, the final nodes as the sink */
 	for (int i=0; i < clc.c_nodes; i++) {
-		sprintf(buff, "n_%d", i);
+		sprintf(buff, "n_{%d}", i);
 		dnode_t *a = dtask_name_search(task, buff);
 		for (int j=i + 1; j < clc.c_nodes; j++) {
 			double sel = tsc_get_scaled_dbl(r, 0, 1);
 			if (sel < clc.c_edgep) {
 				/* Time to add an edge */
-				sprintf(buff, "n_%d", j);
+				sprintf(buff, "n_{%d}", j);
 				dnode_t *b = dtask_name_search(task, buff);
 				dtask_insert_edge(task, a, b);
 			}
@@ -177,13 +177,13 @@ main(int argc, char** argv) {
 	}
 
 	/* Source and sink assurance */
-	sprintf(buff, "n_%d", 0);	
+	sprintf(buff, "n_{%d}", 0);	
 	dnode_t *source = dtask_name_search(task, buff);
-	sprintf(buff, "n_%ld", (clc.c_nodes - 1));	
+	sprintf(buff, "n_{%ld}", (clc.c_nodes - 1));	
 	dnode_t *sink = dtask_name_search(task, buff);
 	
 	for (int i=1; i < clc.c_nodes - 1; i++) {
-		sprintf(buff, "n_%d", i);
+		sprintf(buff, "n_{%d}", i);
 		dnode_t *n = dtask_name_search(task, buff);
 		/* If there are no incoming edges, make one from the source */
 		if (dnode_indegree(n) == 0) {
