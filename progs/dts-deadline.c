@@ -19,9 +19,10 @@ static struct {
 	char* c_tname;
 	tint_t c_deadline;
 	int c_bound;
+	float c_pathf;
 } clc;
 
-static const char* short_options = "hl:o:vt:b,d:";
+static const char* short_options = "hl:o:vt:b,d:c:";
 static struct option long_options[] = {
     {"help",		no_argument, 		0, 'h'},
     {"log", 		required_argument, 	0, 'l'},
@@ -30,6 +31,7 @@ static struct option long_options[] = {
     {"task",		required_argument,	0, 't'},
     {"deadline",	required_argument,	0, 'd'},
     {"bound",		no_argument,		&clc.c_bound, 1},
+    {"cpath-fact",	required_argument,	0, 'c'},
     {0, 0, 0, 0}
 };
 
@@ -46,11 +48,17 @@ static const char *usagec[] = {
 "ONE OF:",
 "	-d/--deadline <INT>	Deadline",
 "	-b/--bound 		Treat the period as an upper bound",
+"	-c/--cpath-fact		Critical path length factor",
 "",
 "OPERATION:",
 "	dts-deadline assigns a deadline to a new task. If the -b option",
 "	is provided the deadline is chosen from a random sampling in the",
 "	range [1, p] where 'p' is the period of the task",
+"",
+"       If the -c option is provided, the deadline will be set in the range",
+"	of [CF, p] where CF is the critical path length multiplied by the -c",
+"	value. For example, if the critical path length is 20, the period 100,",
+"	and -c 3 is given in the command line the range is : [60,100].",
 "",
 "EXAMPLES:"
 "	# Create a task",
@@ -121,9 +129,18 @@ main(int argc, char** argv) {
 			break;
 		case 'd': 
 			clc.c_deadline = atoi(optarg);
+			clc.c_bound = 0;
+			clc.c_pathf = 0;
 			break;
 		case 'b':
+			clc.c_deadline = 0;			
 			clc.c_bound = 1;
+			clc.c_pathf = 0;			
+			break;
+		case 'c':
+			clc.c_deadline = 0;
+			clc.c_bound = 0;
+			clc.c_pathf = atof(optarg);
 			break;
 		default:
 			printf("Unknown option %c\n", c);
@@ -131,13 +148,9 @@ main(int argc, char** argv) {
 			goto bail;
 		}
 	}
-
-	if (clc.c_deadline > 0 && clc.c_bound) {
-		fprintf(stderr, "Only one of -d or -b is allowed\n");
-		goto bail;
-	}
-	if (clc.c_deadline <= 0 && !clc.c_bound) {
-		fprintf(stderr, "A positive -d is required\n");
+	if (!clc.c_deadline && !clc.c_bound && !clc.c_pathf) {
+		fprintf(stderr, "One of -b, -c, or -d is required\n");
+		usage();
 		goto bail;
 	}
 	if (!clc.c_tname) {
@@ -161,10 +174,12 @@ main(int argc, char** argv) {
 
 	/* Initialize a random source */
 	r = gsl_rng_alloc(gsl_rng_default);
-	if (!clc.c_bound) {
+	/* -d option */
+	if (clc.c_deadline) {
 		task->dt_deadline = clc.c_deadline;
-	} else {
-		tint_t cpathlen = dtask_cpathlen(task);
+	}
+	/* -b option */
+	if (clc.c_bound) {
 		tint_t period = task->dt_period;
 		task->dt_deadline = tsc_get_scaled(r, 1, period);
 		if (task->dt_deadline == 0) {
@@ -172,6 +187,18 @@ main(int argc, char** argv) {
 			goto bail;
 		}
 	}
+	/* -c option */
+	if (clc.c_pathf > 0) {
+		tint_t period = task->dt_period;		
+		tint_t cpathlen = dtask_cpathlen(task);
+		task->dt_deadline = tsc_get_scaled(r,
+		    ceil(cpathlen * clc.c_pathf), period);
+		if (task->dt_deadline == 0) {
+			fprintf(stderr, "Error!\n");
+			goto bail;
+		}
+	}
+	
 	dtask_update(task);
 	dtask_write(task, ofile);
 	
