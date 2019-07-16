@@ -14,6 +14,7 @@
 #include "taskset-create.h"
 #include "dag-task-to-task.h"
 #include "tpj.h"
+#include "maxchunks.h"
 
 /**
  * global command line configuration
@@ -27,10 +28,11 @@ static struct {
 	int c_nonp;
 	int c_p;
 	int c_best_fit;
+	int c_worst_fit;	
 } clc;
 
 
-static const char* short_options = "hl:o:vm:pPe";
+static const char* short_options = "hl:o:vm:pPew";
 static struct option long_options[] = {
     {"help",		no_argument, 		0, 'h'},
     {"log", 		required_argument, 	0, 'l'},
@@ -41,6 +43,7 @@ static struct option long_options[] = {
     {"non-preemptive",	no_argument,		0, 'P'},
     {"preemptive",	no_argument,		0, 'p'},
     {"best-fit",	no_argument,		0, 'e'},
+    {"worst-fit",	no_argument,		0, 'w'},
     {0, 0, 0, 0}
 };
 
@@ -62,6 +65,7 @@ static const char *usagec[] = {
 "",
 "LOW UTILIZATION PARTITIONING:",
 "	-e/--best-fit		Best Fit Core Assignment (default)",
+"	-w/--worst-fit		Worst Fit Core Assignment",
 "",
 "OPERATION:",
 "	dts-sched determines if a DAG task is schedulable. High utilization",
@@ -137,6 +141,11 @@ main(int argc, char** argv) {
 			break;
 		case 'e':
 			clc.c_best_fit = 1;
+			clc.c_worst_fit = 0;
+			break;
+		case 'w':
+			clc.c_best_fit = 0;
+			clc.c_worst_fit = 1;
 			break;
 		default:
 			printf("Unknown option %c\n", c);
@@ -205,9 +214,10 @@ main(int argc, char** argv) {
 			infeas = 1;
 			continue;
 		}
+		tint_t task_util = dtask_util(task);
 		util += dtask_util(task);
 		cores = dtask_cores(task);
-		if (cores > 1) {
+		if (task_util > 1) {
 			m_high += cores;
 		} else {
 			dts_insert_head(low, elem);
@@ -276,6 +286,21 @@ best_fit(int m_low, task_set_t** ts, task_t *task) {
 	return cur;
 }
 
+static int
+worst_fit(int m_low, task_set_t** ts, task_t *task) {
+	int cur = -1;
+	float_t lowest = 1.1;
+	for (int i=0; i < m_low; i++) {
+		float_t set_util = ts_util(ts[i]);
+		if (set_util < lowest) {
+			/* More capacity */
+			cur = i;
+			lowest = set_util;
+		}
+	}
+	return cur;
+}
+
 
 static int
 low_sched(int m_low, dtask_set_t* low) {
@@ -293,7 +318,13 @@ low_sched(int m_low, dtask_set_t* low) {
 	dts_foreach(low, e) {
 		task_t *task = dt_to_t(e->dts_task);
 		/** Best fit */
-		int idx = best_fit(m_low, parts, task);
+		int idx;
+		if (clc.c_best_fit) {
+			idx = best_fit(m_low, parts, task);
+		}
+		if (clc.c_worst_fit) {
+			idx = worst_fit(m_low, parts, task);
+		}
 		if (idx < 0) {
 			goto done;
 		}
@@ -301,8 +332,17 @@ low_sched(int m_low, dtask_set_t* low) {
 	}
 
 	for (int i=0; i < m_low; i++) {
-		if (tpj(parts[i], NULL) != 0) {
-			goto done;
+		if (clc.c_nonp) {
+			/* Non preemptive */
+			if (tpj(parts[i], NULL) != 0) {
+				goto done;
+			}
+		}
+		if (clc.c_p) {
+			/* Preemptive */
+			if (max_chunks(parts[i]) != 0) {
+				goto done;
+			}
 		}
 	}
 	
