@@ -172,7 +172,7 @@ bail:
 static char*
 header() {
 	static char buff[256];	
-	sprintf(buff, "%-31s %-19s %6s %6s %6s %6s %6s %6s %6s %6s",
+	sprintf(buff, "%-60s %-19s %6s %6s %6s %6s %6s %6s %6s %6s",
 		"# Path", "Name", "Nodes", "WLoad", "CPathL", "Period",
 		"DLine","Util", "Cores", "Infeas");
 	return buff;
@@ -182,7 +182,7 @@ static char*
 summary(dtask_elem_t *e) {
 	static char buff[256];
 
-	sprintf(buff, "%-31s %-19s %6d %6ld %6ld %6ld %6ld %6.2f %6ld %6s",
+	sprintf(buff, "%-60s %-19s %6d %6ld %6ld %6ld %6ld %6.2f %6ld %6s",
 		e->dts_path, e->dts_task->dt_name,
 		agnnodes(e->dts_task->dt_graph),
 		dtask_workload(e->dts_task),
