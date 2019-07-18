@@ -15,7 +15,7 @@ int
 dtask_count_cand(dtask_t *task) {
 	Agnode_t *agnext;
 
-	int max = agnnodes(task->dt_graph);
+	int max = dtask_max_object(task) + 1;
 	int *obj = calloc(max, sizeof(max));
 
 	for (agnext = agfstnode(task->dt_graph); agnext;
