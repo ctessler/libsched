@@ -147,18 +147,22 @@ dtask_name_match(dtask_t *task, char *name) {
 	if (exact) {
 		return exact;
 	}
-
 	dnode_t* best = NULL;
 	Agnode_t *agnode = agfstnode(task->dt_graph);
 	for(; agnode; agnode = agnxtnode(task->dt_graph, agnode)) {
 		char *agname = agnameof(agnode);
-		if (strstr(agname, name) == 0) {
+		if (strstr(agname, name) == NULL) {
 			continue;
 		}
 		/* found */
 		best = dnode_alloc(agname);
 		agnode_to_dnode(agnode, best);
 		best->dn_task = task;
+		if (best == NULL) {
+			/* Best we can do if OOM */
+			raise(SIGSEGV);
+		}
+		break;
 	}
 
 	return best;

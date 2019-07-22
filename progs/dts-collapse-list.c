@@ -161,12 +161,14 @@ main(int argc, char** argv) {
 		dnode_t *b = dtask_name_match(task, b_name);
 
 		if (a == NULL) {
-			fprintf(stderr, "Could not find a matching node %s\n",
+			fprintf(stderr, "dts-collapse-list: "
+				"Could not find a matching node %s\n",
 				a_name);
 			goto bail;
 		}
 		if (b == NULL) {
-			fprintf(stderr, "Could not find a matching node %s\n",
+			fprintf(stderr, "dts-collapse-list: "
+				"Could not find a matching node %s\n",
 				b_name);
 			goto bail;
 		}
