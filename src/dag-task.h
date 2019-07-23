@@ -4,7 +4,7 @@
 #include <gvc.h>
 #include "task.h"
 
-#define DT_NAMELEN	(TASK_NAMELEN * 2)
+#define DT_NAMELEN	(TASK_NAMELEN * 4)
 
 #define DT_THREADS	"threads" 	/** Number of threads per node */
 #define DT_OBJECT	"object"	/** Executable object */
