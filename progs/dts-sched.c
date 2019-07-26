@@ -202,7 +202,8 @@ main(int argc, char** argv) {
 	float_t util = 0;
 	dtask_elem_t *cursor;
 	dtask_set_t *low = dts_alloc();
-	
+
+	util = dts_util(dts);
 	dts_foreach(dts, cursor) {
 		dtask_t *task = cursor->dts_task;
 		/* Remove the task from the original task set */
@@ -215,7 +216,6 @@ main(int argc, char** argv) {
 			continue;
 		}
 		tint_t task_util = dtask_util(task);
-		util += dtask_util(task);
 		cores = dtask_cores(task);
 		if (task_util > 1) {
 			m_high += cores;
@@ -223,8 +223,15 @@ main(int argc, char** argv) {
 			dts_insert_head(low, elem);
 		}
 	}
+
 	dts_free(dts);
 	dts = NULL;
+
+	if (util > clc.c_m) {
+		/* If utilization is above the number of cores, 
+		 * it's infeasible */
+		goto done;
+	}
 	
 	if (infeas) {
 		goto done;
@@ -237,7 +244,6 @@ main(int argc, char** argv) {
 	if (low_sched(m_low, low)) {
 		sched = 1;
 	}
-
 done:
 	dts_clear(low); dts_free(low);
 
@@ -246,9 +252,6 @@ done:
 		summary(ntasks, infeas, sched, m_high, m_low, util));
 	
 	rv = 0;
-	if (!sched) {
-		rv = -1;
-	}
 bail:
 	config_destroy(&cfg);
 	if (dts) {
@@ -347,7 +350,6 @@ low_sched(int m_low, dtask_set_t* low) {
 	}
 	
 	rv = 1;
-
 done:
 	for (int i=0; i < m_low; i++) {
 		ts_destroy(parts[i]);
