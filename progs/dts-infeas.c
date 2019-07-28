@@ -132,6 +132,10 @@ main(int argc, char** argv) {
 	} else {
 		fprintf(ofile, "FEASIBLE\n");
 	}
+	if (clc.c_verbose) {
+		fprintf(ofile, "CPATHLEN: %ld DEADLINE: %ld\n",
+			dtask_cpathlen(task), task->dt_deadline);
+	}
 	rv = 0;
 bail:
 	if (task) {
