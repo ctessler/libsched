@@ -4,7 +4,6 @@ CFLAGS += $(shell pkg-config libgvc --cflags)
 CFLAGS += -D_GNU_SOURCE -fPIC
 LDFLAGS := -L./lib -lsched -lm -lgsl -lgslcblas
 LDFLAGS += $(shell pkg-config --libs libconfig)
-LDFLAGS += $(shell pkg-config --libs libgen)
 LDFLAGS += $(shell pkg-config --libs libgvc)
 VALGRIND := valgrind --leak-check=full --error-exitcode=1 -q
 export BIN OBJ CFLAGS
@@ -23,7 +22,7 @@ $(OBJ)/%.o: $(SRC)/%.c | $(dirs)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 release: CFLAGS += -O3 -g0
-release: $(BINS)
+release: $(subs)
 #
 # valgrind check the executables
 #
