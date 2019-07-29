@@ -58,7 +58,7 @@ static const char *usagec[] = {
 "	-l/-log <FILE>		Auditible log file",
 "	-o/--output <FILE>	Output file",
 "	-v/--verbose		Verbose output",
-"	-t/--timeout <MINUTES>	Execution time cap, default 15 minutes",
+"	-t/--timeout <MINUTES>	Execution time cap (default:unset)",
 "",
 "REQUIRED OPTIONS:",
 "	-m/--cores <INT>	Number of cores",
@@ -417,15 +417,17 @@ set_timeout(int minutes, int ntasks, int mhigh, int mlow, float util, FILE *ofil
 	sigset_t mask;
 	struct sigaction sa;
 
+	if (minutes <= 0) {
+		/* No timeout */
+		return;
+	}
+
 	to_data.to_ntasks = ntasks;
 	to_data.to_mhigh = mhigh;
 	to_data.to_mlow = mlow;
 	to_data.to_util = util;
 	to_data.to_ofile = ofile;
 	
-	if (minutes <= 0) {
-		minutes = 15;
-	}
 	minutes *= 60;
 	
 	sa.sa_flags = SA_SIGINFO;
