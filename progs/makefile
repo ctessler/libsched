@@ -9,6 +9,7 @@ BINS=$(patsubst %.c,$(BIN)/%,$(wildcard *.c))
 CFLAGS += -I../src
 LDFLAGS += -L../lib -lsched -lgsl -lconfig -lc -lm -lgvc
 LDFLAGS += $(shell pkg-config --libs libgvc)
+LDFLAGS += -lrt
 
 all: $(BINS) 
 

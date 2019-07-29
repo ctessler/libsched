@@ -6,6 +6,8 @@
 #include <limits.h>
 #include <unistd.h>
 #include <libgen.h>
+#include <time.h>
+#include <signal.h>
 
 
 #include "dag-collapse.h"
@@ -28,17 +30,18 @@ static struct {
 	int c_nonp;
 	int c_p;
 	int c_best_fit;
-	int c_worst_fit;	
+	int c_worst_fit;
+	int c_timeout;
 } clc;
 
 
-static const char* short_options = "hl:o:vm:pPew";
+static const char* short_options = "hl:o:vm:pPewt:";
 static struct option long_options[] = {
     {"help",		no_argument, 		0, 'h'},
     {"log", 		required_argument, 	0, 'l'},
     {"output", 		required_argument, 	0, 'o'},
     {"verbose", 	no_argument, 		&clc.c_verbose, 1},
-    {"task",		required_argument,	0, 't'},
+    {"timeout",		required_argument,	0, 't'},
     {"cores",		required_argument,	0, 'm'},
     {"non-preemptive",	no_argument,		0, 'P'},
     {"preemptive",	no_argument,		0, 'p'},
@@ -55,6 +58,7 @@ static const char *usagec[] = {
 "	-l/-log <FILE>		Auditible log file",
 "	-o/--output <FILE>	Output file",
 "	-v/--verbose		Verbose output",
+"	-t/--timeout <MINUTES>	Execution time cap, default 15 minutes",
 "",
 "REQUIRED OPTIONS:",
 "	-m/--cores <INT>	Number of cores",
@@ -73,6 +77,10 @@ static const char *usagec[] = {
 "	to cores given a partitioning heuristic, and evaluated using a",
 "	scheduling algorithm per core."
 "",
+"	If a -t <MIN> option is given, the task set will be deemed",
+"	unschedulable if the schedulability test taks MIN or more minutes",
+"	to complete.",
+"",
 "EXAMPLES:"
 "	# Determine if 4dtasks.dts is schedulable on 16 cores"
 "	> dts-sched -m 16 4dtsk.dts",
@@ -82,6 +90,8 @@ static char* header();
 static char* summary(int ntasks, int infeas, int sched, int m_high,
     int m_low, float_t util);
 static int low_sched(int m_low, dtask_set_t* low);
+static void set_timeout(int minutes, int ntasks, int mhigh, int mlow,
+			float util, FILE *ofile);
 
 void
 usage() {
@@ -147,6 +157,9 @@ main(int argc, char** argv) {
 			clc.c_best_fit = 0;
 			clc.c_worst_fit = 1;
 			break;
+		case 't':
+			clc.c_timeout = atoi(optarg);
+			break;
 		default:
 			printf("Unknown option %c\n", c);
 			usage();
@@ -197,7 +210,6 @@ main(int argc, char** argv) {
 		goto bail;
 	}
 
-
 	int m_high = 0, m_low = 0, sched = 0, infeas = 0, ntasks=0;
 	float_t util = 0;
 	dtask_elem_t *cursor;
@@ -241,6 +253,7 @@ main(int argc, char** argv) {
 	if (m_low < 0) {
 		m_low = 0;
 	}
+	set_timeout(clc.c_timeout, ntasks, m_high, m_low, util, ofile);
 	if (low_sched(m_low, low)) {
 		sched = 1;
 	}
@@ -374,4 +387,60 @@ summary(int ntasks, int infeas, int sched, int m_high,
 		ntasks, (infeas ? "yes" : "no"), (sched ? "yes" : "no"),
 		m_high, m_low, util);
 	return buff;
+}
+
+static struct {
+	int to_ntasks;
+	/* not infeasible if we got this far */
+	/* not schedulable if this fired */
+	int to_mhigh;
+	int to_mlow;
+	float to_util;
+	FILE *to_ofile;
+} to_data;
+
+static void
+expire_timeout(int sig, siginfo_t *si, void *uc) {
+	/* Clearly not safe, but that's not the point */
+	fprintf(to_data.to_ofile, "%s -- TIMEOUT!\n", header());
+	fprintf(to_data.to_ofile, "%s\n",
+		summary(to_data.to_ntasks, 0, 0, to_data.to_mhigh, to_data.to_mlow,
+			to_data.to_util));
+	exit(0);
+}
+
+static void
+set_timeout(int minutes, int ntasks, int mhigh, int mlow, float util, FILE *ofile) {
+	timer_t timerid;
+	struct sigevent sev;
+	struct itimerspec its;
+	sigset_t mask;
+	struct sigaction sa;
+
+	to_data.to_ntasks = ntasks;
+	to_data.to_mhigh = mhigh;
+	to_data.to_mlow = mlow;
+	to_data.to_util = util;
+	to_data.to_ofile = ofile;
+	
+	if (minutes <= 0) {
+		minutes = 15;
+	}
+	minutes *= 60;
+	
+	sa.sa_flags = SA_SIGINFO;
+	sa.sa_sigaction = expire_timeout;
+	sigemptyset(&sa.sa_mask);
+	sigaction(SIGRTMIN, &sa, NULL);
+
+	sev.sigev_notify = SIGEV_SIGNAL;
+	sev.sigev_signo = SIGRTMIN;
+	sev.sigev_value.sival_ptr = &timerid;
+	timer_create(CLOCK_PROCESS_CPUTIME_ID, &sev, &timerid);
+
+	memset(&its, 0, sizeof(its));
+	its.it_value.tv_nsec = 0;
+	its.it_value.tv_sec = minutes;
+
+	timer_settime(timerid, 0, &its, NULL);
 }
