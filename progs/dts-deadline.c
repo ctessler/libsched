@@ -198,6 +198,12 @@ main(int argc, char** argv) {
 			goto bail;
 		}
 	}
+
+	/* Sanity check */
+	if (task->dt_deadline > task->dt_period) {
+		task->dt_period = task->dt_period;
+	}
+
 	
 	dtask_update(task);
 	dtask_write(task, ofile);
