@@ -436,10 +436,14 @@ dtask_coresf(dtask_t* task) {
 	tint_t C = dtask_workload(task);
 	tint_t D = task->dt_deadline;
 
-	float_t num = C - L;
-	float_t den = D - L;
+	float_t num = (float_t) C - L;
+	float_t den = (float_t) D - L;
 
 	float_t rv = num / den;
+
+	if (rv < 0) {
+		rv = 0;
+	}
 
 	return rv;
 }
