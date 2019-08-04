@@ -39,7 +39,7 @@ dtask_count_cand(dtask_t *task) {
 			continue;
 		}
 		int count = obj[i];
-		int numer = fact(count);
+		tint_t numer = fact(count);
 		tint_t denom = 2 * fact(count - 2);
 		total += numer / denom;
 	}
