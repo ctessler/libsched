@@ -1,0 +1,131 @@
+strict digraph "Task{n=10,e=0.20}" {
+	graph [bb="0,0,312,324",
+		collapsed=0,
+		cpathlen=104,
+		deadline=342,
+		period=342,
+		workload=205
+	];
+	node [distance=0,
+		factor=0,
+		label="\N",
+		marked=0,
+		object=0,
+		shape=rectangle,
+		threads=0,
+		visited=0,
+		wcet=0,
+		wcetone=0
+	];
+	n_0	 [distance=12,
+		factor=0.390984,
+		height=0.5,
+		object=2,
+		pos="154,306",
+		texlbl="${d:12, n_0 = \langle o_2, c_1:12, c(1):12, F:0.39 \rangle}$",
+		threads=1,
+		wcet=12,
+		wcetone=12,
+		width=0.75];
+	n_1	 [distance=24,
+		factor=0.390984,
+		height=0.5,
+		object=2,
+		pos="27,162",
+		texlbl="${d:24, n_1 = \langle o_2, c_1:12, c(1):12, F:0.39 \rangle}$",
+		threads=1,
+		wcet=12,
+		wcetone=12,
+		width=0.75];
+	n_0 -> n_1 [key="n_0 -> n_1",
+	pos="e,26.39,180.13 126.59,299.57 101.72,292.27 65.988,277.88 46,252 32.474,234.49 28.024,209.56 26.788,190.38"];
+n_2 [distance=27,
+	factor=0.668321,
+	height=0.5,
+	object=1,
+	pos="154,234",
+	texlbl="${d:27, n_2 = \langle o_1, c_1:15, c(1):15, F:0.67 \rangle}$",
+	threads=1,
+	wcet=15,
+	wcetone=15,
+	width=0.75];
+
+n_0 -> {n_1; n_2; n_3; n_4; n_5; n_6; n_7; n_8} -> n_9;
+
+n_3 [distance=24,
+factor=0.390984,
+height=0.5,
+object=2,
+pos="285,162",
+texlbl="${d:24, n_3 = \langle o_2, c_1:12, c(1):12, F:0.39 \rangle}$",
+threads=1,
+wcet=12,
+wcetone=12,
+width=0.75];
+
+n_4 [distance=24,
+factor=0.390984,
+height=0.5,
+object=2,
+pos="226,234",
+texlbl="${d:24, n_4 = \langle o_2, c_1:12, c(1):12, F:0.39 \rangle}$",
+threads=1,
+wcet=12,
+wcetone=12,
+width=0.75];
+
+n_5 [distance=27,
+factor=0.668321,
+height=0.5,
+object=1,
+pos="82,234",
+texlbl="${d:27, n_5 = \langle o_1, c_1:15, c(1):15, F:0.67 \rangle}$",
+threads=1,
+wcet=15,
+wcetone=15,
+width=0.75];
+
+n_8 [distance=89,
+factor=0.197746,
+height=0.5,
+pos="120,90",
+texlbl="${d:89, n_8 = \langle o_0, c_1:50, c(1):50, F:0.20 \rangle}$",
+threads=1,
+wcet=50,
+wcetone=50,
+width=0.75];
+
+
+n_6 [distance=39,
+factor=0.390984,
+height=0.5,
+object=2,
+pos="175,162",
+texlbl="${d:39, n_6 = \langle o_2, c_1:12, c(1):12, F:0.39 \rangle}$",
+threads=1,
+wcet=12,
+wcetone=12,
+width=0.75];
+
+n_9 [distance=104,
+factor=0.668321,
+height=0.5,
+object=1,
+pos="211,18",
+texlbl="${d:104, n_9 = \langle o_1, c_1:15, c(1):15, F:0.67 \rangle}$",
+threads=1,
+wcet=15,
+wcetone=15,
+width=0.75];
+
+
+n_7 [distance=89,
+factor=0.197746,
+height=0.5,
+pos="211,90",
+texlbl="${d:89, n_7 = \langle o_0, c_1:50, c(1):50, F:0.20 \rangle}$",
+threads=1,
+wcet=50,
+wcetone=50,
+width=0.75];
+}

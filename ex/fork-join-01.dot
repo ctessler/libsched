@@ -1,0 +1,48 @@
+strict digraph "Task{n=10,e=0.20}" {
+	graph [bb="0,0,312,324",
+		collapsed=0,
+		cpathlen=0,
+		deadline=0,
+		period=0,
+		workload=0
+	];
+	node [distance=0,
+		factor=0,
+		label="\N",
+		marked=0,
+		object=0,
+		shape=rectangle,
+		threads=0,
+		visited=0,
+		wcet=0,
+		wcetone=0
+	];
+	n_0 [factor=0.3,
+	     object=2,
+	     threads=1,
+	     wcetone=12];
+
+	n_1 [factor=0.1,
+	     object=1,
+	     threads=1
+	     wcetone=20];
+
+	n_2 [factor=0.1,
+	     object=1,
+	     threads=1
+	     wcetone=20];
+
+	n_3 [factor=0.1,
+	     object=1,
+	     threads=1
+	     wcetone=20];
+
+	n_4 [factor=0.15,
+	     object=3,
+	     threads=1
+	     wcetone=30];
+
+n_0 -> {n_1; n_2;  n_3}
+
+{n_1; n_2; n_3} -> n_4
+}
