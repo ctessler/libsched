@@ -227,7 +227,7 @@ main(int argc, char** argv) {
 			infeas = 1;
 			continue;
 		}
-		tint_t task_util = dtask_util(task);
+		float_t task_util = dtask_util(task);
 		cores = dtask_cores(task);
 		if (task_util > 1) {
 			m_high += cores;
