@@ -250,13 +250,15 @@ main(int argc, char** argv) {
 	}
 
 	m_low = clc.c_m - m_high;
-	if (m_low < 0) {
-		m_low = 0;
-	}
-	set_timeout(clc.c_timeout, ntasks, m_high, m_low, util, ofile);
+	set_timeout(clc.c_timeout, ntasks, m_high, m_low < 0 ? 0 : m_low , util, ofile);
 	if (low_sched(m_low, low)) {
 		sched = 1;
 	}
+
+	if (m_low < 0) {
+		m_low = 0;
+	}
+
 done:
 	dts_clear(low); dts_free(low);
 
@@ -321,6 +323,12 @@ worst_fit(int m_low, task_set_t** ts, task_t *task) {
 static int
 low_sched(int m_low, dtask_set_t* low) {
 	int rv = 0;
+
+	if (!dts_first(low) && m_low >= 0) {
+		/* 0 low utilization tasks are always schedulable */
+		return 1;
+	}
+	
 	if (m_low <= 0) {
 		return rv;
 	}
