@@ -154,4 +154,15 @@ void dtse_free(dtask_elem_t* e);
  */
 float_t dts_util(dtask_set_t *dts);
 
+/**
+ * Determines if the deadlines and periods of all tasks within the set
+ * are equal, ie the tasks are all implicit deadline tasks. 
+ *
+ * @param[in] dts the dag task set
+ *
+ * @return non-zero if all tasks are implicit deadline tasks, zero
+ * otherwise
+ */
+int dts_implicit(dtask_set_t *dts);
+
 #endif /* DAG_TASK_SET_H */

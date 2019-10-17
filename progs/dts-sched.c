@@ -210,6 +210,11 @@ main(int argc, char** argv) {
 		goto bail;
 	}
 
+	if (!dts_implicit(dts)) {
+		printf("Taskset must include only implicit deadline tasks\n");
+		goto bail;
+	}
+
 	int m_high = 0, m_low = 0, sched = 0, infeas = 0, ntasks=0;
 	float_t util = 0;
 	dtask_elem_t *cursor;

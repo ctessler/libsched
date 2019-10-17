@@ -92,3 +92,14 @@ dts_util(dtask_set_t *dts) {
 	}
 	return util;
 }
+
+int
+dts_implicit(dtask_set_t *dts) {
+	dtask_elem_t *e;
+	dts_foreach(dts, e) {
+		if (!dtask_implicit(e->dts_task)) {
+			return 0;
+		}
+	}
+	return 1;
+}

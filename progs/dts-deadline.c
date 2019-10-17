@@ -19,6 +19,7 @@ static struct {
 	char* c_tname;
 	tint_t c_deadline;
 	int c_bound;
+	int c_implicit;	
 	float c_pathf;
 } clc;
 
@@ -30,6 +31,7 @@ static struct option long_options[] = {
     {"verbose", 	no_argument, 		&clc.c_verbose, 1},
     {"task",		required_argument,	0, 't'},
     {"deadline",	required_argument,	0, 'd'},
+    {"implicit",	no_argument,		&clc.c_implicit, 1},
     {"bound",		no_argument,		&clc.c_bound, 1},
     {"cpath-fact",	required_argument,	0, 'c'},
     {0, 0, 0, 0}
@@ -49,6 +51,7 @@ static const char *usagec[] = {
 "	-d/--deadline <INT>	Deadline",
 "	-b/--bound 		Treat the period as an upper bound",
 "	-c/--cpath-fact		Critical path length factor",
+"	-i/--implicit		Use implicit deadlines",
 "",
 "OPERATION:",
 "	dts-deadline assigns a deadline to a new task. If the -b option",
@@ -59,6 +62,8 @@ static const char *usagec[] = {
 "	of [CF, p] where CF is the critical path length multiplied by the -c",
 "	value. For example, if the critical path length is 20, the period 100,",
 "	and -c 3 is given in the command line the range is : [60,100].",
+"",
+"	If the -i option is provided, deadlines are set equal to periods",
 "",
 "EXAMPLES:"
 "	# Create a task",
@@ -131,16 +136,25 @@ main(int argc, char** argv) {
 			clc.c_deadline = atoi(optarg);
 			clc.c_bound = 0;
 			clc.c_pathf = 0;
+			clc.c_implicit = 0;			
+			break;
+		case 'i': 
+			clc.c_implicit = 1;
+			clc.c_deadline = 0;
+			clc.c_bound = 0;
+			clc.c_pathf = 0;
 			break;
 		case 'b':
 			clc.c_deadline = 0;			
 			clc.c_bound = 1;
-			clc.c_pathf = 0;			
+			clc.c_pathf = 0;
+			clc.c_implicit = 0;
 			break;
 		case 'c':
 			clc.c_deadline = 0;
 			clc.c_bound = 0;
 			clc.c_pathf = atof(optarg);
+			clc.c_implicit = 0;
 			break;
 		default:
 			printf("Unknown option %c\n", c);
@@ -199,11 +213,15 @@ main(int argc, char** argv) {
 		}
 	}
 
+	/* -i option */
+	if (clc.c_implicit) {
+		task->dt_deadline = task->dt_period;
+	}
+	
 	/* Sanity check */
 	if (task->dt_deadline > task->dt_period) {
-		task->dt_period = task->dt_period;
+		task->dt_deadline = task->dt_period;
 	}
-
 	
 	dtask_update(task);
 	dtask_write(task, ofile);
