@@ -23,7 +23,7 @@ static struct {
 	float c_pathf;
 } clc;
 
-static const char* short_options = "hl:o:vt:b,d:c:";
+static const char* short_options = "hl:o:vt:b,d:c:i";
 static struct option long_options[] = {
     {"help",		no_argument, 		0, 'h'},
     {"log", 		required_argument, 	0, 'l'},
