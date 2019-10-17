@@ -162,8 +162,8 @@ main(int argc, char** argv) {
 			goto bail;
 		}
 	}
-	if (!clc.c_deadline && !clc.c_bound && !clc.c_pathf) {
-		fprintf(stderr, "One of -b, -c, or -d is required\n");
+	if (!clc.c_deadline && !clc.c_bound && !clc.c_pathf && !clc.c_implicit) {
+		fprintf(stderr, "One of -b, -c, -d, or -i is required\n");
 		usage();
 		goto bail;
 	}
