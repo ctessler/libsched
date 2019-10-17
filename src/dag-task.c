@@ -507,6 +507,11 @@ dtask_max_object(dtask_t *task) {
 	return max;
 }
 
+int
+dtask_implicit(dtask_t *task) {
+	return (task->dt_deadline == task->dt_period);
+}
+
 /**
  * DAG NODE
  */

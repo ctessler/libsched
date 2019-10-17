@@ -12,6 +12,7 @@ int ut_dtask_cleanup(void) { return 0; }
 
 static void dtask_allocate(void);
 static void dtask_node_alloc(void);
+static void dtask_ut_implicit(void);
 static void dtask_insert_search(void);
 static void dtask_insert_remove(void);
 static void dtask_ut_insert_edge(void);
@@ -30,6 +31,7 @@ static void dtask_no_collapse(void);
 CU_TestInfo ut_dtask_tests[] = {
     { "Allocate and Deallocate", dtask_allocate},
     { "Allocate and Deallocate Nodes", dtask_node_alloc},
+    { "Implicit deadlines", dtask_ut_implicit},
     { "Insert and Search", dtask_insert_search},
     { "Insert and Remove", dtask_insert_remove},
     { "Insert Edge", dtask_ut_insert_edge},
@@ -63,6 +65,17 @@ dtask_node_alloc(void) {
 	CU_ASSERT_TRUE(node != NULL);
 	CU_ASSERT_TRUE(strcmp(node->dn_name, "n_0") == 0);
 	dnode_free(node);
+}
+
+static void
+dtask_ut_implicit(void) {
+	dtask_t imp, cons;
+	imp.dt_deadline = imp.dt_period = 100;
+	cons.dt_period = 200;
+	cons.dt_deadline = 150;
+
+	CU_ASSERT_TRUE(dtask_implicit(&imp));
+	CU_ASSERT_FALSE(dtask_implicit(&cons));
 }
 
 static void

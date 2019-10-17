@@ -318,6 +318,17 @@ int dtask_update(dtask_t *task);
 int dtask_max_object(dtask_t *task);
 
 
+/**
+ * Determines if the task has a deadline = period, ie it's an implicit deadline task
+ *
+ * @param[in] task the task
+ *
+ * @return non-zero if the task is an implicit deadline task, zero otherwise
+ */
+
+int dtask_implicit(dtask_t *task);
+
+
 /*********************************************************************
  DAG Node
  *********************************************************************/
