@@ -136,11 +136,13 @@ max_chunks_dbg(task_set_t *ts, FILE *handle) {
 	}
 	ordl_clear(&head);
 
+	if (feasible) {
+		fprintf(handle, "feasible\n");
+	}
 	if (closeh) {
 		fclose(handle);
 	}
 	if (feasible) {
-		fprintf(handle, "feasible\n");
 		return 0;
 	} else {
 		return 1;
